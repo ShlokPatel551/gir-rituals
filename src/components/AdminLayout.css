@@ -1,0 +1,211 @@
+@import '../styles/admin-theme.css';
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--admin-surface-container-low);
+}
+
+.admin-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--green-900);
+  color: var(--md-on-primary);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+}
+
+.admin-brand {
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+
+.admin-brand-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.admin-brand-sub {
+  font-size: 0.75rem;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.admin-nav a {
+  padding: 0.75rem 1rem;
+  border-radius: var(--md-radius-md);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.admin-nav a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-nav a.active {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+}
+
+.admin-sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 1rem;
+}
+
+.admin-user {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+}
+
+.admin-logout {
+  color: rgba(255, 255, 255, 0.9) !important;
+  width: 100%;
+  justify-content: flex-start;
+  padding-left: 0;
+  margin-bottom: 0.5rem;
+}
+
+.admin-back-app {
+  font-size: 0.8125rem;
+  opacity: 0.7;
+}
+
+.admin-back-app:hover {
+  opacity: 1;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  max-width: 1200px;
+}
+
+.admin-page-title {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.admin-page-sub {
+  color: var(--md-on-surface-variant);
+  margin-bottom: 1.5rem;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-stat-card {
+  background: var(--md-surface-container-lowest);
+  border-radius: var(--md-radius-lg);
+  padding: 1.25rem;
+  border: 1px solid var(--md-outline-variant);
+  box-shadow: var(--md-elevation-1);
+}
+
+.admin-stat-card strong {
+  display: block;
+  font-size: 1.75rem;
+  font-family: var(--font-body);
+  color: var(--md-primary);
+  margin-bottom: 0.25rem;
+}
+
+.admin-stat-card span {
+  font-size: 0.8125rem;
+  color: var(--md-on-surface-variant);
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  background: var(--md-surface-container-lowest);
+  border-radius: var(--md-radius-lg);
+  border: 1px solid var(--md-outline-variant);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--md-outline-variant);
+}
+
+.admin-table th {
+  background: var(--md-surface-container);
+  font-weight: 600;
+  color: var(--md-on-surface-variant);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--md-radius-full);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.admin-badge-sent { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
+.admin-badge-verified { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+.admin-badge-failed { background: var(--md-error-container); color: var(--md-on-error-container); }
+.admin-badge-expired { background: var(--md-surface-container-high); color: var(--md-on-surface-variant); }
+
+@media (max-width: 768px) {
+  .admin-shell {
+    flex-direction: column;
+  }
+  .admin-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  .admin-brand {
+    margin-bottom: 0;
+    margin-right: auto;
+  }
+  .admin-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex: none;
+    width: 100%;
+  }
+  .admin-sidebar-footer {
+    display: none;
+  }
+  .admin-main {
+    padding: 1rem;
+  }
+}

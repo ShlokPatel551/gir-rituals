@@ -1,0 +1,71 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: var(--md-surface-container-lowest);
+  border-top: 1px solid var(--md-outline-variant);
+  padding: 0.5rem 0.5rem calc(0.625rem + env(safe-area-inset-bottom));
+  z-index: 50;
+  box-shadow: 0 -2px 16px rgba(26, 46, 30, 0.06);
+}
+
+.bottom-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.6875rem;
+  color: var(--md-on-surface-variant);
+  padding: 0.4rem 0.875rem;
+  position: relative;
+  font-weight: 500;
+  border-radius: var(--md-radius-full);
+  min-width: 64px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.bottom-nav a.active {
+  color: var(--md-primary);
+  font-weight: 600;
+  background: var(--md-primary-container);
+}
+
+.nav-icon {
+  font-size: 1.375rem;
+}
+
+.profile-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--md-radius-full);
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.cart-badge {
+  position: absolute;
+  top: 2px;
+  right: 0.5rem;
+  background: var(--md-tertiary);
+  color: var(--md-on-tertiary);
+  font-size: 0.625rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: var(--md-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--md-elevation-1);
+}

@@ -1,0 +1,110 @@
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(21, 40, 24, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  max-width: 88vw;
+  height: 100vh;
+  background: var(--md-surface-container-lowest);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: var(--md-elevation-3);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-profile {
+  padding: 1.75rem 1.25rem;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 232, 184, 0.25) 0%, transparent 50%),
+    linear-gradient(145deg, var(--green-900) 0%, var(--md-primary) 100%);
+  color: var(--md-on-primary);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.sidebar-profile .avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--md-radius-full);
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.sidebar-profile strong {
+  display: block;
+  font-size: 1.0625rem;
+  font-family: var(--font-body);
+}
+
+.client-id {
+  font-size: 0.75rem;
+  opacity: 0.88;
+  font-weight: 500;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 0.5rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  color: var(--md-on-surface);
+  font-weight: 500;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 0.9375rem;
+  border-radius: var(--md-radius-md);
+  margin-bottom: 0.125rem;
+  transition: background 0.15s ease;
+}
+
+.sidebar-link:hover {
+  background: var(--md-surface-container);
+}
+
+.sidebar-link.logout {
+  color: var(--md-error);
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--md-outline-variant);
+  border-radius: 0;
+  padding-top: 1rem;
+}
+
+.sidebar-link.logout:hover {
+  background: var(--md-error-container);
+}

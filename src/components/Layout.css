@@ -1,0 +1,45 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  background: var(--md-surface-container-lowest);
+  color: var(--md-on-surface);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--md-outline-variant);
+  box-shadow: var(--md-elevation-1);
+}
+
+.menu-btn,
+.notif-btn {
+  background: var(--md-surface-container);
+  color: var(--md-on-surface);
+  font-size: 1.125rem;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--md-radius-full);
+  transition: background 0.15s ease;
+}
+
+.menu-btn:hover,
+.notif-btn:hover {
+  background: var(--md-primary-container);
+}
+
+.header-brand {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--green-900);
+}
+
+.app-main.no-pad {
+  padding-bottom: 1rem;
+}

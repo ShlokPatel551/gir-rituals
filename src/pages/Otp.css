@@ -1,0 +1,58 @@
+.otp-page .auth-header p {
+  line-height: 1.6;
+}
+
+.otp-demo-banner {
+  text-align: center;
+  margin-bottom: 1.25rem;
+  background: var(--md-tertiary-container) !important;
+  border-color: var(--md-tertiary) !important;
+}
+
+.otp-demo-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--md-on-tertiary-container);
+  margin-bottom: 0.35rem;
+}
+
+.otp-demo-code {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--md-on-tertiary-container);
+}
+
+.otp-demo-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--md-on-surface-variant);
+  margin-top: 0.35rem;
+}
+
+.otp-error {
+  color: var(--md-error);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.otp-expiry {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--md-on-surface-variant);
+  margin-bottom: 1rem;
+}
+
+.otp-resend-link {
+  background: none;
+  border: none;
+  color: var(--md-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+}

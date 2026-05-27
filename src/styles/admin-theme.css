@@ -1,0 +1,59 @@
+/**
+ * Gir Rituals Admin — design tokens from Google Stitch export
+ */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap');
+
+:root {
+  --admin-primary: #012d1d;
+  --admin-on-primary: #ffffff;
+  --admin-primary-container: #1b4332;
+  --admin-on-primary-container: #86af99;
+  --admin-primary-fixed: #c1ecd4;
+  --admin-primary-fixed-dim: #a5d0b9;
+  --admin-secondary: #7d562d;
+  --admin-on-secondary: #ffffff;
+  --admin-secondary-fixed-dim: #f0bd8b;
+  --admin-secondary-container: #ffca98;
+  --admin-tertiary: #3f1d00;
+  --admin-tertiary-container: #5f2f00;
+  --admin-on-tertiary-container: #ea9147;
+  --admin-background: #fdf8f7;
+  --admin-surface: #fdf8f7;
+  --admin-surface-container-lowest: #ffffff;
+  --admin-surface-container-low: #f7f2f1;
+  --admin-surface-container: #f2edec;
+  --admin-surface-container-high: #ece7e6;
+  --admin-on-surface: #1c1b1b;
+  --admin-on-surface-variant: #414844;
+  --admin-outline: #717973;
+  --admin-outline-variant: #c1c8c2;
+  --admin-error: #ba1a1a;
+  --admin-error-container: #ffdad6;
+  --admin-on-error-container: #93000a;
+
+  --admin-font-display: 'Libre Caslon Text', Georgia, serif;
+  --admin-font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  --admin-radius-sm: 0.5rem;
+  --admin-radius-lg: 0.75rem;
+  --admin-radius-xl: 0.75rem;
+  --admin-radius-full: 9999px;
+
+  --admin-shadow-card: 0 10px 40px -10px rgba(27, 67, 50, 0.08);
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
