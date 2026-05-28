@@ -25,6 +25,7 @@ export interface Offer {
   validUntil: string;
   products: string[];
   upcoming?: boolean;
+  promoCode?: string;
 }
 
 export interface RitualItem {

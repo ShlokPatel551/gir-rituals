@@ -1,13 +1,28 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AppProvider } from './context/AppContext';
+import { ToastProvider } from './context/ToastContext';
+import { GOOGLE_CLIENT_ID } from './lib/googleAuth';
 import { AdminLayout } from './components/AdminLayout';
 import { Layout } from './components/Layout';
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminBilling } from './pages/admin/AdminBilling';
+import { AdminCampaigns } from './pages/admin/AdminCampaigns';
+import { AdminComms } from './pages/admin/AdminComms';
+import { AdminOffers } from './pages/admin/AdminOffers';
+import { AdminCustomerDetail } from './pages/admin/AdminCustomerDetail';
 import { AdminCustomers } from './pages/admin/AdminCustomers';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminDeliveries } from './pages/admin/AdminDeliveries';
+import { AdminAnalytics } from './pages/admin/AdminAnalytics';
+import { AdminFinance } from './pages/admin/AdminFinance';
+import { AdminRefunds } from './pages/admin/AdminRefunds';
 import { AdminLogin } from './pages/admin/AdminLogin';
+import { AdminOrders } from './pages/admin/AdminOrders';
 import { AdminOtpLogs } from './pages/admin/AdminOtpLogs';
+import { AdminProducts } from './pages/admin/AdminProducts';
+import { AdminSettings } from './pages/admin/AdminSettings';
 import { Splash } from './pages/Splash';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
@@ -29,6 +44,7 @@ import { Contact } from './pages/Contact';
 import { Notifications } from './pages/Notifications';
 import { Favourites } from './pages/Favourites';
 import { Flow } from './pages/Flow';
+import { Dashboard } from './pages/Dashboard';
 
 function AppRoutes() {
   return (
@@ -45,7 +61,19 @@ function AppRoutes() {
       >
         <Route index element={<AdminDashboard />} />
         <Route path="customers" element={<AdminCustomers />} />
+        <Route path="customers/:id" element={<AdminCustomerDetail />} />
+        <Route path="deliveries" element={<AdminDeliveries />} />
+        <Route path="orders" element={<AdminOrders />} />
+        <Route path="products" element={<AdminProducts />} />
+        <Route path="finance" element={<AdminFinance />} />
+        <Route path="billing" element={<AdminBilling />} />
+        <Route path="analytics" element={<AdminAnalytics />} />
+        <Route path="refunds" element={<AdminRefunds />} />
+        <Route path="offers" element={<AdminOffers />} />
+        <Route path="campaigns" element={<AdminCampaigns />} />
+        <Route path="comms" element={<AdminComms />} />
         <Route path="otp" element={<AdminOtpLogs />} />
+        <Route path="settings" element={<AdminSettings />} />
       </Route>
 
       <Route element={<Layout />}>
@@ -56,6 +84,7 @@ function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
         <Route path="/products/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
         <Route path="/offers" element={<ProtectedRoute><Offers /></ProtectedRoute>} />
@@ -88,10 +117,14 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </AppProvider>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID ?? 'no-client-id'}>
+      <AppProvider>
+        <ToastProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </ToastProvider>
+      </AppProvider>
+    </GoogleOAuthProvider>
   );
 }

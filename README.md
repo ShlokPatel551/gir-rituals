@@ -1,12 +1,12 @@
-# GIR RITUALS — Web App
+# GIR RITUALS
 
-A premium dairy subscription web prototype for **Gir Rituals** — built from the full product PRD. Covers the complete customer journey from splash → register → daily deliveries → billing → payment.
+A full-featured progressive web app (PWA) for a Gir cow dairy subscription service — milk, ghee, and more, delivered daily.
 
-> **Frontend-only prototype.** All data lives in `localStorage` / `mockData`. No backend required.
+Built with **React 19 + TypeScript + Vite**. Frontend-only prototype — all data lives in `mockData` / `localStorage`. No backend required.
 
 ---
 
-## Quick start
+## Quick Start
 
 ```bash
 npm install
@@ -17,133 +17,158 @@ Open **http://localhost:5173** in your browser.
 
 ---
 
-## Demo credentials
+## Demo Credentials
 
-### Customer
-
-| Field    | Value                  |
-|----------|------------------------|
-| Email    | `demo@girrituals.com`  |
-| Password | `Demo@1234`            |
-
-### Admin panel (`/admin/login`)
-
-| Field    | Value                  |
-|----------|------------------------|
-| Email    | `owner@girrituals.com` |
-| Password | `password123`          |
-| OTP phone | `9876543210`          |
+| Role | Email | Password | OTP |
+|------|-------|----------|-----|
+| Customer | `demo@girrituals.com` | `Demo@1234` | — |
+| Admin | `owner@girrituals.com` | `password123` | `9876543210` |
 
 ---
 
 ## Features
 
 ### Authentication
-- Multi-step **Register** (Personal Info → Billing Address → Delivery Address)
-- OTP verification — 6-digit code shown in demo banner (5 min expiry, 5 attempts, 60s resend)
-- **Forgot password** & **Change password** (both OTP-gated)
+- Multi-step **Register** — Personal Info → Billing Address → Delivery Address
+- OTP verification — 6-digit code, 5 min expiry, 5 attempts, 60s resend
+- **Forgot password** & **Change password** (OTP-gated)
+- **Google OAuth** sign-in
 - Auto-generated 8-char alphanumeric **Client ID** on registration
 
 ### Home
-- Auto-scrolling **banner carousel** (4s, dot indicators, tap to navigate)
-- **Daily Rituals** — active deliveries with status badges (Pending / Out for Delivery / Delivered / Paused / Extra)
-- **Pause / Resume** delivery per ritual (today only, no charge applied)
-- **Add Extra** modal — choose product + quantity for today
-- **Our Products** grid with View All link
+- Auto-scrolling **banner carousel** (4s, dot indicators)
+- Brand values strip and brand story section
+- **Daily Rituals** — active subscriptions with live status badges (Pending / Out for Delivery / Delivered / Paused / Extra)
+- **Pause / Resume** delivery per ritual; **Add Extra** modal for one-off quantities
+- Offers section, product grid, testimonials carousel, Why Us section, footer CTA
+
+### Dashboard
+- Greeting card, 4 stat tiles (wallet, active rituals, pending bills, loyalty points)
+- Rituals widget + recent activity feed + quick links sidebar
+
+### Products
+- Inline search, **category filter tabs**, sort dropdown
+- Toast notification on add to cart
+- **Product Detail** — about, benefits, recipes accordion, subscribe modal, related products
+
+### Offers
+- Urgency countdown ("Ends in Xd") · Upcoming offers with "Starts in X days"
+- **Promo code** copy button · Expired badge · Offer detail page
 
 ### Schedule
-- Monthly **calendar** with color-coded dot indicators:
-  - 🟢 Green = Delivered · 🟡 Amber = Paused · 🔴 Red = Cancelled · ★ = Extra
-- **Month navigation** (← →) with correct days per month
-- Per-day schedule table (Product, Qty, Rate, Total, Status)
-- **Monthly summary** — Milk delivered (L), Ghee (kg), Extras, Paused days
-- **GST (5%)** shown as separate line · **Pay Now** button pre-fills total
+- Desktop: two-column layout — calendar left, day detail right
+- Mobile: list view with status filter
+- Color-coded dot indicators: 🟢 Delivered · 🟡 Paused · 🔴 Cancelled · ★ Extra
+- Per-day schedule table (product, qty, rate, total, status)
+- Monthly summary — milk (L), ghee (kg), extras, paused days
+- **Export** button · Month navigation
 
 ### My Bills
-- **Paid Bills** tab — payment date, method, Download Invoice button
-- **Unpaid Bills** tab — expandable **itemized breakdown** (line items + GST), Pay Now
-- **Monthly Statement** tab — bank-style chronological log (deliveries, extras, pauses, payments, refunds, store credits), filter by month, Download PDF
+- **Paid** / **Unpaid** / **Statement** tabs
+- Expandable itemized breakdown with GST · Bulk pay checkboxes · Running balance column
+- Bank-style monthly statement — deliveries, pauses, payments, refunds, store credits
 - **Wallet balance** card — apply store credit at checkout
 
 ### Cart & Checkout
-- Qty controls, per-item total, delivery address preview
-- 4-step checkout: Order Review (with GST) → Delivery Address → Payment Method → Summary
-- **Wallet / store credit** toggle in step 3
-- Payment methods: UPI · Net Banking · Credit/Debit Card · Pay Monthly
+- Qty controls · Save-for-later · Saved items section
+- **4-step checkout:** Order Review (with GST) → Delivery Address → Payment Method → Summary
+- Wallet / store credit toggle · GST line item
 
 ### Payment
-- Method selection (saved UPI/cards + manual entry + Net Banking + Pay Monthly)
-- **Wallet balance** deduction before net payable
-- **GST line** on order summary
-- Payment Success / Failure screens with retry flow
+- Saved UPI / cards · manual entry · Net Banking · Pay Monthly
+- Wallet deduction before net payable
+- **Payment Success / Failure** screens with retry flow
 
-### Refund & Store Credit
-- Request refund via Order Detail → Contact Us
-- **Add Store Credit** to wallet (demo button in Statement tab)
-- Wallet used at checkout or payment screen
-
-### Profile & Account Settings
-- Avatar with initials + wallet balance display
-- **Personal Info** — edit name, email, phone
-- **Change Password** — OTP-verified
-- **Billing Address** — separate from delivery address
-- **Delivery Address** — edit and save
-- **Payment Methods** — view, set default, add (UPI/Card/Net Banking), remove
-
-### Orders & History
+### Orders
 - Active Orders / Order History tabs
-- Order Detail — product, qty, dates, total delivered/paused/billed, timeline, Refund button
+- Order Detail — timeline, refund button, re-order / cancel actions
 
-### Offers
-- Current offers with **urgency countdown** ("Ends in Xd")
-- Upcoming offers with **"Starts in X days"** countdown
+### Profile & Settings
+- Avatar with initials + wallet balance
+- Personal Info, Change Password (OTP-verified), Billing Address, Delivery Address
+- Payment Methods — view, set default, add (UPI / Card / Net Banking), remove
 
-### Notifications
-- Chronological list, unread dot indicator, Mark All Read, tap to navigate
-
-### Favourites
-- Heart toggle across Products, Product Detail, and Favourites grid
-
-### About & Contact
-- Brand story, Gir cow heritage
-- WhatsApp, Instagram, Email, Phone links
-
-### Admin Panel
-- Dashboard stats · Customers table · OTP Logs
+### Other Pages
+- **Favourites** — heart toggle across products, product detail, and favourites grid
+- **Notifications** — unread dot, Mark All Read, tap-to-navigate
+- **About** — brand story, Gir cow heritage
+- **Contact** — WhatsApp, Instagram, Email, Phone links + contact form
+- **Flow** — onboarding / feature walkthrough
 
 ---
 
-## Stack
+## Admin Panel (`/admin`)
 
-| Layer | Tech |
-|-------|------|
-| UI | React 19 + TypeScript |
+| Section | Description |
+|---------|-------------|
+| Dashboard | KPI tiles, revenue chart, top products, recent orders |
+| Customers | Searchable list + detail with timeline, delivery map, subscription info |
+| Orders | Full order management |
+| Deliveries | Delivery tracking and route management |
+| Products | Product CRUD interface |
+| Finance | Revenue and payments overview |
+| Billing | Invoice and billing management |
+| Analytics | Revenue, subscription, and retention charts |
+| Refunds | Refund request management |
+| Offers | Create and manage promotional offers |
+| Campaigns | Marketing campaign management |
+| Comms | Customer communications |
+| OTP Logs | Audit trail of all OTP events |
+| Settings | App-level configuration |
+
+---
+
+## Tech Stack
+
+| Layer | Choice |
+|-------|--------|
+| Framework | React 19 |
+| Language | TypeScript |
+| Bundler | Vite 8 |
 | Routing | React Router 7 |
-| Build | Vite 8 |
-| Styling | CSS Modules + M3 / Google Stitch tokens |
-| State | React Context + `useState` |
-| Storage | `localStorage` (customers, OTPs, session) |
+| Auth | localStorage + `@react-oauth/google` |
+| Styling | CSS custom properties (Google Stitch / M3 tokens) |
+| State | React Context — `AppContext` (session, cart, rituals, bills, wallet) + `ToastContext` |
+| Data | Mock data + localStorage — no backend |
 
 ---
 
-## Project structure
+## Project Structure
 
 ```
 src/
-├── pages/          # All screens (customer + admin)
-├── components/     # Layout, BottomNav, Sidebar, OtpInput
-├── context/        # AppContext — global state & actions
-├── data/           # mockData.ts — products, bills, banners, statements
-├── lib/            # customerStore, otpService, adminAuth
-├── types/          # Shared TypeScript interfaces
-└── styles/         # stitch-theme.css, admin-theme.css
+├── components/       # Layout, Sidebar, Footer, BottomNav, ProtectedRoute
+├── context/          # AppContext, ToastContext
+├── data/             # mockData.ts, adminNotifications.ts
+├── lib/              # adminAuth.ts, otpService.ts, customerStore.ts, googleAuth.ts
+├── pages/            # All customer-facing pages
+│   └── admin/        # All admin pages
+├── styles/           # stitch-theme.css (M3 design tokens)
+└── types/            # index.ts — shared TypeScript interfaces
 ```
+
+---
+
+## Theme
+
+Design tokens follow the [Google Stitch](https://stitch.withgoogle.com) / Material 3 system:
+
+- **Fonts:** Fraunces (display headings) + Inter (UI)
+- **Colors:** Forest green primary · Warm cream surfaces · Ghee-gold tertiary
+- **Shape:** 16–28 px rounded cards, pill buttons
+- **Components:** M3 tabs, elevated cards, tonal bottom nav active state
 
 ---
 
 ## Notes
 
-- OTP is **simulated locally** — no real SMS or WhatsApp. Replace `otpService` with an API call for production.
+- OTP is **simulated locally** — no real SMS. Replace `otpService` with an API call for production.
 - All monetary values in **INR (₹)** with 2-decimal precision.
-- GST shown at 5% (flat demo rate — adjust per category in production).
-- Wallet balance persists in React state only (resets on refresh in prototype).
+- GST shown at 5% flat (adjust per category in production).
+- Wallet balance persists in React state only — resets on refresh in prototype.
+
+---
+
+## License
+
+Private project. All rights reserved.

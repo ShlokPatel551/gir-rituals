@@ -1,0 +1,568 @@
+/* ── Page shell ── */
+.bil-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.bil-page-title {
+  font-family: var(--admin-font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--admin-primary);
+  margin: 0 0 4px;
+}
+
+.bil-page-sub {
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  color: var(--admin-on-surface-variant);
+  margin: 0;
+}
+
+/* ── Metrics grid ── */
+.bil-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.bil-metric-card {
+  padding: 1.5rem;
+  transition: border-color 0.2s;
+}
+
+.bil-metric-card:hover {
+  border-color: rgba(1, 45, 29, 0.2);
+}
+
+.bil-metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.bil-metric-label {
+  font-family: var(--admin-font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--admin-on-surface-variant);
+}
+
+.bil-metric-value {
+  font-family: var(--admin-font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--admin-primary);
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.bil-metric-note {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.bil-note-error  { color: var(--admin-error, #ba1a1a); }
+.bil-note-green  { color: #274e3d; }
+
+/* ── Icon accent colors ── */
+.bil-icon-brown    { color: #5f2f00; }
+.bil-icon-green    { color: var(--admin-primary); }
+.bil-icon-secondary { color: var(--admin-secondary); }
+.bil-icon-amber    { color: #ea9147; }
+
+/* ── Tabs card ── */
+.bil-tabs-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.bil-tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--admin-outline-variant, #dee3de);
+  background: var(--admin-surface-container-low, #f0f2f1);
+}
+
+.bil-tab-btn {
+  flex: 1;
+  padding: 16px 24px;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--admin-on-surface-variant);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  letter-spacing: 0.02em;
+}
+
+.bil-tab-btn:hover:not(.bil-tab-active) {
+  background: var(--admin-surface-container, #f2edec);
+  color: var(--admin-primary);
+}
+
+.bil-tab-active {
+  color: var(--admin-primary) !important;
+  border-bottom-color: var(--admin-primary) !important;
+}
+
+/* ── Tab panel ── */
+.bil-tab-panel {
+  padding: 1.5rem;
+}
+
+/* ── Panel toolbar ── */
+.bil-panel-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.bil-toolbar-left {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  max-width: 520px;
+}
+
+.bil-toolbar-right {
+  display: flex;
+  gap: 8px;
+}
+
+.bil-search-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.bil-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px !important;
+  color: var(--admin-outline);
+  pointer-events: none;
+}
+
+.bil-search-input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid var(--admin-outline-variant, #dee3de);
+  border-radius: 10px;
+  background: #fff;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  color: var(--admin-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.bil-search-input:focus {
+  border-color: var(--admin-primary);
+}
+
+.bil-search-input::placeholder {
+  color: var(--admin-outline);
+}
+
+.bil-select {
+  padding: 8px 12px;
+  border: 1px solid var(--admin-outline-variant, #dee3de);
+  border-radius: 10px;
+  background: #fff;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  color: var(--admin-primary);
+  outline: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.bil-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: var(--admin-primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--admin-font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.bil-btn-primary:hover {
+  opacity: 0.88;
+}
+
+.bil-btn-outline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: transparent;
+  color: var(--admin-primary);
+  border: 1.5px solid var(--admin-primary);
+  border-radius: 10px;
+  font-family: var(--admin-font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.bil-btn-outline:hover {
+  background: var(--admin-primary-fixed, #c1ecd4);
+}
+
+/* ── Table helpers ── */
+.bil-amount {
+  font-family: var(--admin-font-body);
+  font-weight: 700;
+  color: var(--admin-primary);
+}
+
+.bil-pay-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bil-customer-link {
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.bil-customer-link:hover {
+  background: var(--admin-surface-container-low, #f0f2f1);
+}
+
+/* ── Row actions (shown on hover via CSS) ── */
+.admin-table tbody tr .bil-row-actions {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.admin-table tbody tr:hover .bil-row-actions {
+  opacity: 1;
+}
+
+.bil-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bil-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--admin-on-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.bil-icon-btn:hover {
+  background: var(--admin-surface-container-low, #f0f2f1);
+  color: var(--admin-primary);
+}
+
+.bil-icon-btn-warn:hover {
+  color: var(--admin-secondary, #7d562d);
+}
+
+/* ── Badges ── */
+.bil-badge {
+  display: inline-block;
+  font-family: var(--admin-font-body);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.bil-badge-paid,
+.bil-badge-success {
+  background: #c1ecd4;
+  color: #274e3d;
+}
+
+.bil-badge-overdue,
+.bil-badge-failed {
+  background: #ffdad6;
+  color: #93000a;
+}
+
+.bil-badge-pending {
+  background: #ffdcbd;
+  color: #623f18;
+}
+
+.bil-badge-processing {
+  background: var(--admin-surface-container-high, #ece7e6);
+  color: var(--admin-on-surface-variant);
+}
+
+/* ── Insights grid ── */
+.bil-insights-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+}
+
+.bil-insights-dark {
+  background: var(--admin-primary-container, #1b4332);
+  border-radius: 20px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 200px;
+}
+
+.bil-insights-decor {
+  position: absolute;
+  right: -80px;
+  bottom: -80px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: var(--admin-primary-fixed, #c1ecd4);
+  opacity: 0.05;
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.bil-insights-body-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bil-insights-title {
+  font-family: var(--admin-font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.bil-insights-desc {
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  color: #86af99;
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+.bil-insights-btns {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.bil-insights-btn-light {
+  padding: 9px 20px;
+  background: #fff;
+  color: var(--admin-primary);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--admin-font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.bil-insights-btn-light:hover {
+  background: var(--admin-primary-fixed, #c1ecd4);
+}
+
+.bil-insights-btn-ghost {
+  padding: 9px 20px;
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid #86af99;
+  border-radius: 10px;
+  font-family: var(--admin-font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.bil-insights-btn-ghost:hover {
+  background: rgba(1, 45, 29, 0.25);
+}
+
+/* ── Refund card ── */
+.bil-refund-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  gap: 10px;
+}
+
+.bil-refund-icon-wrap {
+  width: 64px;
+  height: 64px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(1, 45, 29, 0.08);
+  margin-bottom: 4px;
+}
+
+.bil-refund-title {
+  font-family: var(--admin-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--admin-primary);
+  margin: 0;
+}
+
+.bil-refund-desc {
+  font-family: var(--admin-font-body);
+  font-size: 0.8rem;
+  color: var(--admin-on-surface-variant);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.bil-refund-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  background: var(--admin-primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.bil-refund-btn:hover {
+  opacity: 0.88;
+}
+
+/* ── FAB ── */
+.bil-fab {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--admin-secondary, #7d562d);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(125, 86, 45, 0.35);
+  z-index: 100;
+  transition: transform 0.15s;
+}
+
+.bil-fab:hover  { transform: scale(1.08); }
+.bil-fab:active { transform: scale(0.95); }
+
+/* ── Toast ── */
+.bil-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--admin-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(1, 45, 29, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s, transform 0.22s;
+  z-index: 200;
+  min-width: 260px;
+  max-width: 420px;
+}
+
+.bil-toast-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.bil-toast-msg {
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+  flex: 1;
+}
+
+.bil-toast-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+
+.bil-toast-close:hover {
+  color: #fff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .bil-metrics-grid    { grid-template-columns: repeat(2, 1fr); }
+  .bil-insights-grid   { grid-template-columns: 1fr; }
+}

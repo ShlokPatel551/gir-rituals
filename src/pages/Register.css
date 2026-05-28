@@ -1,0 +1,195 @@
+/* ── Registration-specific overrides ── */
+
+/* Wider form panel to accommodate address fields */
+.reg-form-panel {
+  padding: 1.5rem;
+}
+
+.reg-form-inner {
+  max-width: 440px !important;
+}
+
+/* ── Step indicator ── */
+.reg-steps {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.reg-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  position: relative;
+}
+
+.reg-step-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--md-outline-variant);
+  background: #fff;
+  color: var(--md-on-surface-variant);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  z-index: 1;
+  position: relative;
+}
+
+.reg-step-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--md-on-surface-variant);
+  text-align: center;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+/* Connector line between steps */
+.reg-step-line {
+  position: absolute;
+  top: 17px;
+  left: calc(50% + 17px);
+  width: calc(100% - 34px);
+  height: 2px;
+  background: var(--md-outline-variant);
+  z-index: 0;
+  transition: background 0.2s;
+}
+
+.reg-step-line-done {
+  background: var(--green-700);
+}
+
+/* Active step */
+.reg-step-active .reg-step-dot {
+  border-color: var(--green-700);
+  background: var(--green-700);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(46, 125, 50, 0.3);
+}
+
+.reg-step-active .reg-step-label {
+  color: var(--green-700);
+  font-weight: 700;
+}
+
+/* Completed step */
+.reg-step-done .reg-step-dot {
+  border-color: var(--green-700);
+  background: var(--green-700);
+  color: #fff;
+}
+
+.reg-step-done .reg-step-label {
+  color: var(--green-700);
+}
+
+/* ── Two-column row ── */
+.reg-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* ── Step intro line ── */
+.reg-step-intro {
+  font-size: 0.9rem;
+  color: var(--md-on-surface);
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  background: var(--md-primary-container);
+  border-radius: var(--md-radius-sm);
+  border-left: 3px solid var(--green-700);
+}
+
+/* ── Password hint ── */
+.reg-hint {
+  font-size: 0.75rem;
+  color: var(--md-on-surface-variant);
+  margin: 0;
+}
+
+/* ── Checkbox row ── */
+.reg-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--md-on-surface);
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+.reg-checkbox-row input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green-700);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Same-address preview box ── */
+.reg-same-address-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: var(--md-surface-container-low);
+  border-radius: var(--md-radius-sm);
+  border: 1px dashed var(--md-outline-variant);
+}
+
+.reg-same-address-preview span {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.reg-same-address-preview p {
+  font-size: 0.875rem;
+  color: var(--md-on-surface);
+  margin: 0 0 3px;
+  line-height: 1.5;
+}
+
+.reg-same-address-preview p:last-child {
+  color: var(--md-on-surface-variant);
+  font-size: 0.8125rem;
+}
+
+/* ── Bottom actions row ── */
+.reg-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.reg-back-btn {
+  flex-shrink: 0;
+  padding: 0.9rem 1.25rem;
+  background: transparent;
+  border: 1.5px solid var(--md-outline-variant);
+  border-radius: var(--md-radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--md-on-surface);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.reg-back-btn:hover {
+  background: var(--md-surface-container-low);
+  border-color: var(--md-outline);
+}

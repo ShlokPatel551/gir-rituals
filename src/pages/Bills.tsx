@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { billLineItems } from '../data/mockData';
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'];
+import { useToast } from '../context/ToastContext';
 
 const statementTypeLabel: Record<string, string> = {
   delivery: '📦 Delivery',
@@ -16,10 +14,12 @@ const statementTypeLabel: Record<string, string> = {
 };
 
 export function Bills() {
-  const { bills, statementEntries, walletBalance, addWalletCredit } = useApp();
+  const { bills, statementEntries, walletBalance, addWalletCredit, payBill } = useApp();
+  const { showToast } = useToast();
   const [tab, setTab] = useState<'paid' | 'unpaid' | 'statement'>('unpaid');
   const [expandedBill, setExpandedBill] = useState<string | null>(null);
   const [filterMonth, setFilterMonth] = useState('All');
+  const [selectedBills, setSelectedBills] = useState<Set<string>>(new Set());
 
   const paid = bills.filter((b) => b.status === 'paid');
   const unpaid = bills.filter((b) => b.status === 'unpaid');
@@ -29,12 +29,42 @@ export function Bills() {
     ? statementEntries
     : statementEntries.filter((e) => e.month === filterMonth);
 
+  /* Compute running balance for statement tab */
+  const statementsWithBalance = filteredStatements.reduce<
+    Array<{ entry: typeof filteredStatements[0]; balance: number }>
+  >((acc, entry) => {
+    const prev = acc.length > 0 ? acc[acc.length - 1].balance : 0;
+    const delta = entry.credit ? entry.amount : -entry.amount;
+    acc.push({ entry, balance: prev + delta });
+    return acc;
+  }, []);
+
+  const toggleBillSelection = (id: string) => {
+    setSelectedBills((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const bulkTotal = unpaid
+    .filter((b) => selectedBills.has(b.id))
+    .reduce((s, b) => s + b.amount, 0);
+
+  const handleBulkPay = () => {
+    selectedBills.forEach((id) => payBill(id));
+    showToast(`Paid ${selectedBills.size} bill(s) — ₹${bulkTotal.toFixed(2)} total.`);
+    setSelectedBills(new Set());
+  };
+
   return (
     <div>
       <h1 className="page-title">My Bills</h1>
 
+      {/* Wallet card */}
       {walletBalance > 0 && (
-        <div className="card" style={{ marginBottom: '1rem', background: 'var(--green-50)', border: '1px solid var(--green-200)' }}>
+        <div className="card" style={{ marginBottom: '1rem', background: 'var(--md-primary-container)', border: '1px solid transparent' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <strong>Wallet Balance</strong>
@@ -48,10 +78,13 @@ export function Bills() {
 
       <div className="tabs">
         <button type="button" className={`tab ${tab === 'paid' ? 'active' : ''}`} onClick={() => setTab('paid')}>Paid</button>
-        <button type="button" className={`tab ${tab === 'unpaid' ? 'active' : ''}`} onClick={() => setTab('unpaid')}>Unpaid</button>
+        <button type="button" className={`tab ${tab === 'unpaid' ? 'active' : ''}`} onClick={() => setTab('unpaid')}>
+          Unpaid {unpaid.length > 0 && `(${unpaid.length})`}
+        </button>
         <button type="button" className={`tab ${tab === 'statement' ? 'active' : ''}`} onClick={() => setTab('statement')}>Statement</button>
       </div>
 
+      {/* ── Paid tab ── */}
       {tab === 'paid' && (
         <>
           {paid.length === 0 && <div className="empty-state card"><p>No paid bills yet.</p></div>}
@@ -61,12 +94,12 @@ export function Bills() {
                 <strong>{b.period}</strong>
                 <span className="badge badge-delivered">Paid</span>
               </div>
-              <p style={{ marginTop: '0.25rem' }}>₹{b.amount.toFixed(2)} · {b.paidDate} · {b.method}</p>
+              <p style={{ marginTop: '0.25rem', fontSize: '0.9rem' }}>₹{b.amount.toFixed(2)} · {b.paidDate} · {b.method}</p>
               <button
                 type="button"
                 className="btn btn-secondary"
                 style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}
-                onClick={() => alert('Invoice download coming soon — PDF generation requires backend.')}
+                onClick={() => showToast('Invoice download requires backend.', 'info')}
               >
                 Download Invoice
               </button>
@@ -75,16 +108,72 @@ export function Bills() {
         </>
       )}
 
+      {/* ── Unpaid tab ── */}
       {tab === 'unpaid' && (
         <>
-          {unpaid.length === 0 && <div className="empty-state card"><p>No pending bills. You're all clear!</p></div>}
+          {unpaid.length === 0 && (
+            <div className="empty-state card"><p>No pending bills. You're all clear! ✅</p></div>
+          )}
+
+          {/* Bulk pay bar */}
+          {unpaid.length > 1 && (
+            <div className="card" style={{ marginBottom: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', background: 'var(--md-surface-container)' }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600 }}>
+                  {selectedBills.size > 0 ? `${selectedBills.size} selected — ₹${bulkTotal.toFixed(2)}` : 'Select bills to pay together'}
+                </p>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>Bulk Pay saves time</p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
+                  onClick={() => {
+                    if (selectedBills.size === unpaid.length) setSelectedBills(new Set());
+                    else setSelectedBills(new Set(unpaid.map((b) => b.id)));
+                  }}
+                >
+                  {selectedBills.size === unpaid.length ? 'Deselect All' : 'Select All'}
+                </button>
+                {selectedBills.size > 0 && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    style={{ fontSize: '0.8rem', padding: '0.4rem 0.875rem' }}
+                    onClick={handleBulkPay}
+                  >
+                    Pay Selected
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {unpaid.map((b) => {
             const lineItems = billLineItems[b.id] ?? [];
             const isExpanded = expandedBill === b.id;
+            const isSelected = selectedBills.has(b.id);
             return (
-              <div key={b.id} className="card" style={{ marginBottom: '0.75rem' }}>
+              <div
+                key={b.id}
+                className="card"
+                style={{
+                  marginBottom: '0.75rem',
+                  borderLeft: isSelected ? '4px solid var(--md-primary)' : '4px solid transparent',
+                }}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <strong>{b.period}</strong>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', cursor: 'pointer', flex: 1 }}>
+                    {unpaid.length > 1 && (
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleBillSelection(b.id)}
+                      />
+                    )}
+                    <strong>{b.period}</strong>
+                  </label>
                   <span className="badge badge-unpaid">Unpaid</span>
                 </div>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Due: {b.dueDate}</p>
@@ -112,9 +201,7 @@ export function Bills() {
                           {lineItems.map((item, i) => (
                             <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
                               <td style={{ padding: '0.35rem 0' }}>{item.description}</td>
-                              <td style={{ textAlign: 'right', fontWeight: item.description.startsWith('GST') ? 400 : 600 }}>
-                                ₹{item.amount.toFixed(2)}
-                              </td>
+                              <td style={{ textAlign: 'right', fontWeight: 600 }}>₹{item.amount.toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -123,7 +210,11 @@ export function Bills() {
                   </>
                 )}
 
-                <Link to={`/payment?amount=${b.amount}&billId=${b.id}`} className="btn btn-primary" style={{ display: 'block', textAlign: 'center' }}>
+                <Link
+                  to={`/payment?amount=${b.amount}&billId=${b.id}`}
+                  className="btn btn-primary"
+                  style={{ display: 'block', textAlign: 'center' }}
+                >
                   Pay Now
                 </Link>
               </div>
@@ -132,6 +223,7 @@ export function Bills() {
         </>
       )}
 
+      {/* ── Statement tab ── */}
       {tab === 'statement' && (
         <div>
           <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -139,7 +231,7 @@ export function Bills() {
             <select
               value={filterMonth}
               onChange={(e) => setFilterMonth(e.target.value)}
-              style={{ fontSize: '0.85rem', padding: '0.25rem 0.5rem', borderRadius: 6, border: '1px solid var(--border)' }}
+              style={{ fontSize: '0.85rem', padding: '0.25rem 0.5rem', borderRadius: 6, border: '1px solid var(--border)', fontFamily: 'inherit' }}
             >
               {availableMonths.map((m) => (
                 <option key={m} value={m}>{m}</option>
@@ -149,44 +241,56 @@ export function Bills() {
               type="button"
               className="btn btn-secondary"
               style={{ fontSize: '0.8rem', marginLeft: 'auto' }}
-              onClick={() => alert('PDF download requires backend integration.')}
+              onClick={() => showToast('PDF download requires backend.', 'info')}
             >
               Download PDF
             </button>
           </div>
 
+          {/* Statement table with running balance */}
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            {filteredStatements.length === 0 && (
+            {statementsWithBalance.length === 0 && (
               <p style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>No transactions found.</p>
             )}
-            {filteredStatements.map((entry, i) => (
+            {/* Table header */}
+            {statementsWithBalance.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '0.5rem', padding: '0.5rem 1rem', borderBottom: '1px solid var(--border)', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <span>Transaction</span>
+                <span style={{ textAlign: 'right' }}>Debit</span>
+                <span style={{ textAlign: 'right' }}>Credit</span>
+                <span style={{ textAlign: 'right' }}>Balance</span>
+              </div>
+            )}
+            {statementsWithBalance.map(({ entry, balance }, i) => (
               <div
                 key={entry.id}
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr auto auto auto',
+                  gap: '0.5rem',
                   alignItems: 'center',
                   padding: '0.75rem 1rem',
-                  borderBottom: i < filteredStatements.length - 1 ? '1px solid var(--border)' : 'none',
+                  borderBottom: i < statementsWithBalance.length - 1 ? '1px solid var(--border)' : 'none',
                 }}
               >
                 <div>
-                  <p style={{ margin: 0, fontWeight: 500, fontSize: '0.9rem' }}>{statementTypeLabel[entry.type] ?? entry.type}</p>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{entry.description}</p>
+                  <p style={{ margin: 0, fontWeight: 500, fontSize: '0.875rem' }}>{statementTypeLabel[entry.type] ?? entry.type}</p>
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>{entry.date}</p>
                 </div>
-                <span style={{
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
-                  color: entry.credit ? 'var(--green-700)' : 'var(--md-error, #b00020)',
-                }}>
-                  {entry.credit ? '+' : '−'} {entry.amount > 0 ? `₹${entry.amount.toFixed(2)}` : '—'}
+                <span style={{ fontSize: '0.875rem', color: 'var(--md-error)', fontWeight: 600, textAlign: 'right', minWidth: 64 }}>
+                  {!entry.credit && entry.amount > 0 ? `₹${entry.amount.toFixed(0)}` : '—'}
+                </span>
+                <span style={{ fontSize: '0.875rem', color: 'var(--green-700)', fontWeight: 600, textAlign: 'right', minWidth: 64 }}>
+                  {entry.credit && entry.amount > 0 ? `₹${entry.amount.toFixed(0)}` : '—'}
+                </span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, textAlign: 'right', minWidth: 72, color: balance >= 0 ? 'var(--green-700)' : 'var(--md-error)' }}>
+                  ₹{Math.abs(balance).toFixed(0)}
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="card" style={{ marginTop: '1rem', background: 'var(--green-50)' }}>
+          <div className="card" style={{ marginTop: '1rem', background: 'var(--md-primary-container)' }}>
             <strong>Refund → Store Credit</strong>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.25rem 0 0.75rem' }}>
               Received a refund? Add it to your wallet for instant use on future orders.
@@ -194,7 +298,10 @@ export function Bills() {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => { addWalletCredit(140); alert('₹140 store credit added to your wallet!'); }}
+              onClick={() => {
+                addWalletCredit(140);
+                showToast('₹140 store credit added to your wallet!');
+              }}
             >
               + Add Demo Store Credit (₹140)
             </button>

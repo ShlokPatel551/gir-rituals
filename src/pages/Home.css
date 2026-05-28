@@ -159,3 +159,175 @@
   color: var(--md-primary);
   font-weight: 600;
 }
+
+/* Brand values strip */
+.brand-values-strip {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .brand-values-strip {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.brand-value-tile {
+  background: var(--md-surface-container-lowest);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--md-radius-md);
+  padding: 1rem;
+  text-align: center;
+  box-shadow: var(--md-elevation-1);
+}
+
+.brand-value-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.brand-value-tile strong {
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--green-900);
+}
+
+.brand-value-tile p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Why section */
+.why-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .why-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.why-card {
+  text-align: center;
+  padding: 1.125rem 0.875rem !important;
+}
+
+.why-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.why-card strong {
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--green-900);
+}
+
+.why-card p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Testimonials */
+.testimonial-card {
+  text-align: center;
+  padding: 1.5rem !important;
+}
+
+.testimonial-stars {
+  font-size: 1.125rem;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.testimonial-text {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--md-on-surface);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.testimonial-author {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-bottom: 1rem;
+}
+
+.testimonial-author strong {
+  font-size: 0.9rem;
+  color: var(--green-900);
+}
+
+.testimonial-author span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.testimonial-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.testimonial-dots button {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--md-radius-full);
+  background: var(--md-outline-variant);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.testimonial-dots button.active {
+  background: var(--md-primary);
+  width: 20px;
+}
+
+/* Footer CTA */
+.footer-cta {
+  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 100%);
+  text-align: center;
+  padding: 2rem 1.5rem !important;
+  border-color: transparent !important;
+}
+
+.footer-cta h2 {
+  color: #fff;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.footer-cta p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9375rem;
+  margin-bottom: 0;
+}
+
+.footer-cta .btn-primary {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  margin-top: 1rem !important;
+}
+
+.footer-cta .btn-primary:hover {
+  background: #fff;
+  color: var(--green-900);
+}

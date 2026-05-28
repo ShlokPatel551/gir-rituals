@@ -74,3 +74,28 @@
   background: var(--md-surface-container);
   border-radius: var(--md-radius-md);
 }
+
+/* Desktop two-column schedule layout */
+.schedule-desktop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .schedule-desktop-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .schedule-calendar-col {
+    position: sticky;
+    top: 80px;
+  }
+}
+
+.schedule-detail-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

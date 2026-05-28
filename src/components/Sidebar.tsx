@@ -4,6 +4,7 @@ import './Sidebar.css';
 
 const NAV_ITEMS = [
   { path: '/home', label: 'Home', icon: '🏠' },
+  { path: '/dashboard', label: 'Dashboard', icon: '📊' },
   { path: '/offers', label: 'Offers', icon: '🎁' },
   { path: '/products', label: 'Products', icon: '📦' },
   { path: '/schedule', label: 'My Schedule', icon: '📅' },

@@ -31,17 +31,27 @@ export const offers: Offer[] = [
   {
     id: 'o1',
     title: 'Summer Ghee Special',
-    description: '10% off on all ghee orders this month.',
+    description: '10% off on all ghee orders this month. Use code at checkout to redeem.',
     validUntil: '2026-06-30',
     products: ['ghee'],
+    promoCode: 'GHEE10',
   },
   {
     id: 'o2',
     title: 'First Ritual Bonus',
-    description: 'Free delivery on your first subscription.',
+    description: 'Free delivery on your first subscription. Limited time offer.',
     validUntil: '2026-12-31',
     products: ['milk', 'ghee'],
     upcoming: true,
+    promoCode: 'FIRSTFREE',
+  },
+  {
+    id: 'o3',
+    title: 'Early Monsoon Offer',
+    description: 'Special monsoon pack — milk + ghee combo at flat ₹150 off.',
+    validUntil: '2026-04-30',
+    products: ['milk', 'ghee'],
+    promoCode: 'MONSOON150',
   },
 ];
 

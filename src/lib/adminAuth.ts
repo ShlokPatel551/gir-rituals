@@ -11,6 +11,32 @@ export const DEFAULT_ADMIN = {
   name: 'Gir Rituals Owner',
 };
 
+export interface AdminAccount {
+  email:   string;
+  name:    string;
+  role:    string;
+  initials: string;
+  avatarBg: string;
+}
+
+export const ADMIN_ACCOUNTS: AdminAccount[] = [
+  { email: 'owner@girrituals.com',     name: 'Gir Rituals Owner',  role: 'Owner',    initials: 'GR', avatarBg: '#012d1d' },
+  { email: 'manager@girrituals.com',   name: 'Delivery Manager',   role: 'Manager',  initials: 'DM', avatarBg: '#1b4332' },
+  { email: 'analytics@girrituals.com', name: 'Analytics Viewer',   role: 'Viewer',   initials: 'AV', avatarBg: '#7d562d' },
+];
+
+export function switchAdminAccount(email: string): AdminSession | null {
+  const account = ADMIN_ACCOUNTS.find((a) => a.email === email);
+  if (!account) return null;
+  const session: AdminSession = {
+    email: account.email,
+    name: account.name,
+    loggedInAt: new Date().toISOString(),
+  };
+  localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
+  return session;
+}
+
 export function validateAdminCredentials(email: string, password: string): boolean {
   return (
     email.toLowerCase().trim() === DEFAULT_ADMIN.email.toLowerCase() &&

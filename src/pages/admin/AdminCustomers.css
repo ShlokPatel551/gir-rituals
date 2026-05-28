@@ -1,0 +1,278 @@
+/* ── Page ── */
+.cust-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Header ── */
+.cust-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.cust-page-title {
+  font-family: var(--admin-font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--admin-primary);
+  margin: 0 0 0.25rem;
+}
+
+.cust-page-sub {
+  font-size: 0.875rem;
+  color: var(--admin-on-surface-variant);
+  margin: 0;
+}
+
+.cust-btn-filled {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: var(--admin-primary);
+  border: 1px solid transparent;
+  border-radius: var(--admin-radius-sm);
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.cust-btn-filled:hover { opacity: 0.88; }
+
+/* ── Metric cards ── */
+.cust-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .cust-metrics-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.cust-metric-card {
+  background: var(--admin-surface-container-lowest);
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: var(--admin-radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--admin-shadow-card);
+}
+
+.cust-metric-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--admin-on-surface-variant);
+  margin: 0 0 0.75rem;
+}
+
+.cust-metric-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cust-metric-value {
+  font-family: var(--admin-font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--admin-on-surface);
+  line-height: 1;
+}
+
+.cust-val-tint  { color: #3f6653; }
+.cust-val-error { color: var(--admin-error); }
+
+/* ── Toolbar (search + tabs) ── */
+.cust-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.cust-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.cust-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--admin-on-surface-variant);
+  pointer-events: none;
+}
+
+.cust-search-input {
+  width: 100%;
+  padding: 0.625rem 2.5rem 0.625rem 2.75rem;
+  background: var(--admin-surface-container-lowest);
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: var(--admin-radius-full);
+  font-family: var(--admin-font-body);
+  font-size: 0.9375rem;
+  color: var(--admin-on-surface);
+  outline: none;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.cust-search-input:focus {
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 2px rgba(1, 45, 29, 0.12);
+}
+
+.cust-search-input::placeholder { color: var(--admin-on-surface-variant); }
+
+.cust-search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--admin-on-surface-variant);
+  border-radius: 9999px;
+  transition: background 0.15s;
+}
+
+.cust-search-clear:hover { background: var(--admin-surface-container-low); }
+
+/* ── Filter tabs ── */
+.cust-filter-tabs {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.cust-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: var(--admin-radius-full);
+  background: transparent;
+  font-family: var(--admin-font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--admin-on-surface-variant);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.cust-tab:hover { background: var(--admin-surface-container-low); }
+
+.cust-tab-active {
+  background: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: #fff;
+}
+
+.cust-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: rgba(0,0,0,0.1);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.cust-tab-active .cust-tab-count { background: rgba(255,255,255,0.25); }
+
+/* ── Table card ── */
+.cust-table-card {
+  background: var(--admin-surface-container-lowest);
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-card);
+  overflow: hidden;
+}
+
+/* ── Client ID code style ── */
+.cust-client-id {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--admin-surface-container-low);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--admin-primary);
+}
+
+/* ── Action row ── */
+.cust-action-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* ── Table footer ── */
+.cust-table-footer {
+  padding: 0.75rem 1.25rem;
+  background: var(--admin-surface-container-low);
+  border-top: 1px solid var(--admin-outline-variant);
+  font-size: 0.8125rem;
+  color: var(--admin-on-surface-variant);
+}
+
+/* ── New badge ── */
+.cust-badge-new {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* ── Empty state ── */
+.cust-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.cust-empty-icon {
+  font-size: 48px;
+  color: var(--admin-outline-variant);
+  margin-bottom: 1rem;
+}
+
+.cust-empty-title {
+  font-family: var(--admin-font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--admin-on-surface);
+  margin: 0 0 0.375rem;
+}
+
+.cust-empty-sub {
+  font-size: 0.875rem;
+  color: var(--admin-on-surface-variant);
+  margin: 0;
+}

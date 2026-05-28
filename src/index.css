@@ -396,3 +396,93 @@ input, select, textarea {
   width: 100%;
   border-radius: var(--md-radius-md);
 }
+
+/* ── Toast notifications ── */
+.toast-container {
+  position: fixed;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 9999;
+  pointer-events: none;
+  width: calc(100% - 2rem);
+  max-width: 400px;
+}
+
+@media (min-width: 768px) {
+  .toast-container {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    left: auto;
+    transform: none;
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--md-radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: var(--md-elevation-3);
+  animation: toast-in 0.25s ease;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.toast-success {
+  background: var(--green-900);
+  color: #fff;
+}
+
+.toast-error {
+  background: var(--md-error);
+  color: #fff;
+}
+
+.toast-info {
+  background: var(--md-secondary);
+  color: #fff;
+}
+
+.toast-icon {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Desktop responsive overrides ── */
+@media (min-width: 768px) {
+  .app-shell {
+    max-width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  .app-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 2rem !important;
+    width: 100%;
+  }
+
+  /* Hide mobile-only bottom nav on desktop */
+  .bottom-nav {
+    display: none !important;
+  }
+
+  /* Page title sizing on desktop */
+  .page-title {
+    font-size: 2.25rem;
+  }
+}
+
+/* ── Green shades for components ── */
+.green-50 { background: var(--md-primary-container); }
+.green-200 { border-color: var(--md-primary-container); }
