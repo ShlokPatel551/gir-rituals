@@ -1,32 +1,39 @@
 {
   "name": "gir-rituals",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
+    "preview": "vite preview",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "server": "node server/index.js",
+    "server:dev": "nodemon server/index.js",
+    "seed": "node server/seed.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run server:dev\""
   },
   "dependencies": {
     "@react-oauth/google": "^0.13.5",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.15.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^24.12.3",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^9.1.2",
+    "esbuild": "^0.28.0",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
-    "typescript": "~6.0.2",
-    "typescript-eslint": "^8.59.2",
+    "nodemon": "^3.1.9",
     "vite": "^8.0.12"
   }
 }

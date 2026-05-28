@@ -16,6 +16,11 @@ dist-ssr
 .env
 .env.*
 
+# SQLite database
+server/*.db
+server/*.db-shm
+server/*.db-wal
+
 # Claude Code
 .claude/settings.local.json
 
