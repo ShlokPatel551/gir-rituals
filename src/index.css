@@ -191,8 +191,8 @@ input, select, textarea {
   color: var(--md-on-error-container);
 }
 .badge-extra {
-  background: #d1fae5;
-  color: #065f46;
+  background: #F5DFC8;
+  color: #5A3B22;
 }
 .badge-out-for-delivery {
   background: #fef3c7;
@@ -244,7 +244,7 @@ input, select, textarea {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(21, 40, 24, 0.45);
+  background: rgba(60, 42, 33, 0.45);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-end;
@@ -274,7 +274,7 @@ input, select, textarea {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212, 234, 217, 0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245, 223, 200, 0.35) 0%, transparent 60%),
     linear-gradient(165deg, var(--green-900) 0%, var(--md-primary) 45%, var(--green-600) 100%);
   color: var(--md-on-primary);
   padding: 2rem;

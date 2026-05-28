@@ -1,46 +1,47 @@
 /**
- * Gir Rituals Admin — design tokens from Google Stitch export
+ * GIR RITUALS Admin — Earth & Heritage design tokens
+ * Palette: Primary #7B5233 · Secondary #F9F3E9 · Tertiary #D9C5B2 · Neutral #3C2A21
  */
-@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap');
 
 :root {
-  --admin-primary: #012d1d;
+  --admin-primary: #7B5233;
   --admin-on-primary: #ffffff;
-  --admin-primary-container: #1b4332;
-  --admin-on-primary-container: #86af99;
-  --admin-primary-fixed: #c1ecd4;
-  --admin-primary-fixed-dim: #a5d0b9;
-  --admin-secondary: #7d562d;
+  --admin-primary-container: #F5DFC8;
+  --admin-on-primary-container: #2C1500;
+  --admin-primary-fixed: #F5DFC8;
+  --admin-primary-fixed-dim: #E8CEAF;
+  --admin-secondary: #A08060;
   --admin-on-secondary: #ffffff;
-  --admin-secondary-fixed-dim: #f0bd8b;
-  --admin-secondary-container: #ffca98;
-  --admin-tertiary: #3f1d00;
-  --admin-tertiary-container: #5f2f00;
-  --admin-on-tertiary-container: #ea9147;
-  --admin-background: #fdf8f7;
-  --admin-surface: #fdf8f7;
+  --admin-secondary-fixed-dim: #D9C5B2;
+  --admin-secondary-container: #F4E3D0;
+  --admin-tertiary: #5A3B22;
+  --admin-tertiary-container: #8B6B4A;
+  --admin-on-tertiary-container: #F5DFC8;
+  --admin-background: #FDF9F5;
+  --admin-surface: #FDF9F5;
   --admin-surface-container-lowest: #ffffff;
-  --admin-surface-container-low: #f7f2f1;
-  --admin-surface-container: #f2edec;
-  --admin-surface-container-high: #ece7e6;
-  --admin-on-surface: #1c1b1b;
-  --admin-on-surface-variant: #414844;
-  --admin-outline: #717973;
-  --admin-outline-variant: #c1c8c2;
+  --admin-surface-container-low: #F9F3E9;
+  --admin-surface-container: #F2E9DC;
+  --admin-surface-container-high: #EBE0D2;
+  --admin-on-surface: #3C2A21;
+  --admin-on-surface-variant: #6B5040;
+  --admin-outline: #9A7B68;
+  --admin-outline-variant: #D9C5B2;
   --admin-error: #ba1a1a;
   --admin-error-container: #ffdad6;
   --admin-on-error-container: #93000a;
 
-  --admin-font-display: 'Libre Caslon Text', Georgia, serif;
-  --admin-font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --admin-font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --admin-font-body: 'Manrope', system-ui, sans-serif;
 
   --admin-radius-sm: 0.5rem;
   --admin-radius-lg: 0.75rem;
   --admin-radius-xl: 0.75rem;
   --admin-radius-full: 9999px;
 
-  --admin-shadow-card: 0 10px 40px -10px rgba(27, 67, 50, 0.08);
+  --admin-shadow-card: 0 10px 40px -10px rgba(60, 42, 33, 0.08);
 }
 
 .material-symbols-outlined {

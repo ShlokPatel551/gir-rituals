@@ -1,57 +1,56 @@
 /**
- * GIR RITUALS — Stitch / Material 3 design tokens
- * Sync from Stitch: Project → screen → Code → copy CSS variables,
- * or paste DESIGN.md values into the :root block below.
- * Project: https://stitch.withgoogle.com/projects/11195237751914514939
+ * GIR RITUALS — Earth & Heritage design tokens
+ * Palette: Primary #7B5233 · Secondary #F9F3E9 · Tertiary #D9C5B2 · Neutral #3C2A21
+ * Fonts: Plus Jakarta Sans (display) + Manrope (body)
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Material 3 — primary (forest / Gir green) */
-  --md-primary: #2f5d3a;
+  /* Primary — warm brown / sienna */
+  --md-primary: #7B5233;
   --md-on-primary: #ffffff;
-  --md-primary-container: #d4ead9;
-  --md-on-primary-container: #0f2918;
+  --md-primary-container: #F5DFC8;
+  --md-on-primary-container: #2C1500;
 
-  /* Secondary — sage */
-  --md-secondary: #5c6f5e;
+  /* Secondary — medium warm tan */
+  --md-secondary: #A08060;
   --md-on-secondary: #ffffff;
-  --md-secondary-container: #e0ebe1;
-  --md-on-secondary-container: #1a2e1e;
+  --md-secondary-container: #F4E3D0;
+  --md-on-secondary-container: #3C1F08;
 
-  /* Tertiary — warm ghee gold */
-  --md-tertiary: #8b6914;
+  /* Tertiary — sand */
+  --md-tertiary: #8B6B4A;
   --md-on-tertiary: #ffffff;
-  --md-tertiary-container: #ffe8b8;
-  --md-on-tertiary-container: #2c2100;
+  --md-tertiary-container: #D9C5B2;
+  --md-on-tertiary-container: #2C1500;
 
-  /* Surfaces */
-  --md-surface: #fffcf8;
-  --md-surface-dim: #f3ede4;
-  --md-surface-bright: #fffcf8;
+  /* Surfaces — warm cream */
+  --md-surface: #FDF9F5;
+  --md-surface-dim: #EDE4D8;
+  --md-surface-bright: #FDF9F5;
   --md-surface-container-lowest: #ffffff;
-  --md-surface-container-low: #f8f3eb;
-  --md-surface-container: #f2ebe1;
-  --md-surface-container-high: #ece4d8;
-  --md-surface-container-highest: #e6dece;
+  --md-surface-container-low: #F9F3E9;
+  --md-surface-container: #F2E9DC;
+  --md-surface-container-high: #EBE0D2;
+  --md-surface-container-highest: #E3D6C5;
 
-  --md-on-surface: #1a1c19;
-  --md-on-surface-variant: #424940;
-  --md-outline: #727970;
-  --md-outline-variant: #c2c9be;
+  --md-on-surface: #3C2A21;
+  --md-on-surface-variant: #6B5040;
+  --md-outline: #9A7B68;
+  --md-outline-variant: #D9C5B2;
 
   /* Error */
   --md-error: #ba1a1a;
   --md-error-container: #ffdad6;
   --md-on-error-container: #410002;
 
-  /* Elevation (Stitch-style soft shadows) */
-  --md-elevation-1: 0 1px 2px rgba(26, 46, 30, 0.06), 0 2px 8px rgba(26, 46, 30, 0.04);
-  --md-elevation-2: 0 2px 6px rgba(26, 46, 30, 0.08), 0 8px 24px rgba(26, 46, 30, 0.06);
-  --md-elevation-3: 0 4px 12px rgba(26, 46, 30, 0.1), 0 16px 40px rgba(26, 46, 30, 0.08);
+  /* Elevation — brown-tinted soft shadows */
+  --md-elevation-1: 0 1px 2px rgba(60, 42, 33, 0.06), 0 2px 8px rgba(60, 42, 33, 0.04);
+  --md-elevation-2: 0 2px 6px rgba(60, 42, 33, 0.08), 0 8px 24px rgba(60, 42, 33, 0.06);
+  --md-elevation-3: 0 4px 12px rgba(60, 42, 33, 0.10), 0 16px 40px rgba(60, 42, 33, 0.08);
 
-  /* Shape — Stitch uses generous rounding */
+  /* Shape */
   --md-radius-xs: 8px;
   --md-radius-sm: 12px;
   --md-radius-md: 16px;
@@ -60,18 +59,18 @@
   --md-radius-full: 9999px;
 
   /* Typography */
-  --font-display: 'Fraunces', 'Georgia', serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
 
-  /* App aliases (map to M3) */
-  --green-900: #152818;
-  --green-800: #1f3d28;
+  /* App aliases — kept for backward-compat with component files */
+  --green-900: #2C1500;
+  --green-800: #5A3B22;
   --green-700: var(--md-primary);
-  --green-600: #3d7a4d;
-  --green-500: #52a068;
+  --green-600: #A08060;
+  --green-500: #C4A882;
   --green-100: var(--md-primary-container);
   --cream: var(--md-surface);
-  --gold: #c4922a;
+  --gold: #A67B5B;
   --amber: var(--md-tertiary);
   --red: var(--md-error);
   --text: var(--md-on-surface);
