@@ -1,5 +1,5 @@
 import { findCustomerByEmail, registerCustomer, generateClientId } from "./customerStore";
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || null;
 const googleEnabled = !!GOOGLE_CLIENT_ID;
 function handleGoogleUser(info) {
   const existing = findCustomerByEmail(info.email);

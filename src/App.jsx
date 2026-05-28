@@ -112,7 +112,7 @@ function AppRoutes() {
     </Routes>;
 }
 function App() {
-  return <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID ?? "no-client-id"}>
+  return <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID || "no-client-id"}>
       <AppProvider>
         <ToastProvider>
           <BrowserRouter>

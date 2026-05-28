@@ -11,10 +11,11 @@ const defaultUser = {
 };
 const AppContext = createContext(null);
 function AppProvider({ children }) {
-  const [session, setSession] = useState(() => localStorage.getItem("gir_session") === "true");
+  const [session, setSession] = useState(() => !!localStorage.getItem("gir_token"));
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("gir_user");
-    return stored ? JSON.parse(stored) : null;
+    const token = localStorage.getItem("gir_token");
+    return stored && token ? JSON.parse(stored) : null;
   });
   const [rituals, setRituals] = useState(initialRituals);
   const [cart, setCart] = useState([]);
@@ -25,14 +26,15 @@ function AppProvider({ children }) {
   const [walletBalance, setWalletBalance] = useState(210);
   const [statementEntries, setStatementEntries] = useState(sampleStatements);
   const [paymentMethods, setPaymentMethods] = useState(defaultPaymentMethods);
-  const persist = useCallback((u) => {
-    localStorage.setItem("gir_session", "true");
+  const persist = useCallback((u, token) => {
+    if (token) localStorage.setItem("gir_token", token);
     localStorage.setItem("gir_user", JSON.stringify(u));
+    localStorage.removeItem("gir_session");
     setSession(true);
     setUser(u);
   }, []);
-  const login = useCallback((u) => persist(u), [persist]);
-  const register = useCallback((u) => persist(u), [persist]);
+  const login = useCallback((u, token) => persist(u, token), [persist]);
+  const register = useCallback((u, token) => persist(u, token), [persist]);
   const logout = useCallback(() => {
     localStorage.removeItem("gir_session");
     localStorage.removeItem("gir_user");
