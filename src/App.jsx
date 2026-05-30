@@ -12,6 +12,9 @@ import { AdminCampaigns } from "./pages/admin/AdminCampaigns";
 import { AdminComms } from "./pages/admin/AdminComms";
 import { AdminOffers } from "./pages/admin/AdminOffers";
 import { AdminCustomerDetail } from "./pages/admin/AdminCustomerDetail";
+import { AdminCustomerBilling } from "./pages/admin/AdminCustomerBilling";
+import { AdminCustomerOrders } from "./pages/admin/AdminCustomerOrders";
+import { AdminCustomerTransactions } from "./pages/admin/AdminCustomerTransactions";
 import { AdminCustomers } from "./pages/admin/AdminCustomers";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminDeliveries } from "./pages/admin/AdminDeliveries";
@@ -20,8 +23,13 @@ import { AdminFinance } from "./pages/admin/AdminFinance";
 import { AdminRefunds } from "./pages/admin/AdminRefunds";
 import { AdminLogin } from "./pages/admin/AdminLogin";
 import { AdminOrders } from "./pages/admin/AdminOrders";
-import { AdminOtpLogs } from "./pages/admin/AdminOtpLogs";
 import { AdminProducts } from "./pages/admin/AdminProducts";
+import { AdminProduction } from "./pages/admin/AdminProduction";
+import { AdminProductionEntry } from "./pages/admin/AdminProductionEntry";
+import { AdminProductionForm } from "./pages/admin/AdminProductionForm";
+import { AdminStockLedger } from "./pages/admin/AdminStockLedger";
+import { AdminLeftoverStock } from "./pages/admin/AdminLeftoverStock";
+import { AdminProductionLog } from "./pages/admin/AdminProductionLog";
 import { AdminSettings } from "./pages/admin/AdminSettings";
 import { Splash } from "./pages/Splash";
 import { Login } from "./pages/Login";
@@ -60,9 +68,18 @@ function AppRoutes() {
         <Route index element={<AdminDashboard />} />
         <Route path="customers" element={<AdminCustomers />} />
         <Route path="customers/:id" element={<AdminCustomerDetail />} />
+        <Route path="customers/:id/billing" element={<AdminCustomerBilling />} />
+        <Route path="customers/:id/orders" element={<AdminCustomerOrders />} />
+        <Route path="customers/:id/transactions" element={<AdminCustomerTransactions />} />
         <Route path="deliveries" element={<AdminDeliveries />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="production" element={<AdminProduction />} />
+        <Route path="production/:productId" element={<AdminProductionEntry />} />
+        <Route path="production/:productId/edit" element={<AdminProductionForm />} />
+        <Route path="stock-history" element={<AdminStockLedger />} />
+        <Route path="leftover-stock" element={<AdminLeftoverStock />} />
+        <Route path="production-log" element={<AdminProductionLog />} />
         <Route path="finance" element={<AdminFinance />} />
         <Route path="billing" element={<AdminBilling />} />
         <Route path="analytics" element={<AdminAnalytics />} />
@@ -70,7 +87,6 @@ function AppRoutes() {
         <Route path="offers" element={<AdminOffers />} />
         <Route path="campaigns" element={<AdminCampaigns />} />
         <Route path="comms" element={<AdminComms />} />
-        <Route path="otp" element={<AdminOtpLogs />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
 

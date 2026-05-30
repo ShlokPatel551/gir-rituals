@@ -1,0 +1,473 @@
+/* ── Page shell ── */
+.pf-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 860px;
+}
+
+/* ── Topbar ── */
+.pf-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pf-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.pf-crumb-link {
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--admin-outline);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.pf-crumb-link:hover { color: var(--admin-primary); }
+
+.pf-crumb-sep {
+  font-size: 14px;
+  color: var(--admin-outline);
+}
+
+.pf-crumb-cur {
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--admin-on-surface);
+}
+
+.pf-crumb-accent {
+  color: var(--admin-secondary);
+  font-weight: 700;
+}
+
+.pf-title {
+  font-family: var(--admin-font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--admin-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  line-height: 1.3;
+}
+
+.pf-title-icon {
+  font-size: 28px;
+  color: var(--admin-primary);
+}
+
+.pf-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid var(--admin-outline);
+  background: transparent;
+  color: var(--admin-on-surface);
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.pf-back-btn:hover { background: var(--admin-surface-container-low); }
+.pf-back-btn .material-symbols-outlined { font-size: 20px; }
+
+/* ── Card ── */
+.pf-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.06);
+  border: 1px solid var(--admin-surface-container);
+  padding: 2rem;
+}
+
+/* ── Form layout ── */
+.pf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+@media (max-width: 640px) {
+  .pf-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Field ── */
+.pf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.pf-label {
+  font-family: var(--admin-font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--admin-on-surface-variant);
+  transition: color 0.15s;
+}
+
+.pf-label-note {
+  font-size: 0.75rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--admin-outline);
+  margin-left: 0.25rem;
+}
+
+/* Focus-within: label turns primary when field is focused */
+.pf-field:focus-within .pf-label {
+  color: var(--admin-primary);
+}
+
+/* ── Inputs ── */
+.pf-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.9375rem;
+  color: var(--admin-on-surface);
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pf-input:focus {
+  outline: none;
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+}
+.pf-input::placeholder { color: var(--admin-outline); }
+
+/* Remove number arrows in WebKit */
+.pf-input[type="number"]::-webkit-inner-spin-button,
+.pf-input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.pf-input[type="number"] { -moz-appearance: textfield; }
+
+.pf-input-readonly {
+  background: var(--admin-surface-container-low);
+  color: var(--admin-on-surface-variant);
+  cursor: not-allowed;
+  border-color: var(--admin-outline-variant);
+}
+.pf-input-readonly:focus {
+  border-color: var(--admin-outline-variant);
+  box-shadow: none;
+}
+
+.pf-input-leftover {
+  color: var(--admin-secondary) !important;
+  font-weight: 700;
+}
+
+/* ── Price prefix ── */
+.pf-prefix-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pf-prefix-sym {
+  position: absolute;
+  left: 1rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--admin-on-surface-variant);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pf-input-prefixed {
+  padding-left: 1.875rem;
+}
+
+/* ── Select ── */
+.pf-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pf-select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.9375rem;
+  color: var(--admin-on-surface);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pf-select:focus {
+  outline: none;
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+}
+
+.pf-select-arrow {
+  position: absolute;
+  right: 0.75rem;
+  font-size: 20px;
+  color: var(--admin-outline);
+  pointer-events: none;
+}
+
+/* Focus-within for selects */
+.pf-field:focus-within .pf-select-arrow {
+  color: var(--admin-primary);
+}
+
+/* ── Textarea ── */
+.pf-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.9375rem;
+  color: var(--admin-on-surface);
+  box-sizing: border-box;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pf-textarea:focus {
+  outline: none;
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+}
+.pf-textarea::placeholder { color: var(--admin-outline); }
+
+/* ── Calculated summary ── */
+.pf-summary-section {
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(193, 200, 194, 0.4);
+}
+
+.pf-summary-heading {
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--admin-outline);
+  margin: 0 0 1rem;
+}
+
+.pf-summary-note {
+  font-size: 0.75rem;
+  font-weight: 400;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--admin-outline);
+  margin-left: 0.25rem;
+}
+
+.pf-summary-box {
+  background: var(--admin-surface-container);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pf-sum-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid rgba(193, 200, 194, 0.2);
+  gap: 1rem;
+}
+.pf-sum-row:last-child { border-bottom: none; }
+
+.pf-sum-key {
+  font-size: 0.9375rem;
+  color: var(--admin-on-surface-variant);
+}
+
+.pf-sum-sub {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.pf-sum-val {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--admin-on-surface);
+  white-space: nowrap;
+}
+
+.pf-sum-leftover {
+  color: var(--admin-secondary);
+}
+
+.pf-sum-total {
+  padding-top: 0.875rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--admin-outline-variant) !important;
+  border-bottom: none !important;
+}
+
+.pf-sum-total-key {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--admin-primary);
+}
+
+.pf-sum-total-val {
+  font-family: var(--admin-font-display);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #274e3d;
+  white-space: nowrap;
+}
+
+.pf-sum-rate {
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #274e3d;
+  white-space: nowrap;
+}
+
+/* ── Action buttons ── */
+.pf-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(193, 200, 194, 0.4);
+  flex-wrap: wrap;
+}
+
+.pf-btn-discard {
+  padding: 0.75rem 2rem;
+  border: 1px solid var(--admin-outline);
+  background: transparent;
+  color: var(--admin-on-surface);
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.pf-btn-discard:hover { background: var(--admin-surface-container); }
+
+.pf-btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  background: var(--admin-primary-container);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(27, 67, 50, 0.25);
+  transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+.pf-btn-save:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 6px 20px rgba(27, 67, 50, 0.3);
+}
+.pf-btn-save:active:not(:disabled) { transform: scale(0.97); }
+.pf-btn-save:disabled { opacity: 0.8; cursor: not-allowed; }
+.pf-btn-save .material-symbols-outlined { font-size: 18px; }
+
+.pf-btn-done {
+  background: #2e7d32;
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.3);
+}
+
+/* Saving spinner */
+@keyframes pf-rotate {
+  to { transform: rotate(360deg); }
+}
+.pf-spin {
+  animation: pf-rotate 0.9s linear infinite;
+  display: inline-block;
+}
+
+/* ── Info alert ── */
+.pf-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 202, 152, 0.18);
+  border: 1px solid rgba(125, 86, 45, 0.2);
+  border-radius: 0.625rem;
+}
+
+.pf-alert-icon {
+  font-size: 20px;
+  color: var(--admin-secondary);
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.pf-alert-body { flex: 1; }
+
+.pf-alert-title {
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #7a532a;
+  margin: 0 0 0.25rem;
+}
+
+.pf-alert-text {
+  font-size: 0.875rem;
+  color: #7a532a;
+  opacity: 0.85;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Footer meta ── */
+.pf-footer-meta {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.8125rem;
+  color: var(--admin-outline);
+  flex-wrap: wrap;
+}
+.pf-footer-meta p { margin: 0; }

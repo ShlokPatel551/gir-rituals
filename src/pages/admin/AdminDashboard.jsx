@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import { getAllCustomers } from "../../lib/customerStore";
 import { ADMIN_NOTIFS } from "../../data/adminNotifications";
 import "./AdminDashboard.css";
 const REVENUE_BARS = [40, 55, 45, 70, 60, 50, 85, 40, 65, 95, 30, 75];
@@ -11,8 +10,7 @@ const RECENT_ORDERS = [
 ];
 function AdminDashboard() {
   const navigate = useNavigate();
-  const customers = getAllCustomers();
-  const totalCustomers = Math.max(customers.length, 247);
+  const totalCustomers = 247;
   const activeSubscriptions = 189;
   const todayDeliveries = 176;
   const monthlyRevenue = "\u20B982,400";
@@ -63,6 +61,13 @@ function AdminDashboard() {
           <div className="adm-metric-row">
             <span className="adm-metric-value">{monthlyRevenue}</span>
             <span className="adm-metric-badge adm-badge-green">+8% vs last month</span>
+          </div>
+        </div>
+        <div className="bento-card adm-metric-card adm-metric-clickable" onClick={() => navigate("/admin/production")} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && navigate("/admin/production")}>
+          <p className="adm-metric-label">Today's production</p>
+          <div className="adm-metric-row">
+            <span className="adm-metric-value">220 L</span>
+            <span className="adm-metric-badge adm-badge-green">30 May</span>
           </div>
         </div>
       </div>

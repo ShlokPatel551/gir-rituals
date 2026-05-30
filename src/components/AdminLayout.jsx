@@ -9,13 +9,13 @@ const NAV = [
   { path: "/admin/deliveries", label: "Deliveries", icon: "local_shipping" },
   { path: "/admin/orders", label: "Orders", icon: "shopping_cart" },
   { path: "/admin/products", label: "Products", icon: "inventory_2" },
+  { path: "/admin/production", label: "Production", icon: "agriculture" },
   { path: "/admin/finance", label: "Finance", icon: "payments" },
   { path: "/admin/analytics", label: "Analytics", icon: "analytics" },
   { path: "/admin/billing", label: "Billing", icon: "receipt_long" },
   { path: "/admin/offers", label: "Offers", icon: "local_activity" },
   { path: "/admin/campaigns", label: "Campaigns", icon: "campaign" },
   { path: "/admin/comms", label: "Comms", icon: "chat" },
-  { path: "/admin/otp", label: "OTP Logs", icon: "key" },
   { path: "/admin/settings", label: "Settings", icon: "settings" }
 ];
 function AdminLayout() {
