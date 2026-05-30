@@ -1,146 +1,450 @@
-import { useState } from "react";
+import { useState, useMemo, Fragment } from "react";
 import { Link } from "react-router-dom";
-import { products } from "../data/mockData";
 import { useApp } from "../context/AppContext";
 import { useToast } from "../context/ToastContext";
+import "./Cart.css";
+
+/* ── Product images ─────────────────────────────────────────── */
+const PRODUCT_IMGS = {
+  milk:   "https://lh3.googleusercontent.com/aida-public/AB6AXuDUBwAsVrFtBz-ThjfsL4wBtlGs5nkhWQgbrGKAD4I09yAX3lMOPqVJotnKFNC4lR2cC7t6BJ-VhO-BKtcMtISnH6CDjA36vO224abotHkxliKJnqyOoeSmKJA3Jd7-9Zm_7uVAYA1vtjIe6ZBzTpwTi1bgxtOh7lFH2YMxaNHQjknJaxJYUF8FxoDwpmVJ1l60lfkN4R8Ae9o3wulP14SJseRIpXHgkh_15uf00nvdKYMVe9xPORLksOA3uPwRljhPrRDk5kWbBa-K",
+  ghee:   "https://lh3.googleusercontent.com/aida-public/AB6AXuCiTmIEx28DBMRj6KXJ0fTF9ImOqxnUJJyBknqmNlhmc5sw8JRMpTjYS0AYkJU3bkMOiWIr78g54IIhA1MZc4GJn9tXMa_W88DN6khO_gwHSi9pXukLWE2xyI3qYh6aT-QOtZd4_1U_EHdTrbkjnYwS_mBeDGOAw2pszut3hlr1ausDueRYx4wQHWF3XvOUpgWrBizIr_5tZOLbTPrqSg079S8WEXp4dvgU9HJpHn5PUW5niqW0AuSnAOPw-P5Pz58MI8XRcc5u9QjJ",
+  paneer: "https://lh3.googleusercontent.com/aida-public/AB6AXuAatjBp5DXyWvUZZ4BB_9zx4pERQNU1w3VjAvJuJDoLOdyY9IGaAGC921C5xATSHLlQyf7HnkQNWZVsBIiA2Sf-7HGvB8LEn0ohhFobBJ863tviw017miklgYNuulbmq4QpWg0XtFZiY8DzykMODS2yN56yIJDalRLaXk2qAQSuEK1d-zlangC9RaFhYpYwtaPr0Aw5jUw6RAc3w7OTanhzGTsGV5cCivK1sRS0Zhzu79GRYxzC1CMjlnUAJSyTxdE4ZMQQuiGH2Lk7",
+  honey:  "https://lh3.googleusercontent.com/aida-public/AB6AXuBCNOyK7_HTwbAMW4DZ59PdwTo0dg8yTMKRp6go0eBbyTxKZI1VzMpAlAwAb754GeYn7jILXdnHAeNNBG9EJVhRHqQwNI9_tR8LnJ6_nxXjYLzsTyenjB0QUJIk9kyLZgB2sBFmTFCm6H3oxk3frSTOegnTlNJnM0NT6D6gCnqqQpR8u1vDkcuVRZSm-wINzvOmmxsGDRpflXVP68KqVKJJwicJJ36raXQKC3DbVtyr15CsuT59qHpmYvASsXhpiUFRla0_BZ0Qb5MS",
+};
+
+const MOCK_CART_ITEMS = [
+  { productId: "milk", quantity: 2, name: "Fresh A2 Gir Cow Milk",  subtitle: "1 Litre • Glass Bottle Refill",        price: 90   },
+  { productId: "ghee", quantity: 1, name: "Bilona A2 Gir Ghee",     subtitle: "500ml • Traditional Bilona Method",    price: 1450 },
+];
+
+const MOCK_WALLET = 450;
+
+const STEP_LABELS = ["Order Review", "Delivery Details", "Payment"];
+
+const PAYMENT_METHODS = [
+  { id: "upi",        icon: "smartphone",              label: "UPI"                  },
+  { id: "netbanking", icon: "account_balance",         label: "Net Banking"          },
+  { id: "card",       icon: "credit_card",             label: "Credit / Debit Card"  },
+  { id: "wallet",     icon: "account_balance_wallet",  label: "Ritual Wallet"        },
+];
+
+function imgKey(productId = "") {
+  if (productId.includes("ghee"))   return "ghee";
+  if (productId.includes("paneer")) return "paneer";
+  if (productId.includes("honey"))  return "honey";
+  return "milk";
+}
+
+/* ── Step Indicator ─────────────────────────────────────────── */
+function StepIndicator({ step }) {
+  return (
+    <div className="ct-steps">
+      {STEP_LABELS.map((label, i) => {
+        const num    = i + 1;
+        const active = num === step;
+        const done   = num < step;
+        return (
+          <Fragment key={label}>
+            <div className="ct-step-group">
+              <div className={`ct-step-circle ${active ? "ct-step-circle-active" : done ? "ct-step-circle-done" : ""}`}>
+                {done
+                  ? <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check</span>
+                  : num
+                }
+              </div>
+              <span className={`ct-step-label ${active ? "ct-step-label-active" : ""}`}>{label}</span>
+            </div>
+            {i < STEP_LABELS.length - 1 && <div className="ct-step-divider" />}
+          </Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Product Card ────────────────────────────────────────────── */
+function CartProductCard({ item, isReal, onQtyChange, onRemove }) {
+  const img = PRODUCT_IMGS[imgKey(item.productId)];
+  const lineTotal = item.price * item.quantity;
+  return (
+    <div className="ct-product-card">
+      <div className="ct-product-thumb">
+        <img
+          src={img}
+          alt={item.name}
+          className="ct-product-thumb-img"
+          onError={e => { e.target.style.display = "none"; }}
+        />
+      </div>
+      <div className="ct-product-body">
+        <div className="ct-product-header">
+          <div>
+            <h3 className="ct-product-name">{item.name}</h3>
+            <p className="ct-product-sub">{item.subtitle}</p>
+          </div>
+          <button
+            type="button"
+            className="ct-delete-btn"
+            onClick={() => onRemove(item.productId)}
+            aria-label="Remove item"
+          >
+            <span className="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+        <div className="ct-product-footer">
+          <div className="ct-qty-stepper">
+            <button
+              type="button"
+              className="ct-qty-btn"
+              onClick={() => onQtyChange(item.productId, item.quantity - 1)}
+            >−</button>
+            <span className="ct-qty-val">{String(item.quantity).padStart(2, "0")}</span>
+            <button
+              type="button"
+              className="ct-qty-btn"
+              onClick={() => onQtyChange(item.productId, item.quantity + 1)}
+            >+</button>
+          </div>
+          <span className="ct-product-price">₹{lineTotal.toLocaleString("en-IN")}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main Cart Component ─────────────────────────────────────── */
 function Cart() {
-  const { cart, cartTotal, updateCartQty, removeFromCart, user } = useApp();
+  const { cart, cartTotal, updateCartQty, removeFromCart, user, products, walletBalance } = useApp();
   const { showToast } = useToast();
-  const [savedForLater, setSavedForLater] = useState([]);
-  const handleSaveForLater = (productId, name) => {
-    setSavedForLater((prev) => [...prev, productId]);
-    removeFromCart(productId);
-    showToast(`${name} saved for later.`, "info");
+
+  const [step,          setStep]          = useState(1);
+  const [useWallet,     setUseWallet]     = useState(true);
+  const [coupon,        setCoupon]        = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("upi");
+  const [success,       setSuccess]       = useState(false);
+
+  const isRealCart = cart.length > 0;
+
+  const effectiveItems = useMemo(() => {
+    if (isRealCart) {
+      return cart.map(c => {
+        const p = products.find(x => x.id === c.productId);
+        return {
+          productId: c.productId,
+          quantity:  c.quantity,
+          name:      p?.name ?? c.productId,
+          subtitle:  p?.unit ?? "",
+          price:     p?.price ?? 0,
+        };
+      });
+    }
+    return MOCK_CART_ITEMS;
+  }, [cart, products, isRealCart]);
+
+  const subtotal      = isRealCart ? cartTotal : MOCK_CART_ITEMS.reduce((s, i) => s + i.price * i.quantity, 0);
+  const effectiveWallet = walletBalance > 0 ? walletBalance : MOCK_WALLET;
+  const walletApplied = useWallet ? Math.min(effectiveWallet, subtotal) : 0;
+  const total         = Math.max(0, subtotal - walletApplied);
+
+  const addr = user?.deliveryAddress ?? { street: "12 Farm Lane", city: "Ahmedabad", state: "Gujarat", pinCode: "380001" };
+
+  const handleQtyChange = (productId, qty) => {
+    if (isRealCart) updateCartQty(productId, qty);
+    else showToast("Demo mode — connect backend to update quantity.", "info");
   };
-  const handleMoveToCart = (productId) => {
-    setSavedForLater((prev) => prev.filter((id) => id !== productId));
-    const product = products.find((p) => p.id === productId);
-    if (product) showToast(`${product.name} moved to cart.`);
+
+  const handleRemove = (productId) => {
+    if (isRealCart) {
+      removeFromCart(productId);
+      showToast("Item removed from cart.", "info");
+    } else {
+      showToast("Demo mode — connect backend to remove items.", "info");
+    }
   };
-  const savedProducts = savedForLater.map((id) => products.find((p) => p.id === id)).filter(Boolean);
-  if (cart.length === 0 && savedProducts.length === 0) {
-    return <div>
-        <h1 className="page-title">Cart</h1>
-        <div className="empty-state card">
-          <div className="emoji">🛒</div>
-          <p>Your cart is empty</p>
-          <Link to="/products" className="btn btn-primary" style={{ marginTop: "1rem", display: "inline-block" }}>
-            Browse Products
+
+  const handleApplyCoupon = () => {
+    if (!coupon.trim()) { showToast("Please enter a coupon code.", "info"); return; }
+    showToast(`Coupon "${coupon}" applied! (Demo)`, "success");
+  };
+
+  const proceedLabel = step === 1 ? "Proceed to Checkout" : step === 2 ? "Continue to Payment" : "Complete Payment";
+  const proceedIcon  = step === 3 ? "lock" : "arrow_forward";
+
+  const handleProceed = () => {
+    if (step < 3) {
+      setStep(s => s + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      setSuccess(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  /* ── Success View ── */
+  if (success) {
+    return (
+      <div className="ct-page">
+        <div className="ct-success-view">
+          <div className="ct-success-icon-wrap">
+            <span
+              className="material-symbols-outlined ct-success-icon"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              check_circle
+            </span>
+          </div>
+          <h1 className="ct-success-title">Ritual Confirmed!</h1>
+          <p className="ct-success-desc">
+            Your journey to wellness continues. We've started preparing your order with the utmost care.
+          </p>
+
+          <div className="ct-order-info-card">
+            {[
+              { label: "Order ID",           value: "#GIR-998210" },
+              { label: "Estimated Delivery", value: "Tomorrow, 6:00 AM – 8:00 AM" },
+              { label: "Payment Mode",       value: PAYMENT_METHODS.find(m => m.id === paymentMethod)?.label ?? "Ritual Wallet" },
+              { label: "Amount Paid",        value: `₹${total.toLocaleString("en-IN")}` },
+            ].map(r => (
+              <div key={r.label} className="ct-order-info-row">
+                <span className="ct-order-info-label">{r.label}</span>
+                <span className="ct-order-info-value">{r.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="ct-success-btns">
+            <Link to="/orders" className="ct-btn-primary">Track Order</Link>
+            <button
+              type="button"
+              className="ct-btn-outline"
+              onClick={() => showToast("Invoice download requires backend.", "info")}
+            >
+              Download Invoice
+            </button>
+          </div>
+
+          <Link to="/products" className="ct-continue-link">
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
+            Continue Shopping
           </Link>
         </div>
-      </div>;
+      </div>
+    );
   }
-  const addr = user.deliveryAddress;
-  return <div>
-      <h1 className="page-title">Cart</h1>
 
-      {
-    /* Cart items */
-  }
-      {cart.length > 0 && <>
-          {cart.map((item) => {
-    const p = products.find((x) => x.id === item.productId);
-    return <div
-      key={item.productId}
-      className="card"
-      style={{ marginBottom: "0.75rem", display: "flex", gap: "1rem", alignItems: "center" }}
-    >
-                <span style={{ fontSize: "2rem" }}>{p.image}</span>
-                <div style={{ flex: 1 }}>
-                  <strong>{p.name}</strong>
-                  <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>₹{p.price}/{p.unit}</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <button
-      type="button"
-      className="btn btn-secondary"
-      style={{ width: 32, height: 32, padding: 0, fontSize: "1rem" }}
-      onClick={() => updateCartQty(item.productId, item.quantity - 1)}
-    >
-                        −
-                      </button>
-                      <span style={{ fontWeight: 600, minWidth: 20, textAlign: "center" }}>{item.quantity}</span>
-                      <button
-      type="button"
-      className="btn btn-secondary"
-      style={{ width: 32, height: 32, padding: 0, fontSize: "1rem" }}
-      onClick={() => updateCartQty(item.productId, item.quantity + 1)}
-    >
-                        +
-                      </button>
-                    </div>
-                    <button
-      type="button"
-      onClick={() => handleSaveForLater(item.productId, p.name)}
-      style={{ background: "none", fontSize: "0.8rem", color: "var(--green-700)", fontWeight: 600, border: "none", cursor: "pointer", fontFamily: "inherit" }}
-    >
-                      Save for later
-                    </button>
-                    <button
-      type="button"
-      onClick={() => removeFromCart(item.productId)}
-      style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", fontSize: "1.125rem" }}
-      aria-label="Remove"
-    >
-                      🗑
-                    </button>
-                  </div>
-                </div>
-                <strong style={{ flexShrink: 0 }}>₹{p.price * item.quantity}</strong>
-              </div>;
-  })}
+  return (
+    <div className="ct-page">
 
-          {
-    /* Delivery address */
-  }
-          <div className="card" style={{ marginBottom: "1rem" }}>
-            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Delivery to:</p>
-            <p>{addr.street}, {addr.city}, {addr.state} {addr.pinCode}</p>
-            <Link to="/profile/settings" style={{ fontSize: "0.85rem", color: "var(--green-700)" }}>Edit address</Link>
-          </div>
+      {/* Steps */}
+      <StepIndicator step={step} />
 
-          {
-    /* Total */
-  }
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "1.25rem", fontWeight: 700, marginBottom: "1rem" }}>
-            <span>Total</span>
-            <span>₹{cartTotal.toFixed(2)}</span>
-          </div>
+      {/* 2-column grid */}
+      <div className="ct-grid">
 
-          <Link to="/checkout" className="btn btn-primary" style={{ display: "block", textAlign: "center", marginBottom: "1.5rem" }}>
-            Proceed to Payment
-          </Link>
-        </>}
+        {/* ══ LEFT ══ */}
+        <div className="ct-left">
 
-      {
-    /* Saved for later section */
-  }
-      {savedProducts.length > 0 && <div>
-          <h2 style={{ fontSize: "1rem", marginBottom: "0.75rem", color: "var(--text-muted)" }}>
-            Saved for Later ({savedProducts.length})
-          </h2>
-          {savedProducts.map((p) => <div
-    key={p.id}
-    className="card"
-    style={{ marginBottom: "0.75rem", display: "flex", gap: "1rem", alignItems: "center", opacity: 0.8 }}
-  >
-              <span style={{ fontSize: "2rem" }}>{p.image}</span>
-              <div style={{ flex: 1 }}>
-                <strong>{p.name}</strong>
-                <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>₹{p.price}/{p.unit}</p>
+          {/* Step 1 — Order Review */}
+          {step === 1 && (
+            <>
+              <h2 className="ct-section-title">Your Selected Rituals</h2>
+
+              <div className="ct-products-list">
+                {effectiveItems.map(item => (
+                  <CartProductCard
+                    key={item.productId}
+                    item={item}
+                    isReal={isRealCart}
+                    onQtyChange={handleQtyChange}
+                    onRemove={handleRemove}
+                  />
+                ))}
               </div>
+
+              {/* Wallet + Coupon */}
+              <div className="ct-extras">
+                <div className="ct-wallet-row">
+                  <div className="ct-wallet-icon-wrap">
+                    <span className="material-symbols-outlined">account_balance_wallet</span>
+                  </div>
+                  <div className="ct-wallet-info">
+                    <p className="ct-wallet-title">Wallet Balance</p>
+                    <p className="ct-wallet-sub">
+                      Apply ₹{effectiveWallet.toLocaleString("en-IN")} credit to this order
+                    </p>
+                  </div>
+                  <label className="ct-toggle">
+                    <input
+                      type="checkbox"
+                      className="ct-toggle-input"
+                      checked={useWallet}
+                      onChange={e => setUseWallet(e.target.checked)}
+                    />
+                    <span className="ct-toggle-track">
+                      <span className="ct-toggle-thumb" />
+                    </span>
+                  </label>
+                </div>
+
+                <div className="ct-coupon-row">
+                  <input
+                    type="text"
+                    className="ct-coupon-input"
+                    placeholder="Coupon Code"
+                    value={coupon}
+                    onChange={e => setCoupon(e.target.value)}
+                  />
+                  <button type="button" className="ct-apply-btn" onClick={handleApplyCoupon}>
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Step 2 — Delivery Details */}
+          {step === 2 && (
+            <>
+              <h2 className="ct-section-title">Delivery Details</h2>
+
+              <div className="ct-address-card">
+                <div className="ct-address-icon-wrap">
+                  <span className="material-symbols-outlined">location_on</span>
+                </div>
+                <div className="ct-address-body">
+                  <p className="ct-address-label">Delivering to</p>
+                  <p className="ct-address-main">{addr.street}</p>
+                  <p className="ct-address-sub">
+                    {addr.city}, {addr.state} – {addr.pinCode}
+                  </p>
+                  <Link to="/profile/settings" className="ct-edit-link">
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>edit</span>
+                    Edit Address
+                  </Link>
+                </div>
+              </div>
+
+              <div className="ct-delivery-note">
+                <span className="material-symbols-outlined" style={{ fontSize: 20, flexShrink: 0 }}>schedule</span>
+                <p>
+                  Expected delivery: <strong>Tomorrow, 6:00 AM – 8:00 AM</strong>.
+                  Our delivery partner will call 30 minutes before arrival.
+                </p>
+              </div>
+
+              <div className="ct-delivery-note ct-delivery-note-eco">
+                <span className="material-symbols-outlined" style={{ fontSize: 20, flexShrink: 0 }}>eco</span>
+                <p>All orders are shipped in <strong>eco-friendly, returnable packaging</strong>. Glass bottles will be collected on next delivery.</p>
+              </div>
+            </>
+          )}
+
+          {/* Step 3 — Payment */}
+          {step === 3 && (
+            <>
+              <h2 className="ct-section-title">Choose Payment Method</h2>
+
+              <div className="ct-payment-options">
+                {PAYMENT_METHODS.map(m => (
+                  <label
+                    key={m.id}
+                    className={`ct-payment-option ${paymentMethod === m.id ? "ct-payment-option-active" : ""}`}
+                  >
+                    <input
+                      type="radio"
+                      name="payment"
+                      value={m.id}
+                      checked={paymentMethod === m.id}
+                      onChange={() => setPaymentMethod(m.id)}
+                      className="ct-payment-radio"
+                    />
+                    <span className="ct-payment-icon-wrap">
+                      <span className="material-symbols-outlined">{m.icon}</span>
+                    </span>
+                    <span className="ct-payment-label">{m.label}</span>
+                    {paymentMethod === m.id && (
+                      <span
+                        className="material-symbols-outlined ct-payment-check"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        check_circle
+                      </span>
+                    )}
+                  </label>
+                ))}
+              </div>
+
+              <div className="ct-secure-note">
+                <span className="material-symbols-outlined" style={{ fontSize: 20, flexShrink: 0 }}>verified_user</span>
+                <p>
+                  Your payment is protected with 256-bit SSL encryption.
+                  GIR RITUALS never stores card details.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* ══ RIGHT — Summary ══ */}
+        <aside className="ct-right">
+          <div className="ct-summary-card">
+            <h3 className="ct-summary-title">Summary</h3>
+
+            <div className="ct-summary-rows">
+              <div className="ct-summary-row">
+                <span>Subtotal</span>
+                <span>₹{subtotal.toLocaleString("en-IN")}</span>
+              </div>
+              <div className="ct-summary-row">
+                <span>Delivery Fee</span>
+                <span className="ct-free-tag">FREE</span>
+              </div>
+              {useWallet && walletApplied > 0 && (
+                <div className="ct-summary-row">
+                  <span>Wallet Credit Applied</span>
+                  <span className="ct-deduct-tag">−₹{walletApplied.toLocaleString("en-IN")}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="ct-summary-divider" />
+
+            <div className="ct-summary-total">
+              <span>Total</span>
+              <span>₹{total.toLocaleString("en-IN")}</span>
+            </div>
+
+            <button type="button" className="ct-proceed-btn" onClick={handleProceed}>
+              {proceedLabel}
+              <span className="material-symbols-outlined">{proceedIcon}</span>
+            </button>
+
+            {step > 1 && (
               <button
-    type="button"
-    className="btn btn-secondary"
-    style={{ fontSize: "0.8rem", padding: "0.4rem 0.875rem", whiteSpace: "nowrap" }}
-    onClick={() => handleMoveToCart(p.id)}
-  >
-                Move to Cart
+                type="button"
+                className="ct-back-btn"
+                onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              >
+                <span className="material-symbols-outlined">arrow_back</span>
+                Back
               </button>
-            </div>)}
-        </div>}
-    </div>;
+            )}
+
+            <div className="ct-trust-badges">
+              <div className="ct-trust-badge">
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>verified_user</span>
+                Safe &amp; Secure Payments
+              </div>
+              <div className="ct-trust-badge">
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>eco</span>
+                Eco-friendly Packaging Guaranteed
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
 }
-export {
-  Cart
-};
+
+export { Cart };

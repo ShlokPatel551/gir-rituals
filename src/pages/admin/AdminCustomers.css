@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .cust-page {
   display: flex;
   flex-direction: column;
@@ -243,7 +243,7 @@
 
 /* ── New badge ── */
 .cust-badge-new {
-  background: #dbeafe;
+  background: #FFDBC1;
   color: #1e40af;
 }
 

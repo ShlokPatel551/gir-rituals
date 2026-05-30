@@ -1,195 +1,612 @@
-/* ── Registration-specific overrides ── */
+﻿/* ═══════════════════════════════════════════════
+   Register page — Sacred Purity design
+   ═══════════════════════════════════════════════ */
 
-/* Wider form panel to accommodate address fields */
-.reg-form-panel {
-  padding: 1.5rem;
-}
-
-.reg-form-inner {
-  max-width: 440px !important;
-}
-
-/* ── Step indicator ── */
-.reg-steps {
-  display: flex;
-  align-items: flex-start;
-  gap: 0;
-  margin: 0.25rem 0 0.5rem;
-}
-
-.reg-step {
+/* ── Page shell ── */
+.rr-page {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  flex: 1;
-  position: relative;
-}
-
-.reg-step-dot {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 2px solid var(--md-outline-variant);
-  background: #fff;
-  color: var(--md-on-surface-variant);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-  z-index: 1;
+  padding: 5rem 1.25rem 3rem;
+  background: #FDF9F5;
+  font-family: 'DM Sans', sans-serif;
   position: relative;
+  overflow-x: hidden;
 }
 
-.reg-step-label {
+/* ── Fixed floating brand header ── */
+.rr-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding: 0.875rem 1rem;
+  z-index: 50;
+  background: rgba(251, 249, 248, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(193, 200, 196, 0.3);
+}
+
+.rr-brand-name {
+  font-family: 'Literata', serif;
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: #7B5233;
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.rr-header .rr-brand-sub {
+  font-family: 'DM Sans', sans-serif;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--md-on-surface-variant);
-  text-align: center;
-  white-space: nowrap;
-  transition: color 0.2s;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6B5040;
+  margin: 0.2rem 0 0;
 }
 
-/* Connector line between steps */
-.reg-step-line {
+/* ── Decoration blobs ── */
+.rr-blob {
   position: absolute;
-  top: 17px;
-  left: calc(50% + 17px);
-  width: calc(100% - 34px);
-  height: 2px;
-  background: var(--md-outline-variant);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
   z-index: 0;
-  transition: background 0.2s;
 }
 
-.reg-step-line-done {
-  background: var(--green-700);
+.rr-blob-1 {
+  width: 260px;
+  height: 260px;
+  background: rgba(235, 222, 198, 0.3);
+  top: -5rem;
+  left: -5rem;
 }
 
-/* Active step */
-.reg-step-active .reg-step-dot {
-  border-color: var(--green-700);
-  background: var(--green-700);
+.rr-blob-2 {
+  width: 260px;
+  height: 260px;
+  background: rgba(170, 206, 195, 0.2);
+  bottom: -5rem;
+  right: -5rem;
+}
+
+/* ── Main container ── */
+.rr-main {
+  width: 100%;
+  max-width: 900px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Card ── */
+.rr-card {
+  display: flex;
+  min-height: 600px;
+  background: #fff;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(123, 82, 51, 0.10);
+}
+
+/* ── Left visual panel ── */
+.rr-left {
+  display: none;
+  position: relative;
+  background: #7B5233;
+  align-items: flex-end;
+  padding: 2rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .rr-left {
+    display: flex;
+    width: 40%;
+  }
+}
+
+.rr-left-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+  mix-blend-mode: multiply;
+}
+
+.rr-left-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(123,82,51,0.85) 0%, transparent 60%);
+}
+
+.rr-left-content {
+  position: relative;
+  z-index: 1;
   color: #fff;
-  box-shadow: 0 2px 10px rgba(46, 125, 50, 0.3);
 }
 
-.reg-step-active .reg-step-label {
-  color: var(--green-700);
-  font-weight: 700;
+.rr-left-eyebrow {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-bottom: 0.625rem;
 }
 
-/* Completed step */
-.reg-step-done .reg-step-dot {
-  border-color: var(--green-700);
-  background: var(--green-700);
+.rr-left-headline {
+  font-family: 'Literata', serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0 0 0.75rem;
   color: #fff;
 }
 
-.reg-step-done .reg-step-label {
-  color: var(--green-700);
-}
-
-/* ── Two-column row ── */
-.reg-row-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-/* ── Step intro line ── */
-.reg-step-intro {
-  font-size: 0.9rem;
-  color: var(--md-on-surface);
-  margin: 0;
-  padding: 0.625rem 0.875rem;
-  background: var(--md-primary-container);
-  border-radius: var(--md-radius-sm);
-  border-left: 3px solid var(--green-700);
-}
-
-/* ── Password hint ── */
-.reg-hint {
-  font-size: 0.75rem;
-  color: var(--md-on-surface-variant);
+.rr-left-body {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  opacity: 0.72;
   margin: 0;
 }
 
-/* ── Checkbox row ── */
-.reg-checkbox-row {
+/* ── Right form panel ── */
+.rr-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .rr-right {
+    padding: 3rem;
+  }
+}
+
+/* ── Progress dots ── */
+.rr-progress {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--md-on-surface);
-  cursor: pointer;
-  padding: 0.5rem 0;
+  margin-bottom: 2rem;
 }
 
-.reg-checkbox-row input[type='checkbox'] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--green-700);
-  cursor: pointer;
+.rr-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #D9C5B2;
+  transition: background 0.3s, transform 0.3s;
   flex-shrink: 0;
 }
 
-/* ── Same-address preview box ── */
-.reg-same-address-preview {
+.rr-dot-active {
+  background: #7B5233;
+  transform: scale(1.25);
+}
+
+.rr-progress-label {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9A7B68;
+}
+
+/* ── Step wrap ── */
+.rr-step-wrap {
+  flex: 1;
+  animation: rrFadeIn 0.4s ease-out both;
+}
+
+@keyframes rrFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Step heading */
+.rr-step-title {
+  font-family: 'Literata', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #7B5233;
+  margin: 0 0 0.375rem;
+}
+
+.rr-step-desc {
+  font-size: 0.9rem;
+  color: #6B5040;
+  margin: 0 0 2rem;
+}
+
+/* ── Input groups ── */
+.rr-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.rr-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.rr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rr-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9A7B68;
+}
+
+.rr-input {
+  width: 100%;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #D9C5B2;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: #3C2A21;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.25s;
+}
+
+.rr-input:focus {
+  border-bottom-color: #be9953;
+}
+
+.rr-input::placeholder {
+  color: #D9C5B2;
+}
+
+/* Password wrapper */
+.rr-pass-wrap {
+  position: relative;
+}
+
+.rr-pass-wrap .rr-input {
+  padding-right: 2rem;
+}
+
+.rr-eye {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9A7B68;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.rr-eye:hover { color: #7B5233; }
+
+.rr-eye .material-symbols-outlined { font-size: 20px; }
+
+.rr-hint {
+  font-size: 0.7375rem;
+  color: #9A7B68;
+  margin: 0.25rem 0 0;
+}
+
+/* ── Same-as-billing checkbox ── */
+.rr-same-check {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  color: #3C2A21;
+  margin-bottom: 1.5rem;
+}
+
+.rr-same-check input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: #7B5233;
+  cursor: pointer;
+  border-radius: 0.2rem;
+  flex-shrink: 0;
+}
+
+/* Same-address preview card */
+.rr-addr-preview {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  background: var(--md-surface-container-low);
-  border-radius: var(--md-radius-sm);
-  border: 1px dashed var(--md-outline-variant);
+  padding: 1rem;
+  background: #F9F3E9;
+  border-radius: 0.625rem;
+  border: 1px dashed #D9C5B2;
 }
 
-.reg-same-address-preview span {
-  font-size: 1.125rem;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.reg-same-address-preview p {
+.rr-addr-preview p {
   font-size: 0.875rem;
-  color: var(--md-on-surface);
-  margin: 0 0 3px;
+  color: #3C2A21;
+  margin: 0 0 0.2rem;
   line-height: 1.5;
 }
 
-.reg-same-address-preview p:last-child {
-  color: var(--md-on-surface-variant);
+.rr-addr-preview p:last-child {
+  color: #9A7B68;
   font-size: 0.8125rem;
 }
 
-/* ── Bottom actions row ── */
-.reg-actions {
+/* ── OTP inputs ── */
+.rr-otp-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 400px) {
+  .rr-otp-row { gap: 1rem; }
+}
+
+.rr-otp-box {
+  width: 2.75rem;
+  height: 3.5rem;
+  text-align: center;
+  font-family: 'Literata', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #7B5233;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #D9C5B2;
+  outline: none;
+  transition: border-color 0.25s;
+  box-sizing: border-box;
+}
+
+.rr-otp-box:focus {
+  border-bottom-color: #be9953;
+}
+
+.rr-resend {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #9A7B68;
+}
+
+.rr-resend button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #7B5233;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.rr-resend button:hover { opacity: 0.75; }
+
+/* Demo OTP hint */
+.rr-otp-hint {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #be9953;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* ── Error banner ── */
+.rr-error {
+  padding: 0.75rem 1rem;
+  background: #ffdad6;
+  color: #93000a;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-left: 3px solid #ba1a1a;
+  margin-bottom: 1.25rem;
+  animation: rrFadeIn 0.3s ease-out;
+}
+
+/* ── Action row ── */
+.rr-actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 0.25rem;
+  margin-top: 2rem;
 }
 
-.reg-back-btn {
-  flex-shrink: 0;
-  padding: 0.9rem 1.25rem;
-  background: transparent;
-  border: 1.5px solid var(--md-outline-variant);
-  border-radius: var(--md-radius-sm);
-  font-family: var(--font-body);
+.rr-prev-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9375rem;
+  color: #6B5040;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.rr-prev-btn:hover { color: #7B5233; }
+
+.rr-prev-btn .material-symbols-outlined { font-size: 20px; }
+
+.rr-next-btn {
+  margin-left: auto;
+  background: #7B5233;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem 2.5rem;
+  font-family: 'DM Sans', sans-serif;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--md-on-surface);
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  box-shadow: 0 2px 12px rgba(123,82,51,0.2);
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
   white-space: nowrap;
 }
 
-.reg-back-btn:hover {
-  background: var(--md-surface-container-low);
-  border-color: var(--md-outline);
+.rr-next-btn:hover:not(:disabled) {
+  background: #43655c;
+  box-shadow: 0 4px 20px rgba(123,82,51,0.28);
 }
+
+.rr-next-btn:active:not(:disabled) { transform: scale(0.98); }
+
+.rr-next-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Login link ── */
+.rr-login-link {
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: #6B5040;
+  text-align: center;
+}
+
+.rr-login-link a {
+  color: #7B5233;
+  font-weight: 700;
+  text-decoration: none;
+  transition: text-decoration 0.15s;
+}
+
+.rr-login-link a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Footer ── */
+.rr-footer {
+  margin-top: 2rem;
+  text-align: center;
+  opacity: 0.4;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-family: 'DM Sans', sans-serif;
+  color: #3C2A21;
+}
+
+/* ── Success screen ── */
+.rr-success-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: #FDF9F5;
+  font-family: 'DM Sans', sans-serif;
+  text-align: center;
+  animation: rrFadeIn 0.6s ease-out;
+}
+
+.rr-success-icon {
+  width: 5rem;
+  height: 5rem;
+  background: #F4E3D0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.rr-success-icon .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: #7B5233;
+  font-variation-settings: 'FILL' 1, 'wght' 500;
+}
+
+.rr-success-title {
+  font-family: 'Literata', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #7B5233;
+  margin: 0 0 1rem;
+}
+
+.rr-success-body {
+  font-size: 1rem;
+  color: #6B5040;
+  line-height: 1.6;
+  max-width: 380px;
+  margin: 0 auto 2rem;
+}
+
+.rr-success-body strong { color: #7B5233; }
+
+.rr-client-card {
+  background: #F9F3E9;
+  border-radius: 0.75rem;
+  padding: 1.5rem 2rem;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 2.5rem;
+}
+
+.rr-client-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9A7B68;
+  margin: 0 0 0.375rem;
+}
+
+.rr-client-id {
+  font-family: 'Literata', serif;
+  font-size: 1.625rem;
+  font-weight: 600;
+  color: #483200;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.rr-enter-btn {
+  display: inline-block;
+  background: #7B5233;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem 3rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(123,82,51,0.2);
+  transition: background 0.2s, transform 0.1s;
+  text-decoration: none;
+  width: 100%;
+  max-width: 320px;
+}
+
+.rr-enter-btn:hover { background: #43655c; }
+.rr-enter-btn:active { transform: scale(0.98); }
