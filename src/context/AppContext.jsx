@@ -94,7 +94,6 @@ function AppProvider({ children }) {
     setStatementEntries([]);
     setPaymentMethods([]);
     setOrders([]);
-    setWalletBalance(0);
   }, []);
 
   const togglePause = useCallback(async (ritualId) => {
@@ -201,6 +200,7 @@ function AppProvider({ children }) {
   const value = useMemo(() => ({
     session,
     user: user ?? defaultUser,
+    walletBalance: user?.walletBalance ?? 0,
     products,
     offers,
     orders,
@@ -232,7 +232,7 @@ function AppProvider({ children }) {
     cartTotal,
     loadUserData,
   }), [
-    session, user, products, offers, orders, rituals, cart, favourites, bills,
+    session, user, user?.walletBalance, products, offers, orders, rituals, cart, favourites, bills,
     notifications, pausedToday, statementEntries, paymentMethods,
     login, logout, register, togglePause, addExtra, addToCart, updateCartQty,
     removeFromCart, toggleFavourite, markAllNotificationsRead, markNotificationRead, payBill,

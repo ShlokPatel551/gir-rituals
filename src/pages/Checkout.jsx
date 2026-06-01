@@ -21,6 +21,7 @@ function Checkout() {
       {step === 1 && <div className="card">
           {cart.map((item) => {
     const p = products.find((x) => x.id === item.productId);
+    if (!p) return null;
     return <div key={item.productId} style={{ padding: "0.5rem 0", borderBottom: "1px solid var(--border)" }}>
                 {p.name} × {item.quantity} — ₹{p.price * item.quantity}
               </div>;

@@ -155,8 +155,8 @@ Creates `server/gir_rituals.db` with demo products, offers, a demo user, subscri
 
 | Role | Email | Password |
 |------|-------|----------|
-| Customer | `demo@girrituals.com` | `demo123` |
-| Admin | `owner@girrituals.com` | `admin123` |
+| Customer | `demo@girrituals.com` | `Demo@1234` |
+| Admin | `owner@girrituals.com` | `password123` |
 
 ### Run in Development
 
