@@ -176,6 +176,36 @@ npm run build
 npm run preview    # Preview the production build locally
 ```
 
+### Run as a Single Server (Production Mode)
+
+In production the Express server serves both the API and the React frontend:
+
+```bash
+npm run build      # Build Vite → dist/
+npm start          # Express serves dist/ + /api/* at one port
+```
+
+---
+
+## Deployment (Railway)
+
+The project ships with `railway.json`. To deploy:
+
+1. Push this repo to GitHub
+2. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub Repo**
+3. Select this repository — Railway auto-detects `railway.json`
+4. In **Variables**, add:
+
+   | Variable | Value |
+   |----------|-------|
+   | `JWT_SECRET` | any long random string |
+   | `VITE_GOOGLE_CLIENT_ID` | your Google OAuth client ID |
+   | `NODE_VERSION` | `22` |
+
+5. Click **Deploy** — Railway will run `npm install && npm run build` then `npm start`
+
+> **SQLite note:** Railway's free tier uses an ephemeral filesystem — the DB is reset on every redeploy. For a persistent database, attach a Railway Volume and point `DB_PATH` to it, or migrate to a hosted Postgres/MySQL.
+
 ---
 
 ## API Overview

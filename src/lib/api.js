@@ -1,7 +1,7 @@
 const BASE = '/api';
 
 function getToken() {
-  return localStorage.getItem('gir_token');
+  return localStorage.getItem('gir_admin_token') || localStorage.getItem('gir_token');
 }
 
 async function request(path, { method = 'GET', body, headers = {} } = {}) {

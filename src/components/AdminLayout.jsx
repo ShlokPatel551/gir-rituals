@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { getAdminSession, logoutAdmin, ADMIN_ACCOUNTS, switchAdminAccount } from "../lib/adminAuth";
+import { getAdminSession, logoutAdmin } from "../lib/adminAuth";
 import { ADMIN_NOTIFS } from "../data/adminNotifications";
 import "./AdminLayout.css";
 const NAV = [
@@ -29,8 +29,9 @@ function AdminLayout() {
   );
   const notifRef = useRef(null);
   const userMenuRef = useRef(null);
-  const currentAccount = ADMIN_ACCOUNTS.find((a) => a.email === admin?.email) ?? ADMIN_ACCOUNTS[0];
-  const otherAccounts = ADMIN_ACCOUNTS.filter((a) => a.email !== admin?.email);
+  const adminName     = admin?.name  ?? "Admin";
+  const adminEmail    = admin?.email ?? "";
+  const adminInitials = adminName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
   const notifs = ADMIN_NOTIFS.map((n) => ({ ...n, read: readIds.has(n.id) }));
   const unread = notifs.filter((n) => !n.read).length;
   function markAllRead() {
@@ -185,8 +186,8 @@ function AdminLayout() {
                 <p className="admin-topbar-name">{admin?.name ?? "Admin"}</p>
                 <p className="admin-topbar-org">Gir Rituals HQ</p>
               </div>
-              <div className="admin-topbar-avatar" style={{ background: currentAccount.avatarBg }}>
-                {currentAccount.initials}
+              <div className="admin-topbar-avatar" style={{ background: "#012d1d" }}>
+                {adminInitials}
               </div>
             </button>
 
@@ -195,39 +196,14 @@ function AdminLayout() {
     /* Profile header */
   }
                 <div className="admin-user-dd-header">
-                  <div className="admin-user-dd-avatar" style={{ background: currentAccount.avatarBg }}>
-                    {currentAccount.initials}
+                  <div className="admin-user-dd-avatar" style={{ background: "#012d1d" }}>
+                    {adminInitials}
                   </div>
                   <div className="admin-user-dd-info">
-                    <p className="admin-user-dd-name">{currentAccount.name}</p>
-                    <p className="admin-user-dd-email">{currentAccount.email}</p>
-                    <span className="admin-user-dd-role-badge">{currentAccount.role}</span>
+                    <p className="admin-user-dd-name">{adminName}</p>
+                    <p className="admin-user-dd-email">{adminEmail}</p>
+                    <span className="admin-user-dd-role-badge">Admin</span>
                   </div>
-                </div>
-
-                {
-    /* Switch account */
-  }
-                <div className="admin-user-dd-section">
-                  <p className="admin-user-dd-section-label">Switch account</p>
-                  {otherAccounts.map((acc) => <button
-    key={acc.email}
-    type="button"
-    className="admin-user-dd-account-btn"
-    onClick={() => {
-      switchAdminAccount(acc.email);
-      setAdmin(getAdminSession());
-      setUserMenuOpen(false);
-    }}
-  >
-                      <div className="admin-user-dd-acc-avatar" style={{ background: acc.avatarBg }}>
-                        {acc.initials}
-                      </div>
-                      <div>
-                        <p className="admin-user-dd-acc-name">{acc.name}</p>
-                        <p className="admin-user-dd-acc-role">{acc.role}</p>
-                      </div>
-                    </button>)}
                 </div>
 
                 <div className="admin-user-dd-divider" />

@@ -1,6 +1,31 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { api } from "../../lib/api";
 import "./AdminOrders.css";
+
+const AVATAR_COLORS = [
+  { bg: "#ffdcbd", fg: "#2c1600" }, { bg: "#ffdcc4", fg: "#2f1400" },
+  { bg: "#ffca98", fg: "#7a532a" }, { bg: "#a5d0b9", fg: "#274e3d" },
+  { bg: "#c1ecd4", fg: "#012d1d" }, { bg: "#ffdad6", fg: "#93000a" },
+];
+
+function toRow(o, i) {
+  const name = `${o.first_name} ${o.last_name}`;
+  const inits = name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+  const c = AVATAR_COLORS[i % AVATAR_COLORS.length];
+  return {
+    id:         o.id,
+    customer:   name,
+    initials:   inits,
+    email:      o.email,
+    avatarBg:   c.bg,
+    avatarColor: c.fg,
+    product:    o.product_name,
+    amount:     o.total ? `₹${Number(o.total).toLocaleString("en-IN")}` : "—",
+    date:       o.created_at ? new Date(o.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—",
+    status:     o.status || "active",
+  };
+}
 const ORDERS = [
   { id: "#ORD-92831", customer: "Aditi Sharma", initials: "AS", email: "aditi.s@gmail.com", avatarBg: "#ffdcbd", avatarColor: "#2c1600", product: "A2 Gir Milk 2L, Vedic Ghee 500g", amount: "\u20B91,450", date: "May 24, 2026", status: "delivered" },
   { id: "#ORD-92842", customer: "Rajesh Jain", initials: "RJ", email: "rajesh@outlook.com", avatarBg: "#ffdcc4", avatarColor: "#2f1400", product: "Raw Honey 250g", amount: "\u20B9650", date: "May 25, 2026", status: "processing" },
@@ -31,14 +56,22 @@ const TAB_STATUSES = {
   active: ["shipped"]
 };
 function AdminOrders() {
+  const [rawOrders, setRawOrders] = useState([]);
   const [tab, setTab] = useState("all");
+
+  useEffect(() => {
+    api.adminOrders().then(setRawOrders).catch(() => {});
+  }, []);
+
+  const ORDERS = useMemo(() => rawOrders.map(toRow), [rawOrders]);
+
   const visible = ORDERS.filter((o) => TAB_STATUSES[tab].includes(o.status));
   const counts = {
-    all: ORDERS.length,
-    delivered: ORDERS.filter((o) => o.status === "delivered").length,
-    pending: ORDERS.filter((o) => ["pending", "processing"].includes(o.status)).length,
-    shipped: ORDERS.filter((o) => o.status === "shipped").length,
-    cancelled: ORDERS.filter((o) => o.status === "cancelled").length
+    all:       ORDERS.length,
+    delivered: ORDERS.filter(o => o.status === "delivered").length,
+    pending:   ORDERS.filter(o => ["pending", "processing"].includes(o.status)).length,
+    shipped:   ORDERS.filter(o => o.status === "shipped").length,
+    cancelled: ORDERS.filter(o => o.status === "cancelled").length,
   };
   return <div className="ord-page">
 
@@ -134,7 +167,7 @@ function AdminOrders() {
               Filters
             </button>
           </div>
-          <p className="ord-results-info">Showing 1–{visible.length} of {ORDERS.length} results</p>
+          <p className="ord-results-info">Showing {visible.length} of {ORDERS.length} orders</p>
         </div>
 
         {

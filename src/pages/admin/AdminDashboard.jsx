@@ -1,18 +1,30 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { api } from "../../lib/api";
 import "./AdminDashboard.css";
-const REVENUE_BARS = [40, 55, 45, 70, 60, 50, 85, 40, 65, 95, 30, 75];
+
+const REVENUE_BARS   = [40, 55, 45, 70, 60, 50, 85, 40, 65, 95, 30, 75];
 const REVENUE_LABELS = ["01 May", "15 May", "30 May"];
-const RECENT_ORDERS = [
-  { initials: "PS", name: "Priya S.", product: "Gir Milk", qty: "2 L", status: "Active", color: "var(--admin-secondary-fixed-dim)" },
-  { initials: "RM", name: "Rahul M.", product: "Ghee", qty: "500g", status: "Pending", color: "#ffdcc4" },
-  { initials: "AK", name: "Anjali K.", product: "Gir Milk", qty: "1 L", status: "Active", color: "var(--admin-surface-container-high)" }
-];
+const AVATAR_COLORS  = ["var(--admin-secondary-fixed-dim)", "#ffdcc4", "var(--admin-surface-container-high)", "#ffdcbd", "#c8e6c9"];
+
+function initials(name = "") {
+  return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+}
+
 function AdminDashboard() {
   const navigate = useNavigate();
-  const totalCustomers = 247;
-  const activeSubscriptions = 189;
-  const todayDeliveries = 176;
-  const monthlyRevenue = "\u20B982,400";
+  const [stats,        setStats]        = useState(null);
+  const [recentOrders, setRecentOrders] = useState([]);
+
+  useEffect(() => {
+    api.adminDashboard().then(setStats).catch(() => {});
+    api.adminOrders().then(rows => setRecentOrders(rows.slice(0, 5))).catch(() => {});
+  }, []);
+
+  const totalCustomers      = stats?.totalCustomers      ?? "\u2014";
+  const activeSubscriptions = stats?.activeSubscriptions ?? "\u2014";
+  const todayDeliveries     = stats?.totalOrders         ?? "\u2014";
+  const monthlyRevenue      = stats ? `\u20B9${Number(stats.totalRevenue).toLocaleString("en-IN")}` : "\u2014";
   return <div className="adm-dashboard">
 
       {
@@ -207,24 +219,29 @@ function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {RECENT_ORDERS.map((row) => <tr key={row.name}>
-                  <td>
-                    <div className="adm-customer-cell">
-                      <div className="adm-avatar" style={{ background: row.color }}>{row.initials}</div>
-                      <span className="adm-customer-name">{row.name}</span>
-                    </div>
-                  </td>
-                  <td className="adm-cell-muted">{row.product}</td>
-                  <td className="adm-cell-muted">{row.qty}</td>
-                  <td style={{ textAlign: "center" }}>
-                    <span className={`admin-badge admin-badge-${row.status.toLowerCase()}`}>
-                      {row.status}
-                    </span>
-                  </td>
-                  <td style={{ textAlign: "right" }}>
-                    <button type="button" className="adm-view-btn" onClick={() => navigate("/admin/orders")}>View</button>
-                  </td>
-                </tr>)}
+              {recentOrders.length === 0 ? (
+                <tr><td colSpan={5} style={{ textAlign: "center", color: "var(--admin-on-surface-variant)", padding: "1.5rem" }}>No orders yet</td></tr>
+              ) : recentOrders.map((row, i) => {
+                const name = `${row.first_name} ${row.last_name}`;
+                return (
+                  <tr key={row.id}>
+                    <td>
+                      <div className="adm-customer-cell">
+                        <div className="adm-avatar" style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>{initials(name)}</div>
+                        <span className="adm-customer-name">{name}</span>
+                      </div>
+                    </td>
+                    <td className="adm-cell-muted">{row.product_name}</td>
+                    <td className="adm-cell-muted">{row.qty}</td>
+                    <td style={{ textAlign: "center" }}>
+                      <span className={`admin-badge admin-badge-${row.status}`}>{row.status}</span>
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      <button type="button" className="adm-view-btn" onClick={() => navigate("/admin/orders")}>View</button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
