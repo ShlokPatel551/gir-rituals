@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { products } from "../data/mockData";
 import { useApp } from "../context/AppContext";
 function Favourites() {
-  const { favourites, toggleFavourite } = useApp();
+  const { favourites, toggleFavourite, products } = useApp();
   const items = products.filter((p) => favourites.includes(p.id));
   if (items.length === 0) {
     return <div>

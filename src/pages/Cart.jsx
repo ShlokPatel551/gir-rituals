@@ -22,10 +22,9 @@ const MOCK_WALLET = 450;
 const STEP_LABELS = ["Order Review", "Delivery Details", "Payment"];
 
 const PAYMENT_METHODS = [
-  { id: "upi",        icon: "smartphone",              label: "UPI"                  },
-  { id: "netbanking", icon: "account_balance",         label: "Net Banking"          },
-  { id: "card",       icon: "credit_card",             label: "Credit / Debit Card"  },
-  { id: "wallet",     icon: "account_balance_wallet",  label: "Ritual Wallet"        },
+  { id: "upi",        icon: "smartphone",      label: "UPI"                 },
+  { id: "netbanking", icon: "account_balance", label: "Net Banking"         },
+  { id: "card",       icon: "credit_card",     label: "Credit / Debit Card" },
 ];
 
 function imgKey(productId = "") {
@@ -114,11 +113,10 @@ function CartProductCard({ item, isReal, onQtyChange, onRemove }) {
 
 /* ── Main Cart Component ─────────────────────────────────────── */
 function Cart() {
-  const { cart, cartTotal, updateCartQty, removeFromCart, user, products, walletBalance } = useApp();
+  const { cart, cartTotal, updateCartQty, removeFromCart, user, products } = useApp();
   const { showToast } = useToast();
 
   const [step,          setStep]          = useState(1);
-  const [useWallet,     setUseWallet]     = useState(true);
   const [coupon,        setCoupon]        = useState("");
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [success,       setSuccess]       = useState(false);
@@ -141,10 +139,8 @@ function Cart() {
     return MOCK_CART_ITEMS;
   }, [cart, products, isRealCart]);
 
-  const subtotal      = isRealCart ? cartTotal : MOCK_CART_ITEMS.reduce((s, i) => s + i.price * i.quantity, 0);
-  const effectiveWallet = walletBalance > 0 ? walletBalance : MOCK_WALLET;
-  const walletApplied = useWallet ? Math.min(effectiveWallet, subtotal) : 0;
-  const total         = Math.max(0, subtotal - walletApplied);
+  const subtotal = isRealCart ? cartTotal : MOCK_CART_ITEMS.reduce((s, i) => s + i.price * i.quantity, 0);
+  const total    = subtotal;
 
   const addr = user?.deliveryAddress ?? { street: "12 Farm Lane", city: "Ahmedabad", state: "Gujarat", pinCode: "380001" };
 
@@ -261,31 +257,8 @@ function Cart() {
                 ))}
               </div>
 
-              {/* Wallet + Coupon */}
+              {/* Coupon */}
               <div className="ct-extras">
-                <div className="ct-wallet-row">
-                  <div className="ct-wallet-icon-wrap">
-                    <span className="material-symbols-outlined">account_balance_wallet</span>
-                  </div>
-                  <div className="ct-wallet-info">
-                    <p className="ct-wallet-title">Wallet Balance</p>
-                    <p className="ct-wallet-sub">
-                      Apply ₹{effectiveWallet.toLocaleString("en-IN")} credit to this order
-                    </p>
-                  </div>
-                  <label className="ct-toggle">
-                    <input
-                      type="checkbox"
-                      className="ct-toggle-input"
-                      checked={useWallet}
-                      onChange={e => setUseWallet(e.target.checked)}
-                    />
-                    <span className="ct-toggle-track">
-                      <span className="ct-toggle-thumb" />
-                    </span>
-                  </label>
-                </div>
-
                 <div className="ct-coupon-row">
                   <input
                     type="text"
@@ -399,12 +372,6 @@ function Cart() {
                 <span>Delivery Fee</span>
                 <span className="ct-free-tag">FREE</span>
               </div>
-              {useWallet && walletApplied > 0 && (
-                <div className="ct-summary-row">
-                  <span>Wallet Credit Applied</span>
-                  <span className="ct-deduct-tag">−₹{walletApplied.toLocaleString("en-IN")}</span>
-                </div>
-              )}
             </div>
 
             <div className="ct-summary-divider" />

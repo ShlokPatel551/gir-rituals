@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ADMIN_NOTIFS } from "../../data/adminNotifications";
 import "./AdminDashboard.css";
 const REVENUE_BARS = [40, 55, 45, 70, 60, 50, 85, 40, 65, 95, 30, 75];
 const REVENUE_LABELS = ["01 May", "15 May", "30 May"];
@@ -186,11 +185,6 @@ function AdminDashboard() {
       </div>
 
       {
-    /* ── Dashboard body: orders + notifications side by side ── */
-  }
-      <div className="adm-body-grid">
-
-      {
     /* ── Recent orders table ── */
   }
       <div className="bento-card adm-table-card">
@@ -236,71 +230,6 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {
-    /* ── Notification feed ── */
-  }
-      <div className="bento-card adm-notif-card">
-        <div className="adm-notif-card-header">
-          <h3 className="adm-section-title">Recent Alerts</h3>
-          <span className="adm-notif-card-badge">{ADMIN_NOTIFS.filter((n) => !n.read).length} new</span>
-        </div>
-        <div className="adm-notif-feed">
-          {ADMIN_NOTIFS.map((n) => <button
-    key={n.id}
-    type="button"
-    className={`adm-notif-row ${!n.read ? "adm-notif-row-unread" : ""}`}
-    onClick={() => navigate(n.link)}
-  >
-              <div className="adm-notif-row-icon" style={{ background: n.bg }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 16, color: n.color }}>{n.icon}</span>
-              </div>
-              <div className="adm-notif-row-body">
-                <p className="adm-notif-row-title">{n.title}</p>
-                <p className="adm-notif-row-desc">{n.desc}</p>
-              </div>
-              <span className="adm-notif-row-time">{n.time}</span>
-              {!n.read && <span className="adm-notif-row-dot" />}
-            </button>)}
-        </div>
-      </div>
-
-      </div>{
-    /* end adm-body-grid */
-  }
-
-      {
-    /* ── Seasonal highlights ── */
-  }
-      <div className="adm-highlights-grid">
-        <div className="adm-highlight-card">
-          <img
-    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEXwGPnXTzANbYI_Oc8YU3AJZcSxt7bw8fjKEiiGO-5lh9o3ZuTEysCrq81XcYyjR0tb2f8BJhm27_aXqqGdLmdGum4xOLd57yFtjVIPuRyO5wOoXV0d-9Qpk8G5kAF_xy9yubM1I5aUczoMefpLfWBbLqkZZ1EC8d6Smjy4lSzBinQQPGO8eUqdlJkgH8nm92rz_xjQgv0mBcPuCtsc4eixSrZ9juy2PWfPEiq0Yy2NoAoI7Q0niNa6uwzI7Z5Okbc0FNcq_5inTV"
-    alt="Gir cow dairy farm"
-    className="adm-highlight-img"
-    onError={(e) => {
-      e.target.style.display = "none";
-    }}
-  />
-          <div className="adm-highlight-overlay adm-overlay-primary">
-            <p className="adm-highlight-heading">Inventory Alert</p>
-            <p className="adm-highlight-sub">A2 Ghee stocks are running low for the weekend cycle.</p>
-          </div>
-        </div>
-        <div className="adm-highlight-card">
-          <img
-    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgVkbwvhPmtSx8_6RHbmAU4soC7GXbagzreNtVQc9gvj8Ns662242sW_Zlcpz3n_fYaTc9c0yI07tayj73vJIGPfA9CWwYNXU64ckeVqHnCAMES8M1w_5oEtu-gvsy3mea-3Qv-FOA2wcPY7N7Cx-HFGsuF4pU5X9tpck2cDtivoZJ_MHuA_VpDrsy8cT9SFRPz2FbP0y-v1mkwwHr17VhoYwNCyXlHuQEz8xRo-lETWZeSFXtE0fzmx7imtg5dvc2nUCZPi6LfcNw"
-    alt="Gir Rituals milk bottles"
-    className="adm-highlight-img"
-    onError={(e) => {
-      e.target.style.display = "none";
-    }}
-  />
-          <div className="adm-highlight-overlay adm-overlay-secondary">
-            <p className="adm-highlight-heading">New Campaign</p>
-            <p className="adm-highlight-sub">Live 'Farm-to-Door' tracking is now active for all subscribers.</p>
-          </div>
-        </div>
-      </div>
 
     </div>;
 }

@@ -22,10 +22,15 @@ async function request(path, { method = 'GET', body, headers = {} } = {}) {
 
 export const api = {
   // Auth
-  login:       (email, password)  => request('/auth/login',      { method: 'POST', body: { email, password } }),
-  register:    (data)              => request('/auth/register',   { method: 'POST', body: data }),
-  sendOtp:     (identifier)        => request('/auth/otp/send',   { method: 'POST', body: { identifier } }),
-  verifyOtp:   (identifier, code)  => request('/auth/otp/verify', { method: 'POST', body: { identifier, code } }),
+  login:           (email, password)              => request('/auth/login',           { method: 'POST', body: { email, password } }),
+  register:        (data)                         => request('/auth/register',         { method: 'POST', body: data }),
+  sendOtp:         (identifier)                   => request('/auth/otp/send',         { method: 'POST', body: { identifier } }),
+  verifyOtp:       (identifier, code)             => request('/auth/otp/verify',       { method: 'POST', body: { identifier, code } }),
+  googleAuth:      (email, firstName, lastName)   => request('/auth/google',           { method: 'POST', body: { email, firstName, lastName } }),
+  appleAuth:       (identityToken, firstName, lastName, email) => request('/auth/apple', { method: 'POST', body: { identityToken, firstName, lastName, email } }),
+  forgotPassword:  (email)                        => request('/auth/forgot-password',  { method: 'POST', body: { email } }),
+  resetPassword:   (email, code, newPassword)     => request('/auth/reset-password',   { method: 'POST', body: { email, code, newPassword } }),
+  changePassword:  (currentPassword, newPassword) => request('/auth/change-password',  { method: 'POST', body: { currentPassword, newPassword } }),
 
   // Products
   getProducts: ()   => request('/products'),
@@ -34,8 +39,6 @@ export const api = {
   // User
   getProfile:        ()      => request('/user/profile'),
   updateProfile:     (data)  => request('/user/profile',    { method: 'PUT',  body: data }),
-  getWallet:         ()      => request('/user/wallet'),
-  addWalletCredit:   (amt)   => request('/user/wallet/add', { method: 'POST', body: { amount: amt } }),
   getStatement:      (month) => request(`/user/statement${month ? `?month=${encodeURIComponent(month)}` : ''}`),
   addPaymentMethod:  (data)  => request('/user/payment-methods',           { method: 'POST',   body: data }),
   deletePaymentMethod: (id)  => request(`/user/payment-methods/${id}`,     { method: 'DELETE' }),
@@ -70,5 +73,4 @@ export const api = {
   adminCustomers: ()                => request('/admin/customers'),
   adminCustomer:  (id)              => request(`/admin/customers/${id}`),
   adminOrders:    ()                => request('/admin/orders'),
-  adminOtpLogs:   ()                => request('/admin/otp-logs'),
 };

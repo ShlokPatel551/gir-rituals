@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { products } from "../data/mockData";
 import { useApp } from "../context/AppContext";
 import { useToast } from "../context/ToastContext";
 const RECIPES = {
@@ -48,7 +47,7 @@ const RECIPES = {
 function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart, addExtra, favourites, toggleFavourite } = useApp();
+  const { addToCart, addExtra, favourites, toggleFavourite, products } = useApp();
   const { showToast } = useToast();
   const [openRecipe, setOpenRecipe] = useState(null);
   const [subscribeModal, setSubscribeModal] = useState(false);

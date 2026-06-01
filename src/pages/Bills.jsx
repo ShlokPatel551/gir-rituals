@@ -1,278 +1,375 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useApp } from "../context/AppContext";
-import { billLineItems } from "../data/mockData";
 import { useToast } from "../context/ToastContext";
-const statementTypeLabel = {
-  delivery: "\u{1F4E6} Delivery",
-  extra: "\u2795 Extra Order",
-  pause: "\u23F8 Paused",
-  payment: "\u2705 Payment",
-  refund: "\u21A9 Refund",
-  store_credit: "\u{1F4B3} Store Credit"
-};
-function Bills() {
-  const { bills, statementEntries, walletBalance, addWalletCredit, payBill } = useApp();
-  const { showToast } = useToast();
-  const [tab, setTab] = useState("unpaid");
-  const [expandedBill, setExpandedBill] = useState(null);
-  const [filterMonth, setFilterMonth] = useState("All");
-  const [selectedBills, setSelectedBills] = useState(/* @__PURE__ */ new Set());
-  const paid = bills.filter((b) => b.status === "paid");
-  const unpaid = bills.filter((b) => b.status === "unpaid");
-  const availableMonths = ["All", ...Array.from(new Set(statementEntries.map((e) => e.month)))];
-  const filteredStatements = filterMonth === "All" ? statementEntries : statementEntries.filter((e) => e.month === filterMonth);
-  const statementsWithBalance = filteredStatements.reduce((acc, entry) => {
-    const prev = acc.length > 0 ? acc[acc.length - 1].balance : 0;
-    const delta = entry.credit ? entry.amount : -entry.amount;
-    acc.push({ entry, balance: prev + delta });
-    return acc;
-  }, []);
-  const toggleBillSelection = (id) => {
-    setSelectedBills((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-  const bulkTotal = unpaid.filter((b) => selectedBills.has(b.id)).reduce((s, b) => s + b.amount, 0);
-  const handleBulkPay = () => {
-    selectedBills.forEach((id) => payBill(id));
-    showToast(`Paid ${selectedBills.size} bill(s) \u2014 \u20B9${bulkTotal.toFixed(2)} total.`);
-    setSelectedBills(/* @__PURE__ */ new Set());
-  };
-  return <div>
-      <h1 className="page-title">My Bills</h1>
+import "./Bills.css";
 
-      {
-    /* Wallet card */
-  }
-      {walletBalance > 0 && <div className="card" style={{ marginBottom: "1rem", background: "var(--md-primary-container)", border: "1px solid transparent" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <strong>Wallet Balance</strong>
-              <p style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--green-700)", margin: 0 }}>₹{walletBalance.toFixed(2)}</p>
-              <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: 0 }}>Use at checkout · Valid 6 months</p>
-            </div>
-            <span style={{ fontSize: "2rem" }}>💳</span>
-          </div>
-        </div>}
+/* ── Static chart / mix data ─────────────────────────────────── */
+const CHART_MONTHS = [
+  { label: "JAN", height: 96,  amount: 1200 },
+  { label: "FEB", height: 128, amount: 1680 },
+  { label: "MAR", height: 112, amount: 1450 },
+  { label: "APR", height: 160, amount: 2450, highlight: true },
+  { label: "MAY", height: 80,  amount: 980  },
+  { label: "JUN", height: 144, amount: 1890 },
+];
 
-      <div className="tabs">
-        <button type="button" className={`tab ${tab === "paid" ? "active" : ""}`} onClick={() => setTab("paid")}>Paid</button>
-        <button type="button" className={`tab ${tab === "unpaid" ? "active" : ""}`} onClick={() => setTab("unpaid")}>
-          Unpaid {unpaid.length > 0 && `(${unpaid.length})`}
-        </button>
-        <button type="button" className={`tab ${tab === "statement" ? "active" : ""}`} onClick={() => setTab("statement")}>Statement</button>
+const RITUAL_MIX = [
+  { name: "A2 Gir Milk",   pct: 65 },
+  { name: "Vedic Ghee",    pct: 25 },
+  { name: "Organic Honey", pct: 10 },
+];
+
+/* Mock fallback data (shown when backend returns nothing) */
+const MOCK_BILLS = [
+  { id: "mock-1", invoiceId: "GR-2024-04", period: "April 2024", status: "unpaid", amount: 3420.00, dueDate: "15 April, 2024",   lineItems: [] },
+  { id: "mock-2", invoiceId: "GR-2024-05", period: "May 2024",   status: "unpaid", amount: 2850.00, dueDate: "15 May, 2024",     lineItems: [] },
+];
+
+const MOCK_STATEMENTS = [
+  { id: "TRX-88291", date: "Apr 12, 2024", type: "Wallet Recharge",          method: "UPI (GPay)",     amount: 5000, credit: true,  month: "Apr 2024" },
+  { id: "TRX-77120", date: "Mar 28, 2024", type: "Bill Payment #GR-2024-03", method: "Ritual Wallet",  amount: 3210, credit: false, month: "Mar 2024" },
+  { id: "TRX-66105", date: "Mar 15, 2024", type: "Vedic Ghee — Subscription",method: "Credit Card",    amount: 1450, credit: false, month: "Mar 2024" },
+];
+
+/* ── Helpers ─────────────────────────────────────────────────── */
+function isOverdue(bill) {
+  if (bill.status !== "unpaid") return false;
+  const due = new Date(bill.dueDate);
+  return !isNaN(due) && due < new Date();
+}
+
+function billInvoiceId(bill) {
+  return bill.invoiceId ?? `GR-${bill.id}`;
+}
+
+/* ── Bill Card ───────────────────────────────────────────────── */
+function BillCard({ bill, onPay, onDownload }) {
+  const [expanded, setExpanded] = useState(false);
+  const overdue = isOverdue(bill);
+  const paid    = bill.status === "paid";
+
+  return (
+    <div className="bl-bill-card">
+      {/* Top row: icon + badge */}
+      <div className="bl-bill-card-top">
+        <div className={`bl-bill-icon ${paid ? "bl-bill-icon-paid" : ""}`}>
+          <span
+            className="material-symbols-outlined"
+            style={paid ? { fontVariationSettings: "'FILL' 1" } : {}}
+          >
+            {paid ? "check_circle" : "description"}
+          </span>
+        </div>
+        <span className={`bl-bill-badge ${paid ? "bl-badge-settled" : overdue ? "bl-badge-overdue" : "bl-badge-upcoming"}`}>
+          {paid ? "Settled" : overdue ? "Overdue" : "Upcoming"}
+        </span>
       </div>
 
-      {
-    /* ── Paid tab ── */
-  }
-      {tab === "paid" && <>
-          {paid.length === 0 && <div className="empty-state card"><p>No paid bills yet.</p></div>}
-          {paid.map((b) => <div key={b.id} className="card" style={{ marginBottom: "0.75rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <strong>{b.period}</strong>
-                <span className="badge badge-delivered">Paid</span>
-              </div>
-              <p style={{ marginTop: "0.25rem", fontSize: "0.9rem" }}>₹{b.amount.toFixed(2)} · {b.paidDate} · {b.method}</p>
-              <button
-    type="button"
-    className="btn btn-secondary"
-    style={{ marginTop: "0.5rem", fontSize: "0.85rem" }}
-    onClick={() => showToast("Invoice download requires backend.", "info")}
-  >
-                Download Invoice
-              </button>
-            </div>)}
-        </>}
+      {/* Invoice info */}
+      <h5 className="bl-bill-title">Invoice #{billInvoiceId(bill)}</h5>
+      <p className="bl-bill-date">
+        {paid ? `Paid on ${bill.paidDate ?? "—"}` : `Due on ${bill.dueDate ?? "—"}`}
+      </p>
 
-      {
-    /* ── Unpaid tab ── */
-  }
-      {tab === "unpaid" && <>
-          {unpaid.length === 0 && <div className="empty-state card"><p>No pending bills. You're all clear! ✅</p></div>}
+      {/* Amount + PDF */}
+      <div className="bl-bill-amount-row">
+        <div>
+          {!paid && <p className="bl-bill-amount-lbl">Total Amount</p>}
+          <p className="bl-bill-amount">₹{Number(bill.amount).toFixed(2)}</p>
+        </div>
+        <button type="button" className="bl-pdf-btn" onClick={() => onDownload?.()}>
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>download</span>
+          {paid ? "Receipt" : "PDF"}
+        </button>
+      </div>
 
-          {
-    /* Bulk pay bar */
-  }
-          {unpaid.length > 1 && <div className="card" style={{ marginBottom: "0.875rem", display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", background: "var(--md-surface-container)" }}>
-              <div style={{ flex: 1 }}>
-                <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600 }}>
-                  {selectedBills.size > 0 ? `${selectedBills.size} selected \u2014 \u20B9${bulkTotal.toFixed(2)}` : "Select bills to pay together"}
-                </p>
-                <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--text-muted)" }}>Bulk Pay saves time</p>
-              </div>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <button
-    type="button"
-    className="btn btn-secondary"
-    style={{ fontSize: "0.8rem", padding: "0.4rem 0.75rem" }}
-    onClick={() => {
-      if (selectedBills.size === unpaid.length) setSelectedBills(/* @__PURE__ */ new Set());
-      else setSelectedBills(new Set(unpaid.map((b) => b.id)));
-    }}
-  >
-                  {selectedBills.size === unpaid.length ? "Deselect All" : "Select All"}
-                </button>
-                {selectedBills.size > 0 && <button
-    type="button"
-    className="btn btn-primary"
-    style={{ fontSize: "0.8rem", padding: "0.4rem 0.875rem" }}
-    onClick={handleBulkPay}
-  >
-                    Pay Selected
-                  </button>}
-              </div>
-            </div>}
-
-          {unpaid.map((b) => {
-    const lineItems = billLineItems[b.id] ?? [];
-    const isExpanded = expandedBill === b.id;
-    const isSelected = selectedBills.has(b.id);
-    return <div
-      key={b.id}
-      className="card"
-      style={{
-        marginBottom: "0.75rem",
-        borderLeft: isSelected ? "4px solid var(--md-primary)" : "4px solid transparent"
-      }}
-    >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: "0.625rem", cursor: "pointer", flex: 1 }}>
-                    {unpaid.length > 1 && <input
-      type="checkbox"
-      checked={isSelected}
-      onChange={() => toggleBillSelection(b.id)}
-    />}
-                    <strong>{b.period}</strong>
-                  </label>
-                  <span className="badge badge-unpaid">Unpaid</span>
+      {/* Line-items accordion */}
+      {bill.lineItems?.length > 0 && (
+        <>
+          <button type="button" className="bl-expand-btn" onClick={() => setExpanded(e => !e)}>
+            {expanded ? "Hide breakdown ▲" : "View breakdown ▼"}
+          </button>
+          {expanded && (
+            <div className="bl-line-items">
+              {bill.lineItems.map((item, i) => (
+                <div key={i} className="bl-line-item">
+                  <span>{item.description}</span>
+                  <span>₹{Number(item.amount).toFixed(2)}</span>
                 </div>
-                <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>Due: {b.dueDate}</p>
-                <p style={{ fontSize: "1.4rem", fontWeight: 700, margin: "0.5rem 0", color: "var(--green-700)" }}>₹{b.amount.toFixed(2)}</p>
+              ))}
+            </div>
+          )}
+        </>
+      )}
 
-                {lineItems.length > 0 && <>
-                    <button
-      type="button"
-      className="btn btn-ghost"
-      style={{ padding: "0.25rem 0", fontSize: "0.85rem", marginBottom: "0.25rem" }}
-      onClick={() => setExpandedBill(isExpanded ? null : b.id)}
-    >
-                      {isExpanded ? "Hide breakdown \u25B2" : "View itemized breakdown \u25BC"}
-                    </button>
-                    {isExpanded && <table style={{ width: "100%", fontSize: "0.82rem", borderCollapse: "collapse", marginBottom: "0.5rem" }}>
-                        <thead>
-                          <tr style={{ borderBottom: "1px solid var(--border)", textAlign: "left", color: "var(--text-muted)" }}>
-                            <th style={{ padding: "0.3rem 0" }}>Item</th>
-                            <th style={{ textAlign: "right" }}>Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {lineItems.map((item, i) => <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
-                              <td style={{ padding: "0.35rem 0" }}>{item.description}</td>
-                              <td style={{ textAlign: "right", fontWeight: 600 }}>₹{item.amount.toFixed(2)}</td>
-                            </tr>)}
-                        </tbody>
-                      </table>}
-                  </>}
+      {/* Action button */}
+      {!paid && (
+        <Link
+          to={`/payment?amount=${bill.amount}&billId=${bill.id}`}
+          className={`bl-pay-btn ${overdue ? "bl-pay-btn-primary" : "bl-pay-btn-secondary"}`}
+          onClick={() => onPay?.(bill.id)}
+        >
+          Pay Now
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+        </Link>
+      )}
+    </div>
+  );
+}
 
-                <Link
-      to={`/payment?amount=${b.amount}&billId=${b.id}`}
-      className="btn btn-primary"
-      style={{ display: "block", textAlign: "center" }}
-    >
-                  Pay Now
-                </Link>
-              </div>;
-  })}
-        </>}
+/* ── Main Bills component ────────────────────────────────────── */
+function Bills() {
+  const { bills, statementEntries, payBill } = useApp();
+  const { showToast } = useToast();
 
-      {
-    /* ── Statement tab ── */
-  }
-      {tab === "statement" && <div>
-          <div style={{ marginBottom: "1rem", display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
-            <label style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Filter:</label>
-            <select
-    value={filterMonth}
-    onChange={(e) => setFilterMonth(e.target.value)}
-    style={{ fontSize: "0.85rem", padding: "0.25rem 0.5rem", borderRadius: 6, border: "1px solid var(--border)", fontFamily: "inherit" }}
-  >
-              {availableMonths.map((m) => <option key={m} value={m}>{m}</option>)}
-            </select>
+  const [tab,         setTab]         = useState("unpaid");
+  const [filterMonth, setFilterMonth] = useState("All");
+
+  /* Use real data if present, else mock */
+  const effectiveBills      = bills.length > 0 ? bills : MOCK_BILLS;
+  const effectiveStatements = statementEntries.length > 0 ? statementEntries : MOCK_STATEMENTS;
+
+  const paid   = effectiveBills.filter(b => b.status === "paid");
+  const unpaid = effectiveBills.filter(b => b.status === "unpaid");
+
+  const availableMonths = useMemo(() =>
+    ["All", ...Array.from(new Set(effectiveStatements.map(e => e.month).filter(Boolean)))],
+    [effectiveStatements]
+  );
+
+  const filteredStatements = filterMonth === "All"
+    ? effectiveStatements
+    : effectiveStatements.filter(e => e.month === filterMonth);
+
+  const totalSpent = CHART_MONTHS.reduce((s, m) => s + m.amount, 0);
+
+  const handleDownload = () => showToast("Invoice download requires backend.", "info");
+  const handlePayBill  = (id) => {
+    if (payBill) payBill(id);
+    showToast("Redirecting to payment...", "info");
+  };
+
+  return (
+    <div className="bl-page">
+
+      {/* ══ HEADER ══ */}
+      <div className="bl-header">
+        <div>
+          <h2 className="bl-title">My Bills</h2>
+          <p className="bl-subtitle">Manage your subscriptions and ritual expenditures.</p>
+        </div>
+        <div className="bl-tabs">
+          {[
+            { key: "unpaid",     label: "Unpaid Bills" },
+            { key: "paid",       label: "Paid Bills"   },
+            { key: "statements", label: "Statements"   },
+          ].map(t => (
             <button
-    type="button"
-    className="btn btn-secondary"
-    style={{ fontSize: "0.8rem", marginLeft: "auto" }}
-    onClick={() => showToast("PDF download requires backend.", "info")}
-  >
-              Download PDF
+              key={t.key}
+              type="button"
+              className={`bl-tab ${tab === t.key ? "bl-tab-active" : ""}`}
+              onClick={() => setTab(t.key)}
+            >
+              {t.label}
+              {t.key === "unpaid" && unpaid.length > 0 && (
+                <span className="bl-tab-count">{unpaid.length}</span>
+              )}
             </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ══ BENTO STATS ══ */}
+      <div className="bl-bento">
+
+        {/* Monthly spending bar chart */}
+        <div className="bl-card bl-chart-card">
+          <div className="bl-chart-header">
+            <div>
+              <h3 className="bl-chart-title">Monthly Spending</h3>
+              <p className="bl-chart-sub">Yearly Overview {new Date().getFullYear()}</p>
+            </div>
+            <div className="bl-chart-total">
+              <span className="bl-chart-total-amt">₹{totalSpent.toLocaleString("en-IN")}</span>
+              <span className="material-symbols-outlined bl-chart-trend">trending_up</span>
+            </div>
           </div>
 
-          {
-    /* Statement table with running balance */
-  }
-          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-            {statementsWithBalance.length === 0 && <p style={{ padding: "1.5rem", textAlign: "center", color: "var(--text-muted)" }}>No transactions found.</p>}
-            {
-    /* Table header */
-  }
-            {statementsWithBalance.length > 0 && <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: "0.5rem", padding: "0.5rem 1rem", borderBottom: "1px solid var(--border)", fontSize: "0.75rem", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                <span>Transaction</span>
-                <span style={{ textAlign: "right" }}>Debit</span>
-                <span style={{ textAlign: "right" }}>Credit</span>
-                <span style={{ textAlign: "right" }}>Balance</span>
-              </div>}
-            {statementsWithBalance.map(({ entry, balance }, i) => <div
-    key={entry.id}
-    style={{
-      display: "grid",
-      gridTemplateColumns: "1fr auto auto auto",
-      gap: "0.5rem",
-      alignItems: "center",
-      padding: "0.75rem 1rem",
-      borderBottom: i < statementsWithBalance.length - 1 ? "1px solid var(--border)" : "none"
-    }}
-  >
-                <div>
-                  <p style={{ margin: 0, fontWeight: 500, fontSize: "0.875rem" }}>{statementTypeLabel[entry.type] ?? entry.type}</p>
-                  <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--text-muted)" }}>{entry.date}</p>
+          <div className="bl-chart-bars">
+            {CHART_MONTHS.map(m => (
+              <div key={m.label} className="bl-bar-col">
+                <div className="bl-bar-area">
+                  <div
+                    className={`bl-bar${m.highlight ? " bl-bar-highlight" : ""}`}
+                    style={{ height: m.height }}
+                    title={`₹${m.amount.toLocaleString("en-IN")}`}
+                  >
+                    <span className={`bl-bar-tip${m.highlight ? " bl-bar-tip-on" : ""}`}>
+                      ₹{m.amount.toLocaleString("en-IN")}
+                    </span>
+                  </div>
                 </div>
-                <span style={{ fontSize: "0.875rem", color: "var(--md-error)", fontWeight: 600, textAlign: "right", minWidth: 64 }}>
-                  {!entry.credit && entry.amount > 0 ? `\u20B9${entry.amount.toFixed(0)}` : "\u2014"}
+                <span className={`bl-bar-label${m.highlight ? " bl-bar-label-active" : ""}`}>
+                  {m.label}
                 </span>
-                <span style={{ fontSize: "0.875rem", color: "var(--green-700)", fontWeight: 600, textAlign: "right", minWidth: 64 }}>
-                  {entry.credit && entry.amount > 0 ? `\u20B9${entry.amount.toFixed(0)}` : "\u2014"}
-                </span>
-                <span style={{ fontSize: "0.875rem", fontWeight: 700, textAlign: "right", minWidth: 72, color: balance >= 0 ? "var(--green-700)" : "var(--md-error)" }}>
-                  ₹{Math.abs(balance).toFixed(0)}
-                </span>
-              </div>)}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Ritual Mix */}
+        <div className="bl-ritual-card">
+          <div className="bl-ritual-glow" />
+          <div className="bl-ritual-inner">
+            <h3 className="bl-ritual-title">Ritual Mix</h3>
+            <div className="bl-ritual-items">
+              {RITUAL_MIX.map(item => (
+                <div key={item.name} className="bl-ritual-item">
+                  <div className="bl-ritual-item-row">
+                    <span>{item.name}</span>
+                    <span>{item.pct}%</span>
+                  </div>
+                  <div className="bl-ritual-track">
+                    <div className="bl-ritual-fill" style={{ width: `${item.pct}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══ UNPAID BILLS ══ */}
+      {tab === "unpaid" && (
+        <div className="bl-section">
+          <h4 className="bl-section-title">Pending Payments</h4>
+          {unpaid.length === 0 ? (
+            <div className="bl-empty-state">
+              <span className="material-symbols-outlined bl-empty-icon" style={{ fontVariationSettings: "'FILL' 1" }}>
+                check_circle
+              </span>
+              <p>No pending bills. You're all clear!</p>
+            </div>
+          ) : (
+            <div className="bl-cards-grid">
+              {unpaid.map(b => (
+                <BillCard key={b.id} bill={b} onPay={handlePayBill} onDownload={handleDownload} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══ PAID BILLS ══ */}
+      {tab === "paid" && (
+        <div className="bl-section">
+          <h4 className="bl-section-title">Historical Receipts</h4>
+          {paid.length === 0 ? (
+            <div className="bl-empty-state">
+              <span className="material-symbols-outlined bl-empty-icon">receipt_long</span>
+              <p>No paid bills yet.</p>
+            </div>
+          ) : (
+            <div className="bl-cards-grid">
+              {paid.map(b => (
+                <BillCard key={b.id} bill={b} onDownload={handleDownload} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══ STATEMENTS ══ */}
+      {tab === "statements" && (
+        <div className="bl-section">
+          <div className="bl-section-hdr">
+            <h4 className="bl-section-title" style={{ margin: 0 }}>Recent Transactions</h4>
+            <div className="bl-stmt-controls">
+              <select
+                className="bl-month-select"
+                value={filterMonth}
+                onChange={e => setFilterMonth(e.target.value)}
+              >
+                {availableMonths.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="bl-download-btn"
+                onClick={() => showToast("PDF download requires backend.", "info")}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>download</span>
+                Download PDF
+              </button>
+            </div>
           </div>
 
-          <div className="card" style={{ marginTop: "1rem", background: "var(--md-primary-container)" }}>
-            <strong>Refund → Store Credit</strong>
-            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "0.25rem 0 0.75rem" }}>
+          <div className="bl-table-card">
+            {filteredStatements.length === 0 ? (
+              <div className="bl-empty-state" style={{ padding: "3rem 1rem" }}>
+                <span className="material-symbols-outlined bl-empty-icon">receipt_long</span>
+                <p>No transactions found.</p>
+              </div>
+            ) : (
+              <div className="bl-table-wrap">
+                <table className="bl-table">
+                  <thead className="bl-thead">
+                    <tr>
+                      <th className="bl-th">Date</th>
+                      <th className="bl-th">Transaction ID</th>
+                      <th className="bl-th">Description</th>
+                      <th className="bl-th">Method</th>
+                      <th className="bl-th bl-th-right">Amount</th>
+                      <th className="bl-th">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStatements.map((e, i) => (
+                      <tr key={e.id ?? i} className="bl-tr">
+                        <td className="bl-td">{e.date}</td>
+                        <td className="bl-td bl-td-mono">#{e.id ?? `TRX-${i + 10000}`}</td>
+                        <td className="bl-td bl-td-bold">{e.type}</td>
+                        <td className="bl-td">{e.method ?? "—"}</td>
+                        <td className={`bl-td bl-td-right bl-td-bold ${e.credit ? "bl-credit-amt" : "bl-debit-amt"}`}>
+                          {e.credit ? "+" : "−"}₹{Number(e.amount ?? 0).toLocaleString("en-IN")}
+                        </td>
+                        <td className="bl-td">
+                          <span className="bl-status-pill">
+                            <span className="bl-status-dot" />
+                            Success
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Store credit card */}
+          <div className="bl-card bl-store-credit-card">
+            <strong className="bl-credit-card-title">Refund → Store Credit</strong>
+            <p className="bl-credit-card-desc">
               Received a refund? Add it to your wallet for instant use on future orders.
             </p>
             <button
-    type="button"
-    className="btn btn-secondary"
-    onClick={() => {
-      addWalletCredit(140);
-      showToast("\u20B9140 store credit added to your wallet!");
-    }}
-  >
+              type="button"
+              className="bl-credit-card-btn"
+              onClick={() => {
+                if (addWalletCredit) addWalletCredit(140);
+                showToast("₹140 store credit added to your wallet!");
+              }}
+            >
               + Add Demo Store Credit (₹140)
             </button>
           </div>
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 }
-export {
-  Bills
-};
+
+export { Bills };

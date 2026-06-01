@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useApp } from "../context/AppContext";
-import { products } from "../data/mockData";
 import "./Dashboard.css";
 function getGreeting() {
   const h = (/* @__PURE__ */ new Date()).getHours();
@@ -25,7 +24,7 @@ const statementTypeIcon = {
   store_credit: "\u{1F4B3}"
 };
 function Dashboard() {
-  const { user, rituals, walletBalance, statementEntries, bills, notifications } = useApp();
+  const { user, rituals, statementEntries, bills, notifications, products } = useApp();
   const greeting = getGreeting();
   const unpaidCount = bills.filter((b) => b.status === "unpaid").length;
   const totalSpend = bills.filter((b) => b.status === "paid").reduce((s, b) => s + b.amount, 0);
@@ -67,10 +66,10 @@ function Dashboard() {
           </div>
         </div>
         <div className="stat-card">
-          <span className="stat-icon">💳</span>
+          <span className="stat-icon">⚠️</span>
           <div>
-            <p className="stat-value">₹{walletBalance.toFixed(0)}</p>
-            <p className="stat-label">Wallet Balance</p>
+            <p className="stat-value">{unpaidCount}</p>
+            <p className="stat-label">Unpaid Bills</p>
           </div>
         </div>
         <div className="stat-card">
@@ -183,19 +182,6 @@ function Dashboard() {
               </Link>
             </div>}
 
-          {
-    /* Wallet card */
-  }
-          {walletBalance > 0 && <div className="wallet-card card">
-              <div>
-                <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: 0 }}>Wallet Balance</p>
-                <p style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--green-700)", margin: 0 }}>
-                  ₹{walletBalance.toFixed(2)}
-                </p>
-                <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: 0 }}>Use at checkout</p>
-              </div>
-              <span style={{ fontSize: "2rem" }}>💳</span>
-            </div>}
 
           {
     /* Notifications widget */

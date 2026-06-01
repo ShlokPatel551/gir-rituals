@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { authenticateCustomer } from "../lib/customerStore";
+import { api } from "../lib/api";
 import { useApp } from "../context/AppContext";
 function Profile() {
-  const { user, logout, walletBalance } = useApp();
+  const { user, logout } = useApp();
   const navigate = useNavigate();
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -19,9 +19,6 @@ function Profile() {
         </div>
         <strong>{user.firstName} {user.lastName}</strong>
         <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Client ID: {user.clientId}</p>
-        {walletBalance > 0 && <p style={{ color: "var(--green-700)", fontWeight: 600, fontSize: "0.9rem", marginTop: "0.25rem" }}>
-            💳 Wallet: ₹{walletBalance.toFixed(2)}
-          </p>}
       </div>
 
       <Link to="/profile/settings" className="card" style={{ display: "block", marginBottom: "0.75rem" }}>Account Settings →</Link>
@@ -41,13 +38,9 @@ function AccountSettings() {
   const [showAddMethod, setShowAddMethod] = useState(false);
   const [newMethodType, setNewMethodType] = useState("upi");
   const [newMethodLabel, setNewMethodLabel] = useState("");
-  const handleChangePassword = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault();
     setPassError("");
-    if (!authenticateCustomer(user.email, currentPass)) {
-      setPassError("Current password is incorrect");
-      return;
-    }
     if (newPass.length < 8 || !/\d/.test(newPass) || !/[^A-Za-z0-9]/.test(newPass)) {
       setPassError("New password needs 8+ chars, a number, and a special character");
       return;
@@ -56,10 +49,13 @@ function AccountSettings() {
       setPassError("New passwords do not match");
       return;
     }
-    sessionStorage.setItem("gir_change_password", newPass);
-    navigate(
-      `/otp?purpose=change_password&phone=${encodeURIComponent(user.phone)}&email=${encodeURIComponent(user.email)}`
-    );
+    try {
+      await api.changePassword(currentPass, newPass);
+      setCurrentPass(""); setNewPass(""); setConfirmPass("");
+      navigate("/profile/settings", { state: { message: "Password updated successfully." } });
+    } catch (err) {
+      setPassError(err.message || "Failed to change password");
+    }
   };
   const handleAddMethod = () => {
     if (!newMethodLabel.trim()) return;

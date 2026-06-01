@@ -112,11 +112,7 @@ function Layout() {
 
             {/* Right actions */}
             <div className="header-actions">
-              <button type="button" className="hd-wallet-btn" onClick={() => navigate("/bills")}>
-                <span className="material-symbols-outlined">account_balance_wallet</span>
-                Recharge Wallet
-              </button>
-              <div className="notif-wrapper" ref={notifRef}>
+<div className="notif-wrapper" ref={notifRef}>
                 <button type="button" className="header-icon-btn" onClick={() => setNotifOpen(!notifOpen)} aria-label="Notifications">
                   <span className="material-symbols-outlined">notifications</span>
                   {unreadCount > 0 && <span className="header-badge">{unreadCount}</span>}
