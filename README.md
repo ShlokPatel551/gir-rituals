@@ -187,24 +187,55 @@ npm start          # Express serves dist/ + /api/* at one port
 
 ---
 
-## Deployment (Railway)
+## Deployment (Netlify + Render — both free)
 
-The project ships with `railway.json`. To deploy:
+The frontend deploys to **Netlify** and the backend API deploys to **Render**. Both connect to the same GitHub repo.
 
-1. Push this repo to GitHub
-2. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub Repo**
-3. Select this repository — Railway auto-detects `railway.json`
-4. In **Variables**, add:
+### Step 1 — Deploy the API on Render
+
+1. Go to [render.com](https://render.com) → **New** → **Web Service**
+2. Connect your GitHub repo (`gir-rituals`)
+3. Render auto-detects `render.yaml` — confirm the settings:
+   - **Build command:** `npm install`
+   - **Start command:** `npm start`
+4. Add these environment variables:
 
    | Variable | Value |
    |----------|-------|
-   | `JWT_SECRET` | any long random string |
-   | `VITE_GOOGLE_CLIENT_ID` | your Google OAuth client ID |
    | `NODE_VERSION` | `22` |
+   | `JWT_SECRET` | any long random string |
+   | `ALLOWED_ORIGINS` | `https://your-app.netlify.app` *(update after step 2)* |
 
-5. Click **Deploy** — Railway will run `npm install && npm run build` then `npm start`
+5. Click **Create Web Service** — Render gives you a URL like `https://gir-rituals-api.onrender.com`
 
-> **SQLite note:** Railway's free tier uses an ephemeral filesystem — the DB is reset on every redeploy. For a persistent database, attach a Railway Volume and point `DB_PATH` to it, or migrate to a hosted Postgres/MySQL.
+> **Note:** The free tier spins down after 15 min of inactivity. First request after sleep takes ~30 seconds. Upgrade to the $7/month plan for always-on hosting.
+
+---
+
+### Step 2 — Deploy the Frontend on Netlify
+
+1. Go to [netlify.com](https://netlify.com) → **Add new site** → **Import an existing project**
+2. Connect GitHub and select this repo — Netlify auto-detects `netlify.toml`
+3. Add these environment variables in **Site configuration → Environment variables**:
+
+   | Variable | Value |
+   |----------|-------|
+   | `VITE_API_URL` | `https://gir-rituals-api.onrender.com` *(your Render URL from step 1)* |
+   | `VITE_GOOGLE_CLIENT_ID` | your Google OAuth client ID |
+
+4. Click **Deploy** — Netlify runs `npm run build` and publishes `dist/`
+
+---
+
+### Step 3 — Wire the two services together
+
+1. Copy your Netlify URL (e.g. `https://gir-rituals.netlify.app`)
+2. In your Render service → **Environment** → update `ALLOWED_ORIGINS` to that URL
+3. Trigger a Render redeploy
+
+Both services now talk to each other. Any push to `main` automatically redeploys both.
+
+> **SQLite note:** Render's free tier uses an ephemeral filesystem — the database is reset on each redeploy. The server auto-seeds on startup so the demo data always comes back. For persistent data, upgrade to a Render paid plan (which supports persistent disks) or migrate to a hosted database like [Supabase](https://supabase.com) (free tier).
 
 ---
 

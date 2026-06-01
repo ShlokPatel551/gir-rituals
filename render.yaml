@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: gir-rituals-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://gir-rituals.netlify.app
