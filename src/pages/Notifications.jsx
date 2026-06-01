@@ -56,21 +56,43 @@ const MOCK_NOTIFS = [
 /* ── Helpers ─────────────────────────────────────────────────── */
 function inferType(n) {
   const text = `${n.title ?? ""} ${n.message ?? ""}`.toLowerCase();
-  if (/deliver|ship|dispatch/.test(text))              return "delivery";
-  if (/pay|wallet|bill|receipt|recharge/.test(text))   return "payment";
-  if (/offer|discount|deal|promo|\d+% off/.test(text)) return "offer";
+  if (/deliver|ship|dispatch|schedule|paused|resumed/.test(text)) return "delivery";
+  if (/pay|wallet|bill|receipt|recharge|paid/.test(text))         return "payment";
+  if (/offer|discount|deal|promo|\d+% off|combo/.test(text))      return "offer";
   return "info";
 }
 
+function assignGroup(timeStr) {
+  if (!timeStr) return "older";
+  const d = new Date(timeStr);
+  if (isNaN(d)) return "older";
+  const diffHours = (Date.now() - d) / 3600000;
+  if (diffHours < 24)  return "today";
+  if (diffHours < 168) return "week";
+  return "older";
+}
+
+function formatTime(timeStr) {
+  if (!timeStr) return "";
+  const d = new Date(timeStr);
+  if (isNaN(d)) return timeStr;
+  const diffHours = (Date.now() - d) / 3600000;
+  const timeOnly = d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  if (diffHours < 24) return timeOnly;
+  if (diffHours < 48) return `Yesterday, ${timeOnly}`;
+  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }) + `, ${timeOnly}`;
+}
+
 function toNormalized(n) {
+  const rawTime = n.time ?? n.createdAt ?? "";
   return {
     id:      n.id,
     type:    n.type ?? inferType(n),
-    group:   "today",
+    group:   assignGroup(rawTime),
     read:    !!n.read,
     title:   n.title ?? "",
     message: n.message ?? n.body ?? "",
-    time:    n.time ?? n.createdAt ?? "",
+    time:    formatTime(rawTime),
     link:    n.link,
   };
 }
@@ -149,7 +171,7 @@ function TimelineSection({ icon, label, items, onRead, showToast }) {
 
 /* ── Main Notifications Component ────────────────────────────── */
 function Notifications() {
-  const { notifications, markAllNotificationsRead } = useApp();
+  const { notifications, markAllNotificationsRead, markNotificationRead } = useApp();
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState("all");
@@ -168,6 +190,7 @@ function Notifications() {
 
   const todayItems = filtered.filter(n => n.group === "today");
   const weekItems  = filtered.filter(n => n.group === "week");
+  const olderItems = filtered.filter(n => n.group === "older");
 
   const unreadCount = allItems.filter(n => !n.read).length;
 
@@ -183,6 +206,7 @@ function Notifications() {
       next.add(id);
       return next;
     });
+    if (isReal) markNotificationRead(id);
   };
 
   return (
@@ -237,6 +261,13 @@ function Notifications() {
           icon="history"
           label="Earlier this Week"
           items={weekItems}
+          onRead={handleMarkRead}
+          showToast={showToast}
+        />
+        <TimelineSection
+          icon="calendar_month"
+          label="Older"
+          items={olderItems}
           onRead={handleMarkRead}
           showToast={showToast}
         />

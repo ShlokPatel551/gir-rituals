@@ -59,8 +59,9 @@ export const api = {
   getOffers: () => request('/offers'),
 
   // Notifications
-  getNotifications:         () => request('/notifications'),
-  markAllNotificationsRead: () => request('/notifications/read-all', { method: 'PUT' }),
+  getNotifications:         ()   => request('/notifications'),
+  markAllNotificationsRead: ()   => request('/notifications/read-all', { method: 'PUT' }),
+  markNotificationRead:     (id) => request(`/notifications/${id}/read`, { method: 'PUT' }),
 
   // Rituals / subscriptions
   getRituals:   ()   => request('/rituals'),

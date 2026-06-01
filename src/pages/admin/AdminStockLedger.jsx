@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AdminProductionNav } from "./AdminProductionNav";
 import "./AdminStockLedger.css";
 
 const PAGE_SIZE = 5;
@@ -215,6 +216,9 @@ function AdminStockLedger() {
           </button>
         ))}
       </div>
+
+      {/* ── Cross-navigation ── */}
+      <AdminProductionNav />
 
       {/* ── Ledger table card ── */}
       <div className="sl-table-card">

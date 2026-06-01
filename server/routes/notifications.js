@@ -14,4 +14,9 @@ router.put('/read-all', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
+router.put('/:id/read', requireAuth, (req, res) => {
+  db.prepare('UPDATE notifications SET is_read=1 WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
+  res.json({ success: true });
+});
+
 export default router;

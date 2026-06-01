@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AdminProductionNav } from "./AdminProductionNav";
 import "./AdminProductionLog.css";
 
 const LOG_DATE  = "30 May 2026";
@@ -208,6 +209,9 @@ function AdminProductionLog() {
         </div>
 
       </div>
+
+      {/* ── Cross-navigation ── */}
+      <AdminProductionNav />
 
       {/* ── Itemized production log table ── */}
       <div className="pl-table-card">

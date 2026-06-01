@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import db from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
+import { notify } from '../lib/notify.js';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.post('/:id/pay', requireAuth, (req, res) => {
   if (walletApplied > 0)
     db.prepare('UPDATE users SET wallet_balance=wallet_balance-? WHERE id=?').run(walletApplied, req.user.id);
 
+  notify(req.user.id, 'Bill Paid Successfully', `Your ${bill.period} bill of ₹${bill.amount} has been paid via ${method}.`, '/bills');
   res.json({ success: true, paidDate });
 });
 

@@ -26,7 +26,12 @@ function AppProvider({ children }) {
   const [orders, setOrders] = useState([]);
   const [rituals, setRituals] = useState([]);
   const [cart, setCart] = useState([]);
-  const [favourites, setFavourites] = useState([]);
+  const [favourites, setFavourites] = useState(() => {
+    try {
+      const s = localStorage.getItem("gir_favourites");
+      return s ? JSON.parse(s) : [];
+    } catch { return []; }
+  });
   const [bills, setBills] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [statementEntries, setStatementEntries] = useState([]);
@@ -131,12 +136,23 @@ function AppProvider({ children }) {
   }, []);
 
   const toggleFavourite = useCallback((productId) => {
-    setFavourites(prev => prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]);
+    setFavourites(prev => {
+      const next = prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId];
+      localStorage.setItem("gir_favourites", JSON.stringify(next));
+      return next;
+    });
   }, []);
 
   const markAllNotificationsRead = useCallback(() => {
     api.markAllNotificationsRead().catch(() => {});
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  }, []);
+
+  const markNotificationRead = useCallback((id) => {
+    api.markNotificationRead(id).catch(() => {});
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   }, []);
 
   const payBill = useCallback(async (billId) => {
@@ -206,6 +222,7 @@ function AppProvider({ children }) {
     removeFromCart,
     toggleFavourite,
     markAllNotificationsRead,
+    markNotificationRead,
     payBill,
     cancelOrder,
     addPaymentMethod,
@@ -218,7 +235,7 @@ function AppProvider({ children }) {
     session, user, products, offers, orders, rituals, cart, favourites, bills,
     notifications, pausedToday, statementEntries, paymentMethods,
     login, logout, register, togglePause, addExtra, addToCart, updateCartQty,
-    removeFromCart, toggleFavourite, markAllNotificationsRead, payBill,
+    removeFromCart, toggleFavourite, markAllNotificationsRead, markNotificationRead, payBill,
     cancelOrder, addPaymentMethod, removePaymentMethod,
     setDefaultPaymentMethod, cartCount, cartTotal, loadUserData,
   ]);

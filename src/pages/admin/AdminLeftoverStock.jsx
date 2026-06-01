@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AdminProductionNav } from "./AdminProductionNav";
 import "./AdminLeftoverStock.css";
 
 const TODAY_LABEL = "30 May 2026";
@@ -124,6 +125,9 @@ function AdminLeftoverStock() {
           <span className="ls-metric-note">Paneer + Cow ghee</span>
         </div>
       </div>
+
+      {/* ── Cross-navigation ── */}
+      <AdminProductionNav />
 
       {/* ── Product sections ── */}
       <div className="ls-sections">

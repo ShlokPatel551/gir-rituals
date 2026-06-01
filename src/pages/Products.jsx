@@ -139,6 +139,13 @@ function Products() {
     showToast(`${name} added to cart!`);
   };
 
+  const handleToggleFav = (id) => {
+    const isFav = favourites.includes(id);
+    toggleFavourite(id);
+    const p = products.find(x => x.id === id);
+    if (p) showToast(isFav ? `${p.name} removed from favourites` : `${p.name} added to favourites!`);
+  };
+
   const filtered = products
     .filter(p =>
       (category === "all" || p.id === category) &&
@@ -246,7 +253,7 @@ function Products() {
                   key={p.id}
                   p={p}
                   isFav={favourites.includes(p.id)}
-                  onToggleFav={toggleFavourite}
+                  onToggleFav={handleToggleFav}
                   onAddToCart={handleAddToCart}
                 />
               ))}

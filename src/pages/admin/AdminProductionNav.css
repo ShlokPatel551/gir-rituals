@@ -1,0 +1,101 @@
+/* ── Production Quick-Nav Strip ─────────────────────────────── */
+.pn-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .pn-strip { grid-template-columns: 1fr; }
+}
+
+/* ── Tile (matches pd-hub-tile exactly) ── */
+.pn-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+  background: #fff;
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.pn-tile:hover:not(:disabled) {
+  border-color: var(--admin-primary);
+  box-shadow: 0 4px 16px rgba(1, 45, 29, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Active = current page */
+.pn-tile-active {
+  border-color: var(--admin-primary);
+  background: rgba(1, 45, 29, 0.04);
+  cursor: default;
+  opacity: 0.85;
+}
+
+/* ── Icon box ── */
+.pn-tile-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pn-tile-icon .material-symbols-outlined { font-size: 22px; }
+
+.pn-icon-log      { background: rgba(1, 45, 29, 0.08); }
+.pn-icon-log .material-symbols-outlined { color: var(--admin-primary); }
+
+.pn-icon-leftover { background: rgba(255, 202, 152, 0.35); }
+.pn-icon-leftover .material-symbols-outlined { color: #7a4a00; }
+
+.pn-icon-history  { background: var(--admin-surface-container); }
+.pn-icon-history .material-symbols-outlined { color: var(--admin-on-surface-variant); }
+
+/* ── Text ── */
+.pn-tile-body { flex: 1; min-width: 0; }
+
+.pn-tile-title {
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--admin-on-surface);
+  margin: 0 0 0.125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pn-tile-desc {
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  color: var(--admin-on-surface-variant);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Trailing icon ── */
+.pn-tile-arrow {
+  font-size: 20px;
+  color: var(--admin-outline);
+  flex-shrink: 0;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.pn-tile:hover:not(:disabled) .pn-tile-arrow {
+  color: var(--admin-primary);
+  transform: translateX(3px);
+}
+
+.pn-tile-active .pn-tile-arrow {
+  color: var(--admin-primary);
+}

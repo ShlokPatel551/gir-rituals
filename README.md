@@ -1,174 +1,234 @@
 # GIR RITUALS
 
-A full-featured progressive web app (PWA) for a Gir cow dairy subscription service — milk, ghee, and more, delivered daily.
-
-Built with **React 19 + TypeScript + Vite**. Frontend-only prototype — all data lives in `mockData` / `localStorage`. No backend required.
-
----
-
-## Quick Start
-
-```bash
-npm install
-npm run dev
-```
-
-Open **http://localhost:5173** in your browser.
-
----
-
-## Demo Credentials
-
-| Role | Email | Password | OTP |
-|------|-------|----------|-----|
-| Customer | `demo@girrituals.com` | `Demo@1234` | — |
-| Admin | `owner@girrituals.com` | `password123` | `9876543210` |
-
----
-
-## Features
-
-### Authentication
-- Multi-step **Register** — Personal Info → Billing Address → Delivery Address
-- OTP verification — 6-digit code, 5 min expiry, 5 attempts, 60s resend
-- **Forgot password** & **Change password** (OTP-gated)
-- **Google OAuth** sign-in
-- Auto-generated 8-char alphanumeric **Client ID** on registration
-
-### Home
-- Auto-scrolling **banner carousel** (4s, dot indicators)
-- Brand values strip and brand story section
-- **Daily Rituals** — active subscriptions with live status badges (Pending / Out for Delivery / Delivered / Paused / Extra)
-- **Pause / Resume** delivery per ritual; **Add Extra** modal for one-off quantities
-- Offers section, product grid, testimonials carousel, Why Us section, footer CTA
-
-### Dashboard
-- Greeting card, 4 stat tiles (wallet, active rituals, pending bills, loyalty points)
-- Rituals widget + recent activity feed + quick links sidebar
-
-### Products
-- Inline search, **category filter tabs**, sort dropdown
-- Toast notification on add to cart
-- **Product Detail** — about, benefits, recipes accordion, subscribe modal, related products
-
-### Offers
-- Urgency countdown ("Ends in Xd") · Upcoming offers with "Starts in X days"
-- **Promo code** copy button · Expired badge · Offer detail page
-
-### Schedule
-- Desktop: two-column layout — calendar left, day detail right
-- Mobile: list view with status filter
-- Color-coded dot indicators: 🟢 Delivered · 🟡 Paused · 🔴 Cancelled · ★ Extra
-- Per-day schedule table (product, qty, rate, total, status)
-- Monthly summary — milk (L), ghee (kg), extras, paused days
-- **Export** button · Month navigation
-
-### My Bills
-- **Paid** / **Unpaid** / **Statement** tabs
-- Expandable itemized breakdown with GST · Bulk pay checkboxes · Running balance column
-- Bank-style monthly statement — deliveries, pauses, payments, refunds, store credits
-- **Wallet balance** card — apply store credit at checkout
-
-### Cart & Checkout
-- Qty controls · Save-for-later · Saved items section
-- **4-step checkout:** Order Review (with GST) → Delivery Address → Payment Method → Summary
-- Wallet / store credit toggle · GST line item
-
-### Payment
-- Saved UPI / cards · manual entry · Net Banking · Pay Monthly
-- Wallet deduction before net payable
-- **Payment Success / Failure** screens with retry flow
-
-### Orders
-- Active Orders / Order History tabs
-- Order Detail — timeline, refund button, re-order / cancel actions
-
-### Profile & Settings
-- Avatar with initials + wallet balance
-- Personal Info, Change Password (OTP-verified), Billing Address, Delivery Address
-- Payment Methods — view, set default, add (UPI / Card / Net Banking), remove
-
-### Other Pages
-- **Favourites** — heart toggle across products, product detail, and favourites grid
-- **Notifications** — unread dot, Mark All Read, tap-to-navigate
-- **About** — brand story, Gir cow heritage
-- **Contact** — WhatsApp, Instagram, Email, Phone links + contact form
-- **Flow** — onboarding / feature walkthrough
-
----
-
-## Admin Panel (`/admin`)
-
-| Section | Description |
-|---------|-------------|
-| Dashboard | KPI tiles, revenue chart, top products, recent orders |
-| Customers | Searchable list + detail with timeline, delivery map, subscription info |
-| Orders | Full order management |
-| Deliveries | Delivery tracking and route management |
-| Products | Product CRUD interface |
-| Finance | Revenue and payments overview |
-| Billing | Invoice and billing management |
-| Analytics | Revenue, subscription, and retention charts |
-| Refunds | Refund request management |
-| Offers | Create and manage promotional offers |
-| Campaigns | Marketing campaign management |
-| Comms | Customer communications |
-| OTP Logs | Audit trail of all OTP events |
-| Settings | App-level configuration |
+A full-stack Progressive Web App for Gir cow A2 dairy subscription management — built for artisanal dairy farms to manage subscriptions, deliveries, production, and billing through a customer-facing app and a comprehensive admin panel.
 
 ---
 
 ## Tech Stack
 
-| Layer | Choice |
-|-------|--------|
-| Framework | React 19 |
-| Language | TypeScript |
-| Bundler | Vite 8 |
-| Routing | React Router 7 |
-| Auth | localStorage + `@react-oauth/google` |
-| Styling | CSS custom properties (Google Stitch / M3 tokens) |
-| State | React Context — `AppContext` (session, cart, rituals, bills, wallet) + `ToastContext` |
-| Data | Mock data + localStorage — no backend |
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19, Vite 8, React Router 7 |
+| Backend | Express.js (Node.js ESM) |
+| Database | SQLite via Node.js built-in `node:sqlite` |
+| Auth | JWT, Google OAuth (`@react-oauth/google`), Apple Sign In |
+| Styling | Plain CSS with CSS custom properties (Earth & Heritage theme) |
+| Dev tooling | Vite HMR, Nodemon, Concurrently, ESLint |
+
+---
+
+## Features
+
+### Customer App
+- **Google & Apple Sign In** — OAuth 2.0 + Apple JWKS verification (no extra packages)
+- **Product catalogue** — browse A2 milk, ghee, paneer, curd with filtering and search
+- **Favourites** — persistent wishlist stored in `localStorage`
+- **Cart & Checkout** — per-item delivery type selector (Daily Ritual vs Just for Today)
+- **Subscription / Ritual management** — pause, resume, add extra deliveries
+- **Notifications** — event-driven (delivery, payment, offer, info) with today / this week / older timeline grouping
+- **Bills & Invoices** — view billing history, download branded PDF invoices via browser print
+- **Wallet & Statement** — transaction history with monthly filter and PDF download
+- **Profile & Addresses** — manage billing and delivery addresses, payment methods
+
+### Admin Panel
+- **Dashboard** — daily income, active subscriptions, delivery status overview
+- **Production management** — daily entry form, finalized production log, leftover stock reconciliation, stock history ledger with shared cross-page navigation strip
+- **Order & Delivery management** — track, assign, and update delivery status
+- **Customer management** — view profiles, billing history, transaction logs, and orders
+- **Offers & Campaigns** — create and manage promotional offers
+- **Finance** — revenue reports, refunds, payment reconciliation
+- **Settings** — farm profile, delivery zones, pricing configuration
 
 ---
 
 ## Project Structure
 
 ```
-src/
-├── components/       # Layout, Sidebar, Footer, BottomNav, ProtectedRoute
-├── context/          # AppContext, ToastContext
-├── data/             # mockData.ts, adminNotifications.ts
-├── lib/              # adminAuth.ts, otpService.ts, customerStore.ts, googleAuth.ts
-├── pages/            # All customer-facing pages
-│   └── admin/        # All admin pages
-├── styles/           # stitch-theme.css (M3 design tokens)
-└── types/            # index.ts — shared TypeScript interfaces
+gir-rituals/
+├── server/                      # Express.js backend
+│   ├── db.js                    # SQLite schema & migrations
+│   ├── index.js                 # Server entry point + demo data seed
+│   ├── seed.js                  # Full database seed script
+│   ├── lib/
+│   │   └── notify.js            # Event-driven notification helper
+│   ├── middleware/
+│   │   └── auth.js              # JWT verification middleware
+│   └── routes/
+│       ├── auth.js              # Login, register, Google OAuth, Apple Sign In
+│       ├── user.js              # Profile, addresses, payment methods
+│       ├── products.js          # Product catalogue
+│       ├── offers.js            # Offers & promotions
+│       ├── rituals.js           # Subscriptions (pause / resume / add extra)
+│       ├── orders.js            # Orders & cancellations
+│       ├── bills.js             # Billing & invoice payment
+│       ├── notifications.js     # Notifications (list, mark read)
+│       ├── schedule.js          # Delivery schedule
+│       └── admin.js             # Admin-only endpoints
+│
+├── src/                         # React frontend
+│   ├── main.jsx                 # React entry point
+│   ├── App.jsx                  # Route definitions
+│   ├── context/
+│   │   ├── AppContext.jsx       # Global state (products, cart, rituals, etc.)
+│   │   └── ToastContext.jsx     # Toast notification system
+│   ├── lib/
+│   │   ├── api.js               # Typed API client (all fetch calls)
+│   │   └── googleAuth.js        # Google OAuth helpers
+│   ├── components/
+│   │   ├── Layout.jsx           # Customer app shell (sidebar, top nav)
+│   │   ├── AdminLayout.jsx      # Admin panel shell (sidebar, topbar)
+│   │   └── ...
+│   └── pages/
+│       ├── Login.jsx            # Email + Google + Apple Sign In
+│       ├── Register.jsx
+│       ├── Home.jsx
+│       ├── Products.jsx
+│       ├── ProductDetail.jsx
+│       ├── Cart.jsx             # Cart with Daily Ritual / Just for Today selector
+│       ├── Checkout.jsx
+│       ├── Favourites.jsx
+│       ├── Bills.jsx            # Bills + PDF invoice download
+│       ├── Notifications.jsx    # Timeline-grouped notification center
+│       ├── Schedule.jsx
+│       ├── Profile.jsx
+│       └── admin/
+│           ├── AdminDashboard.jsx
+│           ├── AdminProduction.jsx
+│           ├── AdminProductionLog.jsx
+│           ├── AdminLeftoverStock.jsx
+│           ├── AdminStockLedger.jsx
+│           ├── AdminProductionNav.jsx  # Shared cross-navigation strip
+│           ├── AdminOrders.jsx
+│           ├── AdminCustomers.jsx
+│           └── ...
+│
+├── index.html
+├── vite.config.js
+└── package.json
 ```
 
 ---
 
-## Theme
+## Getting Started
 
-Design tokens follow the [Google Stitch](https://stitch.withgoogle.com) / Material 3 system:
+### Prerequisites
 
-- **Fonts:** Fraunces (display headings) + Inter (UI)
-- **Colors:** Forest green primary · Warm cream surfaces · Ghee-gold tertiary
-- **Shape:** 16–28 px rounded cards, pill buttons
-- **Components:** M3 tabs, elevated cards, tonal bottom nav active state
+- **Node.js 22+** — required for `node:sqlite` built-in
+- **npm 10+**
+
+### Installation
+
+```bash
+git clone https://github.com/ShlokPatel551/gir-rituals.git
+cd gir-rituals
+npm install
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+# JWT
+JWT_SECRET=your_jwt_secret_here
+
+# Google OAuth  (get from Google Cloud Console)
+VITE_GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+
+# Apple Sign In  (get from Apple Developer Console)
+VITE_APPLE_CLIENT_ID=com.yourcompany.girrituals
+VITE_APPLE_REDIRECT_URI=https://yourdomain.com/auth/apple/callback
+
+# Server
+PORT=3001
+```
+
+### Seed the Database
+
+```bash
+npm run seed
+```
+
+Creates `server/gir_rituals.db` with demo products, offers, a demo user, subscriptions, bills, and orders.
+
+**Demo login credentials**
+
+| Role | Email | Password |
+|------|-------|----------|
+| Customer | `demo@girrituals.com` | `demo123` |
+| Admin | `owner@girrituals.com` | `admin123` |
+
+### Run in Development
+
+```bash
+# Run both frontend (port 5173) and backend (port 3001) together
+npm run dev:full
+
+# Or run them separately
+npm run dev         # Vite dev server  →  http://localhost:5173
+npm run server:dev  # Express + nodemon →  http://localhost:3001
+```
+
+### Build for Production
+
+```bash
+npm run build
+npm run preview    # Preview the production build locally
+```
 
 ---
 
-## Notes
+## API Overview
 
-- OTP is **simulated locally** — no real SMS. Replace `otpService` with an API call for production.
-- All monetary values in **INR (₹)** with 2-decimal precision.
-- GST shown at 5% flat (adjust per category in production).
-- Wallet balance persists in React state only — resets on refresh in prototype.
+All endpoints are prefixed `/api`. Protected routes require `Authorization: Bearer <token>`.
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/login` | — | Email / password login |
+| POST | `/api/auth/register` | — | New account registration |
+| POST | `/api/auth/google` | — | Google OAuth token exchange |
+| POST | `/api/auth/apple` | — | Apple Sign In token verification |
+| GET | `/api/products` | — | List all products |
+| GET | `/api/offers` | — | List active offers |
+| GET | `/api/user/profile` | ✓ | Get user profile |
+| PUT | `/api/user/profile` | ✓ | Update profile & addresses |
+| GET | `/api/rituals` | ✓ | List subscriptions |
+| PUT | `/api/rituals/:id/pause` | ✓ | Pause a subscription |
+| PUT | `/api/rituals/:id/resume` | ✓ | Resume a subscription |
+| GET | `/api/orders` | ✓ | List orders |
+| DELETE | `/api/orders/:id` | ✓ | Cancel an order |
+| GET | `/api/bills` | ✓ | List bills |
+| POST | `/api/bills/:id/pay` | ✓ | Pay a bill |
+| GET | `/api/notifications` | ✓ | List notifications |
+| PUT | `/api/notifications/:id/read` | ✓ | Mark a notification as read |
+| PUT | `/api/notifications/read-all` | ✓ | Mark all notifications as read |
+
+---
+
+## Design System — Earth & Heritage
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| Primary | `#7B5233` | Buttons, active states, accents |
+| Surface | `#FDF9F5` | Page backgrounds |
+| Secondary | `#A08060` | Secondary text, borders |
+| Error | `#C62828` | Destructive actions |
+| On-surface | `#1C1C1E` | Body text |
+
+Icons are Google Material Symbols (outlined). Typography uses a serif/sans-serif pairing for a premium artisanal feel.
+
+---
+
+## Implementation Notes
+
+- **Apple Sign In** is verified server-side without any extra npm packages: Node's built-in `crypto.createPublicKey` converts Apple's JWKS → PEM, then `jsonwebtoken` verifies the token.
+- **Invoice PDFs** are generated client-side using `window.open()` + `window.print()` with a fully branded HTML template — no server-side PDF library needed.
+- **Event-driven notifications** — `server/lib/notify.js` is called from routes (bill pay, order cancel, ritual pause/resume, registration) and inserts notification rows automatically.
+- **Favourites** are persisted to `localStorage` under key `gir_favourites` — no backend API required.
+- **Cart delivery type** — per-item state (Daily Ritual vs Just for Today) is stored in component state and reflected in the checkout order summary.
 
 ---
 
 ## License
 
-Private project. All rights reserved.
+Private — All rights reserved. GIR RITUALS © 2026.

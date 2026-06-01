@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createPublicKey } from 'crypto';
 import db from '../db.js';
+import { notify } from '../lib/notify.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
@@ -66,6 +67,7 @@ router.post('/register', (req, res) => {
   const newUser = db.prepare('SELECT * FROM users WHERE id = ?').get(uid);
   const addresses = db.prepare('SELECT * FROM addresses WHERE user_id = ?').all(uid);
   const payload = buildUserPayload(newUser, addresses);
+  notify(uid, 'Welcome to Gir Rituals!', `Hello ${firstName}, your ritual sanctuary is ready. Explore our pure A2 dairy products and start your daily ritual.`, '/home');
   res.status(201).json({ token: makeToken(payload), user: payload });
 });
 

@@ -62,7 +62,7 @@ function StepIndicator({ step }) {
 }
 
 /* ── Product Card ────────────────────────────────────────────── */
-function CartProductCard({ item, isReal, onQtyChange, onRemove }) {
+function CartProductCard({ item, isReal, onQtyChange, onRemove, deliveryType, onTypeChange }) {
   const img = PRODUCT_IMGS[imgKey(item.productId)];
   const lineTotal = item.price * item.quantity;
   return (
@@ -90,6 +90,34 @@ function CartProductCard({ item, isReal, onQtyChange, onRemove }) {
             <span className="material-symbols-outlined">delete</span>
           </button>
         </div>
+
+        {/* ── Delivery type selector ── */}
+        <div className="ct-delivery-seg" role="group" aria-label="Delivery type">
+          <button
+            type="button"
+            className={`ct-delivery-opt${deliveryType === "ritual" ? " ct-delivery-opt-active" : ""}`}
+            onClick={() => onTypeChange(item.productId, "ritual")}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>autorenew</span>
+            Daily Ritual
+          </button>
+          <button
+            type="button"
+            className={`ct-delivery-opt${deliveryType === "today" ? " ct-delivery-opt-active" : ""}`}
+            onClick={() => onTypeChange(item.productId, "today")}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>today</span>
+            Just for Today
+          </button>
+        </div>
+
+        {deliveryType === "ritual" && (
+          <p className="ct-delivery-hint">
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
+            Delivered every day — pause or cancel anytime from your schedule.
+          </p>
+        )}
+
         <div className="ct-product-footer">
           <div className="ct-qty-stepper">
             <button
@@ -120,6 +148,10 @@ function Cart() {
   const [coupon,        setCoupon]        = useState("");
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [success,       setSuccess]       = useState(false);
+  const [deliveryTypes, setDeliveryTypes] = useState({});
+
+  const getDeliveryType  = (id) => deliveryTypes[id] ?? "today";
+  const handleTypeChange = (id, type) => setDeliveryTypes(prev => ({ ...prev, [id]: type }));
 
   const isRealCart = cart.length > 0;
 
@@ -253,6 +285,8 @@ function Cart() {
                     isReal={isRealCart}
                     onQtyChange={handleQtyChange}
                     onRemove={handleRemove}
+                    deliveryType={getDeliveryType(item.productId)}
+                    onTypeChange={handleTypeChange}
                   />
                 ))}
               </div>
@@ -364,6 +398,14 @@ function Cart() {
             <h3 className="ct-summary-title">Summary</h3>
 
             <div className="ct-summary-rows">
+              {effectiveItems.map(item => (
+                <div key={item.productId} className="ct-summary-row">
+                  <span className="ct-summary-item-name">{item.name}</span>
+                  <span className={`ct-summary-type-chip ${getDeliveryType(item.productId) === "ritual" ? "ct-type-ritual" : "ct-type-today"}`}>
+                    {getDeliveryType(item.productId) === "ritual" ? "Daily" : "1×"}
+                  </span>
+                </div>
+              ))}
               <div className="ct-summary-row">
                 <span>Subtotal</span>
                 <span>₹{subtotal.toLocaleString("en-IN")}</span>
