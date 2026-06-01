@@ -16,8 +16,10 @@ const STATUS_LABEL = { active: "Active", paused: "Paused", new: "New" };
 const STATUS_CLASS  = { active: "admin-badge-active", paused: "admin-badge-pending", new: "cust-badge-new" };
 
 function toDisplay(c, i) {
-  const name = `${c.firstName} ${c.lastName}`;
-  const initials = `${(c.firstName[0] || "?")}${(c.lastName[0] || "?")}`.toUpperCase();
+  const firstName = c.firstName || "";
+  const lastName  = c.lastName  || "";
+  const name = `${firstName} ${lastName}`.trim() || c.email;
+  const initials = `${firstName[0] || "?"}${lastName[0] || ""}`.toUpperCase();
   return {
     clientId: c.clientId,
     name,

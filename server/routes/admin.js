@@ -29,20 +29,32 @@ router.get('/dashboard', requireAdmin, (req, res) => {
 router.get('/customers', requireAdmin, (req, res) => {
   const rows = db.prepare('SELECT id,client_id,first_name,last_name,email,phone,wallet_balance,created_at FROM users WHERE is_admin=0').all();
   res.json(rows.map(c => ({
-    id: c.id, clientId: c.client_id,
-    name: `${c.first_name} ${c.last_name}`,
-    email: c.email, phone: c.phone,
-    walletBalance: c.wallet_balance, joinedAt: c.created_at,
+    id: c.id,
+    clientId: c.client_id,
+    firstName: c.first_name,
+    lastName: c.last_name,
+    email: c.email,
+    phone: c.phone || '',
+    walletBalance: c.wallet_balance,
+    createdAt: c.created_at,
+    status: 'active',
   })));
 });
 
 router.get('/customers/:id', requireAdmin, (req, res) => {
-  const c = db.prepare('SELECT * FROM users WHERE id=? AND is_admin=0').get(req.params.id);
+  const c = db.prepare('SELECT * FROM users WHERE client_id=? AND is_admin=0').get(req.params.id)
+         || db.prepare('SELECT * FROM users WHERE id=? AND is_admin=0').get(req.params.id);
   if (!c) return res.status(404).json({ error: 'Not found' });
   res.json({
-    id: c.id, clientId: c.client_id,
-    name: `${c.first_name} ${c.last_name}`, email: c.email, phone: c.phone,
-    walletBalance: c.wallet_balance, joinedAt: c.created_at,
+    id: c.id,
+    clientId: c.client_id,
+    firstName: c.first_name,
+    lastName: c.last_name,
+    email: c.email,
+    phone: c.phone || '',
+    walletBalance: c.wallet_balance,
+    createdAt: c.created_at,
+    status: 'active',
     subscriptions: db.prepare('SELECT * FROM subscriptions WHERE user_id=?').all(c.id),
     bills:         db.prepare('SELECT * FROM bills WHERE user_id=?').all(c.id),
     orders:        db.prepare('SELECT * FROM orders WHERE user_id=?').all(c.id),
