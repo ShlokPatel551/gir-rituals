@@ -800,3 +800,212 @@
   color: var(--admin-on-surface-variant);
   margin: 0.125rem 0 0;
 }
+
+/* ── WhatsApp button ── */
+.cd-btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.125rem;
+  background: #25d366;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.cd-btn-whatsapp:hover  { opacity: 0.88; }
+.cd-btn-whatsapp:active { transform: scale(0.96); }
+
+/* ── Delivery address card value ── */
+.cd-info-address {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+/* ── Monthly Summary section ── */
+.cd-monthly-summary {
+  background: #ffffff;
+  border: 1px solid var(--admin-surface-container);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(27, 67, 50, 0.04);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cd-ms-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.cd-ms-title {
+  font-family: var(--admin-font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--admin-primary);
+  margin: 0;
+}
+
+.cd-ms-cycle-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.875rem;
+  background: var(--admin-primary-fixed);
+  color: var(--admin-primary-container);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Stats grid */
+.cd-ms-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .cd-ms-stats-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.cd-ms-stat {
+  background: var(--admin-surface-container-low);
+  border-radius: 0.625rem;
+  padding: 1rem 1.125rem;
+}
+
+.cd-ms-stat-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--admin-on-surface-variant);
+  margin: 0 0 0.4rem;
+}
+
+.cd-ms-stat-value {
+  font-family: var(--admin-font-display);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--admin-on-surface);
+  margin: 0;
+}
+
+.cd-ms-paid   { color: #2e7d32; }
+.cd-ms-unpaid { color: var(--admin-error); }
+
+.cd-ms-stat-total {
+  background: var(--admin-primary-container);
+}
+
+.cd-ms-stat-total .cd-ms-stat-value {
+  color: var(--admin-primary-fixed);
+}
+
+.cd-ms-total-label {
+  color: var(--admin-primary-fixed);
+  opacity: 0.8;
+}
+
+/* Products row */
+.cd-ms-products-section {
+  border-top: 1px solid var(--admin-outline-variant);
+  padding-top: 1rem;
+}
+
+.cd-ms-products-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--admin-on-surface-variant);
+  margin: 0 0 0.75rem;
+}
+
+.cd-ms-products-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cd-ms-product-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1rem;
+  background: var(--admin-surface-container-low);
+  border: 1px solid rgba(193, 200, 194, 0.4);
+  border-radius: 0.625rem;
+}
+
+.cd-ms-product-icon {
+  font-size: 22px !important;
+  color: var(--admin-primary-container);
+}
+
+.cd-ms-product-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--admin-on-surface);
+  margin: 0 0 0.125rem;
+}
+
+.cd-ms-product-qty {
+  font-size: 0.8125rem;
+  color: var(--admin-on-surface-variant);
+  margin: 0;
+}
+
+/* ── Delivery status in history table ── */
+.cd-ds-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cd-ds-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cd-ds-delivered { color: #2e7d32; }
+.cd-ds-pending   { color: #b45309; }
+.cd-ds-error     { color: var(--admin-error); }
+
+/* ── Amount status badge ── */
+.cd-amt-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cd-amt-mobill {
+  background: var(--admin-surface-container-high);
+  color: var(--admin-on-surface-variant);
+}
+
+.cd-amt-paid {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* ── History table wider min-width ── */
+.cd-history-table {
+  min-width: 760px;
+}

@@ -1,34 +1,65 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./AdminProductionForm.css";
 
-const ENTRY_DATA = {
-  cow_milk: {
-    name: "Cow Milk", unit: "litre", produced: 150, sold: 100, pricePerUnit: 30,
-    leftoverAction: "Stored in refrigerator for tomorrow's morning delivery", notes: "",
+const PRODUCT_DATA = {
+  "cow-milk": {
+    name: "Cow milk",
+    unit: "Litre",
+    unitShort: "L",
+    openingQty: 50,
+    openingFrom: "4 June",
+    defaultFresh: 20,
+    defaultSold: 65,
+    defaultPrice: 30,
+    expiryLabel: "5 June 2026 (expires today)",
+    date: "5 June 2026",
   },
-  buffalo_milk: {
-    name: "Buffalo Milk", unit: "litre", produced: 380, sold: 300, pricePerUnit: 25,
-    leftoverAction: "Converted to curd for sale", notes: "",
+  "buffalo-milk": {
+    name: "Buffalo milk",
+    unit: "Litre",
+    unitShort: "L",
+    openingQty: 80,
+    openingFrom: "4 June",
+    defaultFresh: 0,
+    defaultSold: 75,
+    defaultPrice: 25,
+    expiryLabel: "5 June 2026 (expires today)",
+    date: "5 June 2026",
   },
   paneer: {
-    name: "Paneer", unit: "kg", produced: 80, sold: 40, pricePerUnit: 50,
-    leftoverAction: "Packed and stored for next day dispatch",
-    notes: "Batch quality excellent — extra firm texture noted.",
+    name: "Paneer",
+    unit: "Kilogram",
+    unitShort: "kg",
+    openingQty: 40,
+    openingFrom: "4 June",
+    defaultFresh: 60,
+    defaultSold: 55,
+    defaultPrice: 50,
+    expiryLabel: "7 June 2026",
+    date: "5 June 2026",
   },
-  cow_ghee: {
-    name: "Cow Ghee", unit: "kg", produced: 20, sold: 16, pricePerUnit: 500,
-    leftoverAction: "Stored in warehouse — will be dispatched next week",
-    notes: "Bilona method batch. Premium grade.",
+  "cow-ghee": {
+    name: "Cow ghee",
+    unit: "Kilogram",
+    unitShort: "kg",
+    openingQty: 10,
+    openingFrom: "4 June",
+    defaultFresh: 5,
+    defaultSold: 3,
+    defaultPrice: 250,
+    expiryLabel: "Safe (30 days)",
+    date: "5 June 2026",
   },
 };
 
-const PRODUCT_OPTIONS = [
-  { id: "cow_milk",     name: "Cow Milk"     },
-  { id: "buffalo_milk", name: "Buffalo Milk" },
-  { id: "paneer",       name: "Paneer"       },
-  { id: "cow_ghee",     name: "Cow Ghee"     },
-];
+const FALLBACK = PRODUCT_DATA["cow-milk"];
+
+const ACTION_LABELS = {
+  dumped:    "Dumped",
+  converted: "Converted to other products",
+  staff:     "Reserved for staff",
+};
 
 function fmt(n) {
   return "₹" + n.toLocaleString("en-IN");
@@ -37,320 +68,426 @@ function fmt(n) {
 function AdminProductionForm() {
   const { productId } = useParams();
   const navigate      = useNavigate();
-  const isNew         = productId === "new";
-  const entry         = ENTRY_DATA[productId];
+  const product       = PRODUCT_DATA[productId] ?? FALLBACK;
 
-  const [saving, setSaving] = useState(false);
-  const [saved,  setSaved]  = useState(false);
+  const [freshQty,     setFreshQty]     = useState(product.defaultFresh.toString());
+  const [soldQty,      setSoldQty]      = useState(product.defaultSold.toString());
+  const [pricePerUnit, setPricePerUnit] = useState(product.defaultPrice.toString());
+  const [action,       setAction]       = useState("dumped");
+  const [convertedTo,  setConvertedTo]  = useState("");
+  const [notes,        setNotes]        = useState(
+    "5L was slightly sour — discarded safely before evening."
+  );
+  const [activeTab, setActiveTab] = useState("all");
 
-  const [form, setForm] = useState({
-    productId:     isNew ? "cow_milk" : (productId ?? "cow_milk"),
-    unit:          entry?.unit ?? "litre",
-    produced:      entry?.produced?.toString() ?? "",
-    sold:          entry?.sold?.toString() ?? "",
-    pricePerUnit:  entry?.pricePerUnit?.toString() ?? "",
-    leftoverAction:entry?.leftoverAction ?? "",
-    notes:         entry?.notes ?? "",
-  });
-
-  const produced  = parseFloat(form.produced)  || 0;
-  const sold      = parseFloat(form.sold)      || 0;
-  const price     = parseFloat(form.pricePerUnit) || 0;
-  const leftover  = Math.max(0, produced - sold);
-  const income    = sold * price;
-  const sellRate  = produced > 0 ? ((sold / produced) * 100).toFixed(1) : "0.0";
-  const unitShort = form.unit === "litre" ? "L" : form.unit === "kg" ? "kg" : "pkt";
-
-  const displayName = isNew
-    ? PRODUCT_OPTIONS.find(p => p.id === form.productId)?.name ?? "New Entry"
-    : (entry?.name ?? "Entry");
-
-  function set(field, value) {
-    setForm(prev => ({ ...prev, [field]: value }));
-  }
-
-  function handleProductChange(id) {
-    const data = ENTRY_DATA[id];
-    setForm(prev => ({ ...prev, productId: id, unit: data?.unit ?? prev.unit }));
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
-      setSaved(true);
-      setTimeout(() => {
-        navigate(`/admin/production/${isNew ? form.productId : productId}`);
-      }, 1000);
-    }, 800);
-  }
+  const freshNum   = parseFloat(freshQty)     || 0;
+  const soldNum    = parseFloat(soldQty)       || 0;
+  const priceNum   = parseFloat(pricePerUnit)  || 0;
+  const totalAvail = product.openingQty + freshNum;
+  const income     = soldNum * priceNum;
+  const leftover   = Math.max(0, totalAvail - soldNum);
+  const sellThrough = totalAvail > 0 ? ((soldNum / totalAvail) * 100).toFixed(1) : "0.0";
 
   function handleDiscard() {
-    navigate(isNew ? "/admin/production" : `/admin/production/${productId}`);
+    setFreshQty(product.defaultFresh.toString());
+    setSoldQty(product.defaultSold.toString());
+    setPricePerUnit(product.defaultPrice.toString());
+    setAction("dumped");
+    setConvertedTo("");
+    setNotes("5L was slightly sour — discarded safely before evening.");
+  }
+
+  function handleSave() {
+    navigate("/admin/production-log");
   }
 
   return (
     <div className="pf-page">
 
-      {/* ── Breadcrumb + topbar ── */}
-      <div className="pf-topbar">
-        <div>
-          <nav className="pf-breadcrumb">
-            <Link to="/admin/production" className="pf-crumb-link">Production</Link>
-            <span className="material-symbols-outlined pf-crumb-sep">chevron_right</span>
-            <span className="pf-crumb-cur pf-crumb-accent">
-              {isNew ? "New Entry" : "Edit Entry"}
-            </span>
-          </nav>
+      {/* ── Page header ── */}
+      <div className="pf-header">
+        <div className="pf-header-left">
           <h2 className="pf-title">
-            <span
-              className="material-symbols-outlined pf-title-icon"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              edit_note
-            </span>
-            {isNew
-              ? "New production entry"
-              : `Edit production entry — ${displayName} — 29 May 2026`}
+            <span className="material-symbols-outlined pf-title-icon">edit_note</span>
+            Edit production entry
+            <span className="pf-title-sep">—</span>
+            <span className="pf-title-product">{product.name}</span>
           </h2>
+          <div className="pf-header-chips">
+            <span className="pf-date-chip">
+              <span className="material-symbols-outlined pf-chip-icon">calendar_today</span>
+              {product.date}
+            </span>
+            <span className="pf-unit-chip">{product.unit}</span>
+          </div>
         </div>
-        <button type="button" className="pf-back-btn" onClick={handleDiscard}>
+        <button
+          type="button"
+          className="pf-back-btn"
+          onClick={() => navigate("/admin/production-log")}
+        >
           <span className="material-symbols-outlined">arrow_back</span>
-          Back to all products
+          Back
         </button>
       </div>
 
-      {/* ── Main form card ── */}
-      <div className="pf-card">
-        <form className="pf-form" onSubmit={handleSubmit} noValidate>
+      {/* ── KPI cards ── */}
+      <div className="pf-kpi-grid">
 
-          {/* Row 1 — Product name + Unit */}
-          <div className="pf-grid-2">
-            <div className="pf-field">
-              <label className="pf-label">Product name</label>
-              {isNew ? (
-                <div className="pf-select-wrap">
-                  <select
-                    className="pf-select"
-                    value={form.productId}
-                    onChange={e => handleProductChange(e.target.value)}
-                  >
-                    {PRODUCT_OPTIONS.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
-                  <span className="material-symbols-outlined pf-select-arrow">expand_more</span>
-                </div>
-              ) : (
-                <input
-                  type="text"
-                  className="pf-input pf-input-readonly"
-                  value={entry?.name ?? ""}
-                  readOnly
-                />
-              )}
+        <div className="pf-kpi-card pf-kpi-opening">
+          <div className="pf-kpi-top">
+            <span className="pf-kpi-label">Opening Stock</span>
+            <span className="material-symbols-outlined pf-kpi-icon">inventory_2</span>
+          </div>
+          <p className="pf-kpi-val">{product.openingQty} {product.unitShort}</p>
+          <p className="pf-kpi-sub">from {product.openingFrom}</p>
+          <span className="pf-kpi-auto">auto</span>
+        </div>
+
+        <div className="pf-kpi-card pf-kpi-fresh">
+          <div className="pf-kpi-top">
+            <span className="pf-kpi-label">Fresh Today</span>
+            <span className="material-symbols-outlined pf-kpi-icon">add_circle</span>
+          </div>
+          <p className="pf-kpi-val pf-kpi-val-primary">{freshNum} {product.unitShort}</p>
+          <p className="pf-kpi-sub">production today</p>
+        </div>
+
+        <div className="pf-kpi-card pf-kpi-total">
+          <div className="pf-kpi-top">
+            <span className="pf-kpi-label">Total Available</span>
+            <span className="material-symbols-outlined pf-kpi-icon">calculate</span>
+          </div>
+          <p className="pf-kpi-val pf-kpi-val-primary">{totalAvail} {product.unitShort}</p>
+          <p className="pf-kpi-sub">opening + fresh</p>
+          <span className="pf-kpi-auto">auto</span>
+        </div>
+
+        <div className="pf-kpi-card pf-kpi-income">
+          <div className="pf-kpi-top">
+            <span className="pf-kpi-label">Income Today</span>
+            <span className="material-symbols-outlined pf-kpi-icon">payments</span>
+          </div>
+          <p className="pf-kpi-val pf-kpi-val-income">{fmt(income)}</p>
+          <p className="pf-kpi-sub">{soldNum} {product.unitShort} × ₹{priceNum}</p>
+          <span className="pf-kpi-auto">auto</span>
+        </div>
+
+        <div className={`pf-kpi-card${leftover > 0 ? " pf-kpi-leftover" : " pf-kpi-safe"}`}>
+          <div className="pf-kpi-top">
+            <span className="pf-kpi-label">Leftover Qty</span>
+            <span className="material-symbols-outlined pf-kpi-icon">
+              {leftover > 0 ? "warning" : "check_circle"}
+            </span>
+          </div>
+          <p className={`pf-kpi-val${leftover > 0 ? " pf-kpi-val-error" : " pf-kpi-val-primary"}`}>
+            {leftover} {product.unitShort}
+          </p>
+          <p className="pf-kpi-sub">total − sold</p>
+          <span className="pf-kpi-auto">auto</span>
+        </div>
+
+      </div>
+
+      {/* ── Filter tabs ── */}
+      <div className="pf-tabs">
+        <button
+          type="button"
+          className={`pf-tab${activeTab === "all" ? " pf-tab-active" : ""}`}
+          onClick={() => setActiveTab("all")}
+        >
+          All Production
+        </button>
+        <button
+          type="button"
+          className={`pf-tab${activeTab === "history" ? " pf-tab-active" : ""}`}
+          onClick={() => setActiveTab("history")}
+        >
+          Stock History
+        </button>
+      </div>
+
+      {/* ── Form card ── */}
+      <div className="pf-form-card">
+
+        {/* Production Numbers section */}
+        <div className="pf-section">
+          <div className="pf-section-hdr">
+            <span className="material-symbols-outlined pf-section-icon">edit_note</span>
+            <div>
+              <h3 className="pf-section-title">Production Numbers</h3>
+              <p className="pf-section-sub">
+                Fill in fresh produced and sold quantities — other fields calculate automatically.
+              </p>
             </div>
+          </div>
+
+          <div className="pf-form-grid">
+
             <div className="pf-field">
-              <label className="pf-label">Unit of measurement</label>
-              <div className="pf-select-wrap">
-                <select
-                  className="pf-select"
-                  value={form.unit}
-                  onChange={e => set("unit", e.target.value)}
-                >
-                  <option value="litre">Litre</option>
-                  <option value="kg">Kilogram</option>
-                  <option value="packet (500ml)">Packet (500 ml)</option>
-                </select>
-                <span className="material-symbols-outlined pf-select-arrow">expand_more</span>
+              <label className="pf-label">Opening stock</label>
+              <input
+                type="text"
+                className="pf-input pf-input-gray"
+                value={`${product.openingQty} ${product.unitShort}`}
+                readOnly
+              />
+              <p className="pf-hint">Carried from {product.openingFrom}</p>
+            </div>
+
+            <div className="pf-field">
+              <label className="pf-label">
+                Fresh produced today <span className="pf-req">*</span>
+              </label>
+              <div className="pf-suffix-wrap">
+                <input
+                  type="number"
+                  className="pf-input pf-input-has-suffix"
+                  min="0"
+                  value={freshQty}
+                  onChange={e => setFreshQty(e.target.value)}
+                />
+                <span className="pf-suffix">{product.unitShort}</span>
               </div>
             </div>
-          </div>
 
-          {/* Row 2 — Produced + Sold */}
-          <div className="pf-grid-2">
             <div className="pf-field">
-              <label className="pf-label">Qty produced today</label>
+              <label className="pf-label">Total available</label>
               <input
-                type="number"
-                className="pf-input"
-                min="0"
-                placeholder="0"
-                value={form.produced}
-                onChange={e => set("produced", e.target.value)}
+                type="text"
+                className="pf-input pf-input-green"
+                value={`${totalAvail} ${product.unitShort}`}
+                readOnly
               />
+              <p className="pf-hint pf-hint-green">= Opening + Fresh</p>
             </div>
-            <div className="pf-field">
-              <label className="pf-label">Qty sold today</label>
-              <input
-                type="number"
-                className="pf-input"
-                min="0"
-                placeholder="0"
-                value={form.sold}
-                onChange={e => set("sold", e.target.value)}
-              />
-            </div>
-          </div>
 
-          {/* Row 3 — Price + Leftover (auto) */}
-          <div className="pf-grid-2">
             <div className="pf-field">
-              <label className="pf-label">Price per unit (₹)</label>
+              <label className="pf-label">
+                Qty sold today <span className="pf-req">*</span>
+              </label>
+              <div className="pf-suffix-wrap">
+                <input
+                  type="number"
+                  className="pf-input pf-input-has-suffix"
+                  min="0"
+                  value={soldQty}
+                  onChange={e => setSoldQty(e.target.value)}
+                />
+                <span className="pf-suffix">{product.unitShort}</span>
+              </div>
+            </div>
+
+            <div className="pf-field">
+              <label className="pf-label">
+                Price per {product.unitShort} <span className="pf-req">*</span>
+              </label>
               <div className="pf-prefix-wrap">
                 <span className="pf-prefix-sym">₹</span>
                 <input
                   type="number"
                   className="pf-input pf-input-prefixed"
                   min="0"
-                  placeholder="0"
-                  value={form.pricePerUnit}
-                  onChange={e => set("pricePerUnit", e.target.value)}
+                  value={pricePerUnit}
+                  onChange={e => setPricePerUnit(e.target.value)}
                 />
               </div>
             </div>
+
             <div className="pf-field">
-              <label className="pf-label">
-                Leftover qty
-                <span className="pf-label-note">— auto calculated</span>
-              </label>
+              <label className="pf-label">Income today</label>
               <input
                 type="text"
-                className="pf-input pf-input-readonly pf-input-leftover"
-                value={produced > 0 ? `${leftover} ${unitShort}` : "—"}
+                className="pf-input pf-input-green pf-input-income"
+                value={fmt(income)}
+                readOnly
+              />
+              <p className="pf-hint pf-hint-green">= Sold × Price</p>
+            </div>
+
+            <div className="pf-field">
+              <label className="pf-label">Leftover qty</label>
+              <input
+                type="text"
+                className="pf-input pf-input-red"
+                value={`${leftover} ${product.unitShort}`}
+                readOnly
+              />
+              <p className="pf-hint pf-hint-red">= Total − Sold</p>
+            </div>
+
+            <div className="pf-field">
+              <label className="pf-label">Expiry date</label>
+              <input
+                type="text"
+                className="pf-input pf-input-gray"
+                value={product.expiryLabel}
                 readOnly
               />
             </div>
-          </div>
 
-          {/* Leftover action */}
-          <div className="pf-field">
-            <label className="pf-label">
-              What did you do with the leftover today?
-            </label>
-            <input
-              type="text"
-              className="pf-input"
-              placeholder="e.g. Stored in refrigerator for tomorrow's morning delivery"
-              value={form.leftoverAction}
-              onChange={e => set("leftoverAction", e.target.value)}
-            />
           </div>
+        </div>
 
-          {/* Notes */}
-          <div className="pf-field">
-            <label className="pf-label">
-              Extra notes about today's production
-              <span className="pf-label-note">— optional</span>
-            </label>
-            <textarea
-              className="pf-textarea"
-              rows={3}
-              placeholder="e.g. production was lower due to rain, extra demand from new customer..."
-              value={form.notes}
-              onChange={e => set("notes", e.target.value)}
-            />
-          </div>
+        <div className="pf-card-divider" />
 
-          {/* ── Calculated summary ── */}
-          <div className="pf-summary-section">
-            <h4 className="pf-summary-heading">
-              Calculated summary
-              <span className="pf-summary-note">— updates automatically</span>
-            </h4>
-            <div className="pf-summary-box">
-              <div className="pf-sum-row">
-                <span className="pf-sum-key">Qty produced</span>
-                <span className="pf-sum-val">
-                  {produced > 0 ? `${produced} ${unitShort}` : "—"}
-                </span>
-              </div>
-              <div className="pf-sum-row">
-                <span className="pf-sum-key">Qty sold</span>
-                <span className="pf-sum-val">
-                  {sold > 0 ? `${sold} ${unitShort}` : "—"}
-                </span>
-              </div>
-              <div className="pf-sum-row">
-                <span className="pf-sum-key">Price per {form.unit}</span>
-                <span className="pf-sum-val">{price > 0 ? fmt(price) : "—"}</span>
-              </div>
-              <div className="pf-sum-row">
-                <span className="pf-sum-key">
-                  Leftover qty
-                  <span className="pf-sum-sub"> (produced – sold)</span>
-                </span>
-                <span className="pf-sum-val pf-sum-leftover">
-                  {produced > 0 ? `${leftover} ${unitShort}` : "—"}
-                </span>
-              </div>
-              <div className="pf-sum-row pf-sum-total">
-                <span className="pf-sum-total-key">
-                  Total income today
-                  <span className="pf-sum-sub"> (sold qty × price)</span>
-                </span>
-                <span className="pf-sum-total-val">{income > 0 ? fmt(income) : "₹0"}</span>
-              </div>
-              <div className="pf-sum-row">
-                <span className="pf-sum-key">
-                  Sell-through rate
-                  <span className="pf-sum-sub"> (sold ÷ produced × 100)</span>
-                </span>
-                <span className="pf-sum-rate">{sellRate}%</span>
-              </div>
+        {/* Leftover Stock Action section */}
+        <div className="pf-section">
+          <div className="pf-section-hdr">
+            <span className="material-symbols-outlined pf-section-icon pf-section-icon-warn">
+              warning
+            </span>
+            <div>
+              <h3 className="pf-section-title">Leftover Stock Action</h3>
+              <p className="pf-section-sub">
+                Record what happened to the {leftover} {product.unitShort} leftover.
+              </p>
             </div>
           </div>
 
-          {/* ── Action buttons ── */}
-          <div className="pf-actions">
-            <button type="button" className="pf-btn-discard" onClick={handleDiscard}>
-              Discard changes
-            </button>
-            <button
-              type="submit"
-              className={`pf-btn-save${saved ? " pf-btn-done" : ""}`}
-              disabled={saving || saved}
-            >
-              {saved ? (
-                <>
-                  <span className="material-symbols-outlined">check_circle</span>
-                  Saved!
-                </>
-              ) : saving ? (
-                <>
-                  <span className="material-symbols-outlined pf-spin">progress_activity</span>
-                  Saving…
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined">check</span>
-                  Save entry
-                </>
-              )}
-            </button>
+          <div className="pf-leftover-fields">
+
+            <div className="pf-field">
+              <label className="pf-label">
+                What was done with leftover stock? <span className="pf-req">*</span>
+              </label>
+              <div className="pf-select-wrap">
+                <select
+                  className="pf-select"
+                  value={action}
+                  onChange={e => setAction(e.target.value)}
+                >
+                  <option value="dumped">Dumped</option>
+                  <option value="converted">Converted to other products</option>
+                  <option value="staff">Reserved for staff</option>
+                </select>
+                <span className="material-symbols-outlined pf-select-arrow">expand_more</span>
+              </div>
+            </div>
+
+            {action === "converted" && (
+              <div className="pf-field">
+                <label className="pf-label">
+                  If converted — what product? <span className="pf-req">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="pf-input"
+                  placeholder="e.g. Curd, Paneer, Ghee..."
+                  value={convertedTo}
+                  onChange={e => setConvertedTo(e.target.value)}
+                />
+              </div>
+            )}
+
+            <div className="pf-field">
+              <label className="pf-label">
+                Notes <span className="pf-label-opt">(optional)</span>
+              </label>
+              <textarea
+                className="pf-textarea"
+                rows={3}
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+              />
+            </div>
+
           </div>
-
-        </form>
-      </div>
-
-      {/* ── Impact info alert ── */}
-      <div className="pf-alert">
-        <span className="material-symbols-outlined pf-alert-icon">info</span>
-        <div className="pf-alert-body">
-          <p className="pf-alert-title">Impact Analysis</p>
-          <p className="pf-alert-text">
-            After saving — this product's income, leftover, and qty data will instantly update
-            in the master production table on the overview page. The total income card on the
-            overview page will also recalculate automatically.
-          </p>
         </div>
+
+        <div className="pf-card-divider" />
+
+        {/* Calculated Summary section */}
+        <div className="pf-section pf-section-summary">
+          <h3 className="pf-summary-title">Calculated Summary</h3>
+          <div className="pf-summary-grid">
+
+            {/* Stock calculation */}
+            <div className="pf-summary-card">
+              <p className="pf-summary-card-title">
+                <span className="material-symbols-outlined pf-summary-icon">inventory_2</span>
+                Stock Calculation
+              </p>
+              <div className="pf-calc-rows">
+                <div className="pf-calc-row">
+                  <span className="pf-calc-key">Opening stock</span>
+                  <span className="pf-calc-val">{product.openingQty} {product.unitShort}</span>
+                </div>
+                <div className="pf-calc-row pf-calc-row-op">
+                  <span className="pf-calc-op">+</span>
+                  <span className="pf-calc-key">Fresh today</span>
+                  <span className="pf-calc-val">{freshNum} {product.unitShort}</span>
+                </div>
+                <div className="pf-calc-row pf-calc-row-eq">
+                  <span className="pf-calc-key">= &nbsp;Total available</span>
+                  <span className="pf-calc-val pf-calc-total">{totalAvail} {product.unitShort}</span>
+                </div>
+                <div className="pf-calc-row pf-calc-row-op">
+                  <span className="pf-calc-op">−</span>
+                  <span className="pf-calc-key">Qty sold</span>
+                  <span className="pf-calc-val">{soldNum} {product.unitShort}</span>
+                </div>
+                <div className="pf-calc-row pf-calc-row-eq">
+                  <span className="pf-calc-key">= &nbsp;Leftover</span>
+                  <span className={`pf-calc-val${leftover > 0 ? " pf-calc-leftover" : " pf-calc-zero"}`}>
+                    {leftover} {product.unitShort}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Income calculation */}
+            <div className="pf-summary-card">
+              <p className="pf-summary-card-title">
+                <span className="material-symbols-outlined pf-summary-icon">payments</span>
+                Income Calculation
+              </p>
+              <div className="pf-calc-rows">
+                <div className="pf-calc-row">
+                  <span className="pf-calc-key">Qty sold</span>
+                  <span className="pf-calc-val">{soldNum} {product.unitShort}</span>
+                </div>
+                <div className="pf-calc-row pf-calc-row-op">
+                  <span className="pf-calc-op">×</span>
+                  <span className="pf-calc-key">Price per {product.unitShort}</span>
+                  <span className="pf-calc-val">₹{priceNum}</span>
+                </div>
+                <div className="pf-calc-row pf-calc-row-eq">
+                  <span className="pf-calc-key">= &nbsp;Total income</span>
+                  <span className="pf-calc-val pf-calc-income">{fmt(income)}</span>
+                </div>
+                <div className="pf-calc-divider" />
+                <div className="pf-calc-row">
+                  <span className="pf-calc-key">Sell-through rate</span>
+                  <span className="pf-calc-val pf-calc-rate">{sellThrough}%</span>
+                </div>
+                <div className="pf-calc-row">
+                  <span className="pf-calc-key">Leftover action</span>
+                  <span className="pf-calc-val">{ACTION_LABELS[action]}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
-      {/* ── Footer meta ── */}
-      <div className="pf-footer-meta">
-        {!isNew && <p>Last saved: 29 May 2026 — 09:14 AM</p>}
-        <p>By: Admin (owner)</p>
+      {/* ── Sticky footer ── */}
+      <div className="pf-footer">
+        <p className="pf-footer-meta">
+          <span className="material-symbols-outlined pf-footer-icon">schedule</span>
+          Last saved: 5 June 2026 at 5:42 PM by admin
+        </p>
+        <div className="pf-footer-actions">
+          <button type="button" className="pf-btn-discard" onClick={handleDiscard}>
+            Discard changes
+          </button>
+          <button type="button" className="pf-btn-save" onClick={handleSave}>
+            <span className="material-symbols-outlined">check</span>
+            Save entry
+          </button>
+        </div>
       </div>
 
     </div>

@@ -1,0 +1,426 @@
+/* ── Page ── */
+.ls-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ls-page-title {
+  font-family: var(--admin-font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--admin-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* ── KPI grid ── */
+.ls-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+@media (min-width: 900px) { .ls-kpi-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.ls-kpi-card {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 6px rgba(27, 67, 50, 0.06);
+  border-left: 4px solid transparent;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.ls-kpi-secondary { border-left-color: var(--admin-secondary); }
+.ls-kpi-error     { border-left-color: var(--admin-error);     }
+.ls-kpi-primary   { border-left-color: var(--admin-primary);   }
+.ls-kpi-green     { border-left-color: #86af99;                }
+
+/* KPI icon row */
+.ls-kpi-icon-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.125rem;
+}
+
+.ls-kpi-icon {
+  font-size: 20px !important;
+  transform: scale(0.85);
+  transform-origin: left;
+}
+.ls-icon-secondary { color: var(--admin-secondary); }
+.ls-icon-error     { color: var(--admin-error);     }
+.ls-icon-primary   { color: var(--admin-primary);   }
+.ls-icon-green     { color: #86af99;                }
+
+/* Badges */
+.ls-kpi-badge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  line-height: 1.4;
+}
+.ls-badge-urgent   { background: rgba(186, 26, 26, 0.08); color: var(--admin-error);   }
+.ls-badge-critical { background: rgba(255, 220, 196, 0.5); color: #3f1d00;             }
+
+/* KPI label */
+.ls-kpi-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--admin-outline);
+  margin: 0;
+}
+
+/* KPI big number row */
+.ls-kpi-count-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.ls-kpi-big {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--admin-on-surface);
+  line-height: 1.1;
+}
+.ls-big-error   { color: var(--admin-error);   }
+.ls-big-primary { color: var(--admin-primary); }
+
+.ls-kpi-unit {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--admin-outline);
+}
+
+/* KPI product list */
+.ls-kpi-list {
+  margin: 0.375rem 0 0;
+  padding: 0.5rem 0 0;
+  border-top: 1px solid var(--admin-outline-variant);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ls-kpi-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  color: var(--admin-on-surface-variant);
+}
+
+.ls-kpi-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ls-dot-secondary { background: var(--admin-secondary); }
+.ls-dot-error     { background: var(--admin-error);     }
+
+/* KPI sub text */
+.ls-kpi-sub {
+  font-size: 0.6875rem;
+  color: var(--admin-on-surface-variant);
+  margin: auto 0 0;
+}
+
+/* ── Table card ── */
+.ls-table-card {
+  background: #ffffff;
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 6px rgba(27, 67, 50, 0.06);
+  overflow: hidden;
+}
+
+/* Tabs inside card */
+.ls-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--admin-outline-variant);
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.ls-tabs::-webkit-scrollbar { display: none; }
+
+.ls-tab {
+  padding: 1rem 1.5rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--admin-outline);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s;
+  margin-bottom: -1px;
+}
+.ls-tab:hover { color: var(--admin-primary); }
+
+.ls-tab-active {
+  color: var(--admin-primary);
+  border-bottom-color: var(--admin-primary);
+}
+
+/* Table */
+.ls-table-scroll { overflow-x: auto; }
+
+.ls-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.ls-table thead tr {
+  background: var(--admin-surface-container-low);
+  border-bottom: 1px solid var(--admin-outline-variant);
+}
+
+.ls-table th {
+  padding: 1rem 1.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--admin-outline);
+}
+
+.ls-th-right { text-align: right; }
+
+.ls-row {
+  border-bottom: 1px solid var(--admin-outline-variant);
+  transition: background 0.15s;
+}
+.ls-row:last-child { border-bottom: none; }
+.ls-row:hover      { background: rgba(247, 242, 241, 0.3); }
+
+.ls-table td {
+  padding: 1.5rem;
+  vertical-align: middle;
+}
+
+/* Column specific */
+.ls-td-id {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--admin-outline);
+}
+
+/* Product cell */
+.ls-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ls-thumb-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.5rem;
+  border: 1px solid var(--admin-outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.ls-thumb-icon {
+  font-size: 22px !important;
+  color: var(--admin-primary);
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.ls-product-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--admin-on-surface);
+  margin: 0 0 3px;
+}
+
+.ls-critical-badge {
+  display: inline-block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--admin-error);
+  background: rgba(186, 26, 26, 0.08);
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.ls-product-sub {
+  font-size: 0.75rem;
+  color: var(--admin-outline);
+  margin: 0;
+}
+
+/* Category badges */
+.ls-cat-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ls-cat-milk   { background: rgba(165, 208, 185, 0.3); color: #274e3d; }
+.ls-cat-curd   { background: rgba(255, 220, 189, 0.3); color: #7a532a; }
+.ls-cat-butter { background: rgba(255, 220, 196, 0.3); color: #6f3800; }
+
+/* Rates */
+.ls-td-rate {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--admin-on-surface);
+}
+.ls-rate-muted { color: var(--admin-on-surface-variant); }
+.ls-td-unit {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--admin-outline);
+}
+
+/* Stock cell */
+.ls-stock-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 140px;
+}
+
+.ls-stock-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.75rem;
+}
+
+.ls-stock-qty { font-weight: 700; }
+.ls-qty-error     { color: var(--admin-error);     }
+.ls-qty-secondary { color: var(--admin-secondary); }
+
+.ls-stock-goal { color: var(--admin-outline); }
+
+.ls-stock-track {
+  width: 100%;
+  height: 8px;
+  background: var(--admin-surface-container-high);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.ls-stock-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+.ls-bar-error     { background: var(--admin-error);     }
+.ls-bar-secondary { background: var(--admin-secondary); }
+
+.ls-alert-text {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  font-style: italic;
+  margin: 0;
+}
+.ls-alert-critical { color: #6f3800; }
+.ls-alert-normal   { color: var(--admin-outline); }
+
+/* Restock input */
+.ls-restock-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 96px;
+}
+
+.ls-restock-input {
+  width: 100%;
+  padding: 0.375rem 2rem 0.375rem 0.75rem;
+  border: 1px solid var(--admin-outline-variant);
+  border-radius: 0.5rem;
+  background: #ffffff;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--admin-on-surface);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -moz-appearance: textfield;
+}
+.ls-restock-input::-webkit-outer-spin-button,
+.ls-restock-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.ls-restock-input:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 2px rgba(1, 45, 29, 0.12); }
+.ls-input-critical { border-color: var(--admin-outline); }
+
+.ls-restock-unit {
+  position: absolute;
+  right: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--admin-outline);
+  pointer-events: none;
+}
+
+/* Total after restock */
+.ls-td-total {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--admin-primary);
+}
+
+/* Action buttons */
+.ls-act-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.ls-act-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--admin-primary);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ls-act-btn:hover { background: rgba(165, 208, 185, 0.25); }
+.ls-act-btn .material-symbols-outlined { font-size: 20px; }
+
+/* Card footer */
+.ls-card-footer {
+  padding: 1rem 1.5rem;
+  background: var(--admin-surface-container-low);
+  border-top: 1px solid var(--admin-outline-variant);
+}
+
+.ls-footer-text {
+  font-size: 0.875rem;
+  color: var(--admin-on-surface-variant);
+  font-style: italic;
+  margin: 0;
+}

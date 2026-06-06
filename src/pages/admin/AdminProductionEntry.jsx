@@ -1,81 +1,102 @@
-import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./AdminProductionEntry.css";
 
-const ENTRIES = {
-  cow_milk: {
-    name:          "Cow Milk",
-    unit:          "litre",
-    unitShort:     "L",
-    icon:          "water_drop",
-    produced:      150,
-    sold:          100,
-    pricePerUnit:  30,
-    leftoverAction:"Stored in refrigerator for tomorrow's morning delivery",
-    notes:         null,
-    targetIncome:  2500,
-    date:          "Friday, 29 May 2026",
-    savedBy:       "Admin (owner)",
-    savedAt:       "29 May 2026, 09:14 AM",
-    qaCertified:   true,
-    qaColdChain:   true,
-    qaNote:        "This entry has been validated against the production log. No anomalies were detected in the fat percentage or pasteurization timestamps for this batch.",
+const PRODUCT_DATA = {
+  "cow-milk": {
+    name: "Cow milk",
+    unit: "Litre",
+    unitShort: "L",
+    date: "Friday, 5 June 2026",
+    openingQty: 50,
+    openingFrom: "4 June",
+    freshQty: 20,
+    soldQty: 65,
+    pricePerUnit: 30,
+    expiryDate: "5 June 2026",
+    expiryStatus: "expired today",
+    actionKey: "dumped",
+    actionLabel: "Dumped",
+    actionIcon: "delete",
+    notes: "5L was slightly sour — discarded safely before evening.",
+    carryToNext: false,
+    savedBy: "Admin (owner)",
+    savedDate: "5 June 2026",
+    savedTime: "09:14 AM",
+    lastEditedDate: "5 June 2026",
+    lastEditedTime: "11:30 AM",
   },
-  buffalo_milk: {
-    name:          "Buffalo Milk",
-    unit:          "litre",
-    unitShort:     "L",
-    icon:          "opacity",
-    produced:      380,
-    sold:          300,
-    pricePerUnit:  25,
-    leftoverAction:"Converted to curd for sale",
-    notes:         null,
-    targetIncome:  6000,
-    date:          "Friday, 29 May 2026",
-    savedBy:       "Admin (owner)",
-    savedAt:       "29 May 2026, 09:18 AM",
-    qaCertified:   true,
-    qaColdChain:   true,
-    qaNote:        "Entry validated. No anomalies detected in fat content or temperature logs for this batch.",
+  "buffalo-milk": {
+    name: "Buffalo milk",
+    unit: "Litre",
+    unitShort: "L",
+    date: "Friday, 5 June 2026",
+    openingQty: 80,
+    openingFrom: "4 June",
+    freshQty: 0,
+    soldQty: 75,
+    pricePerUnit: 25,
+    expiryDate: "5 June 2026",
+    expiryStatus: "expired today",
+    actionKey: "dumped",
+    actionLabel: "Dumped",
+    actionIcon: "delete",
+    notes: null,
+    carryToNext: false,
+    savedBy: "Admin (owner)",
+    savedDate: "5 June 2026",
+    savedTime: "09:18 AM",
+    lastEditedDate: "5 June 2026",
+    lastEditedTime: "09:18 AM",
   },
   paneer: {
-    name:          "Paneer",
-    unit:          "kg",
-    unitShort:     "kg",
-    icon:          "inventory_2",
-    produced:      80,
-    sold:          40,
-    pricePerUnit:  50,
-    leftoverAction:"Packed and stored for next day dispatch",
-    notes:         "Batch quality excellent — extra firm texture noted.",
-    targetIncome:  1500,
-    date:          "Friday, 29 May 2026",
-    savedBy:       "Admin (owner)",
-    savedAt:       "29 May 2026, 09:22 AM",
-    qaCertified:   true,
-    qaColdChain:   false,
-    qaNote:        "Batch passed freshness and texture checks. Cold chain was briefly interrupted during afternoon packaging — resolved.",
+    name: "Paneer",
+    unit: "Kilogram",
+    unitShort: "kg",
+    date: "Friday, 5 June 2026",
+    openingQty: 40,
+    openingFrom: "4 June",
+    freshQty: 60,
+    soldQty: 55,
+    pricePerUnit: 50,
+    expiryDate: "7 June 2026",
+    expiryStatus: "expires in 2 days",
+    actionKey: "staff",
+    actionLabel: "Reserved for staff",
+    actionIcon: "group",
+    notes: "Batch quality excellent — extra firm texture noted.",
+    carryToNext: true,
+    savedBy: "Admin (owner)",
+    savedDate: "5 June 2026",
+    savedTime: "09:22 AM",
+    lastEditedDate: "5 June 2026",
+    lastEditedTime: "10:45 AM",
   },
-  cow_ghee: {
-    name:          "Cow Ghee",
-    unit:          "kg",
-    unitShort:     "kg",
-    icon:          "oil_barrel",
-    produced:      20,
-    sold:          16,
-    pricePerUnit:  500,
-    leftoverAction:"Stored in warehouse — will be dispatched next week",
-    notes:         "Bilona method batch from this morning. Premium grade.",
-    targetIncome:  7000,
-    date:          "Friday, 29 May 2026",
-    savedBy:       "Admin (owner)",
-    savedAt:       "29 May 2026, 09:30 AM",
-    qaCertified:   true,
-    qaColdChain:   true,
-    qaNote:        "Ghee batch validated for colour, aroma, and grain texture. Meets premium export standards.",
+  "cow-ghee": {
+    name: "Cow ghee",
+    unit: "Kilogram",
+    unitShort: "kg",
+    date: "Friday, 5 June 2026",
+    openingQty: 10,
+    openingFrom: "4 June",
+    freshQty: 5,
+    soldQty: 3,
+    pricePerUnit: 250,
+    expiryDate: "Safe (30 days)",
+    expiryStatus: "safe to keep",
+    actionKey: "stored",
+    actionLabel: "Stored",
+    actionIcon: "inventory_2",
+    notes: "Bilona method batch. Premium grade.",
+    carryToNext: true,
+    savedBy: "Admin (owner)",
+    savedDate: "5 June 2026",
+    savedTime: "09:30 AM",
+    lastEditedDate: "5 June 2026",
+    lastEditedTime: "09:30 AM",
   },
 };
+
+const FALLBACK = PRODUCT_DATA["cow-milk"];
 
 function fmt(n) {
   return "₹" + n.toLocaleString("en-IN");
@@ -83,267 +104,254 @@ function fmt(n) {
 
 function AdminProductionEntry() {
   const { productId } = useParams();
-  const navigate      = useNavigate();
-  const entry         = ENTRIES[productId];
-  const [bannerVisible, setBannerVisible] = useState(true);
+  const navigate = useNavigate();
+  const p = PRODUCT_DATA[productId] ?? FALLBACK;
 
-  if (!entry) {
-    return (
-      <div className="pe-not-found">
-        <span className="material-symbols-outlined pe-not-found-icon">inventory_2</span>
-        <p className="pe-not-found-title">Entry not found</p>
-        <Link to="/admin/production" className="pe-back-link">← Back to Production</Link>
-      </div>
-    );
-  }
+  const totalAvail = p.openingQty + p.freshQty;
+  const income     = p.soldQty * p.pricePerUnit;
+  const leftover   = Math.max(0, totalAvail - p.soldQty);
+  const sellRate   = totalAvail > 0
+    ? ((p.soldQty / totalAvail) * 100).toFixed(1)
+    : "0.0";
 
-  const income      = entry.sold * entry.pricePerUnit;
-  const leftover    = entry.produced - entry.sold;
-  const sellRate    = ((entry.sold / entry.produced) * 100).toFixed(1);
-  const soldPct     = (entry.sold / entry.produced) * 100;
-  const aboveTarget = income > entry.targetIncome;
-  const targetDiff  = aboveTarget
-    ? `+${Math.round(((income - entry.targetIncome) / entry.targetIncome) * 100)}%`
-    : `-${Math.round(((entry.targetIncome - income) / entry.targetIncome) * 100)}%`;
+  const shortDate = p.date.replace(/^[A-Za-z]+,\s*/, "");
 
   return (
     <div className="pe-page">
 
-      {/* ── Breadcrumb ── */}
-      <nav className="pe-breadcrumb">
-        <Link to="/admin/production" className="pe-crumb-link">Production</Link>
-        <span className="material-symbols-outlined pe-crumb-sep">chevron_right</span>
-        <Link to="/admin/production" className="pe-crumb-link">Entries</Link>
-        <span className="material-symbols-outlined pe-crumb-sep">chevron_right</span>
-        <span className="pe-crumb-cur">May 2026</span>
-      </nav>
+      {/* ── Back button ── */}
+      <button
+        type="button"
+        className="pe-back-btn"
+        onClick={() => navigate("/admin/production-log")}
+      >
+        <span className="material-symbols-outlined">arrow_back</span>
+        Back to production
+      </button>
 
-      {/* ── Page header ── */}
-      <div className="pe-header">
-        <div>
-          <div className="pe-header-title-row">
-            <h2 className="pe-title">{entry.name}</h2>
-            <span className="pe-saved-badge">
-              <span className="material-symbols-outlined pe-saved-icon">check_circle</span>
-              Saved
-            </span>
-          </div>
-          <p className="pe-subtitle">Record for {entry.date}</p>
-        </div>
-        <div className="pe-header-actions">
-          <button
-            type="button"
-            className="pe-btn-secondary"
-            onClick={() => navigate("/admin/production")}
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-            All products
-          </button>
-          <button type="button" className="pe-btn-primary"
-            onClick={() => navigate(`/admin/production/${productId}/edit`)}>
-            <span className="material-symbols-outlined">edit</span>
-            Edit entry
-          </button>
-        </div>
+      {/* ── Title ── */}
+      <h1 className="pe-title">{p.name} — {shortDate}</h1>
+
+      {/* ── Edit button (right-aligned) ── */}
+      <div className="pe-edit-row">
+        <button
+          type="button"
+          className="pe-edit-btn"
+          onClick={() => navigate(`/admin/production/${productId}/edit`)}
+        >
+          <span className="material-symbols-outlined">edit</span>
+          Edit this entry
+        </button>
       </div>
 
-      {/* ── Success banner ── */}
-      {bannerVisible && (
-        <div className="pe-banner">
-          <div className="pe-banner-icon-box">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-          </div>
-          <div className="pe-banner-body">
-            <p className="pe-banner-title">Entry saved successfully.</p>
-            <p className="pe-banner-sub">
-              Master production table and total income have been updated for{" "}
-              {entry.date.split(", ")[1] || entry.date}.
-            </p>
-          </div>
-          <button
-            type="button"
-            className="pe-banner-close"
-            onClick={() => setBannerVisible(false)}
-          >
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
-      )}
+      {/* ── 5 KPI cards ── */}
+      <div className="pe-kpi-grid">
 
-      {/* ── Summary bento cards ── */}
-      <div className="pe-bento">
-
-        <div className="pe-stat-card pe-stat-produced">
-          <p className="pe-stat-label">Produced today</p>
-          <div className="pe-stat-value-row">
-            <span className="pe-stat-num">{entry.produced}</span>
-            <span className="pe-stat-unit">{entry.unitShort}</span>
-          </div>
-          <div className="pe-stat-bar-track">
-            <div className="pe-stat-bar-fill pe-bar-produced" style={{ width: "100%" }} />
-          </div>
+        <div className="pe-kpi-card pe-kpi-total">
+          <p className="pe-kpi-label">Total available</p>
+          <h3 className="pe-kpi-val pe-val-primary">{totalAvail} {p.unitShort}</h3>
+          <p className="pe-kpi-sub">opening {p.openingQty}{p.unitShort} + fresh {p.freshQty}{p.unitShort}</p>
         </div>
 
-        <div className="pe-stat-card pe-stat-sold">
-          <p className="pe-stat-label">Sold today</p>
-          <div className="pe-stat-value-row">
-            <span className="pe-stat-num">{entry.sold}</span>
-            <span className="pe-stat-unit">{entry.unitShort}</span>
-          </div>
-          <div className="pe-stat-bar-track">
-            <div className="pe-stat-bar-fill pe-bar-sold" style={{ width: `${soldPct}%` }} />
-          </div>
+        <div className="pe-kpi-card pe-kpi-sold">
+          <p className="pe-kpi-label">Sold today</p>
+          <h3 className="pe-kpi-val pe-val-secondary">{p.soldQty} {p.unitShort}</h3>
+          <p className="pe-kpi-sub">from total {totalAvail}{p.unitShort} available</p>
         </div>
 
-        <div className="pe-stat-card pe-stat-income">
-          <p className="pe-stat-label">Income today</p>
-          <div className="pe-stat-value-row">
-            <span className="pe-stat-income-val">{fmt(income)}</span>
-          </div>
-          <p className="pe-stat-note">
-            Target: {fmt(entry.targetIncome)}{" "}
-            <span className={aboveTarget ? "pe-note-above" : "pe-note-below"}>
-              ({targetDiff})
-            </span>
+        <div className="pe-kpi-card pe-kpi-income">
+          <p className="pe-kpi-label">Income today</p>
+          <h3 className="pe-kpi-val pe-val-primary">{fmt(income)}</h3>
+          <p className="pe-kpi-sub">{p.soldQty}{p.unitShort} × ₹{p.pricePerUnit}</p>
+        </div>
+
+        <div className="pe-kpi-card pe-kpi-leftover">
+          <p className="pe-kpi-label pe-label-error">Leftover</p>
+          <h3 className="pe-kpi-val pe-val-error">{leftover} {p.unitShort}</h3>
+          <p className="pe-kpi-sub pe-sub-error">
+            {p.actionLabel.toLowerCase()} — {p.expiryStatus}
           </p>
         </div>
 
-        <div className="pe-stat-card pe-stat-leftover">
-          <p className="pe-stat-label">Leftover qty</p>
-          <div className="pe-stat-value-row">
-            <span className="pe-stat-leftover-val">{leftover}</span>
-            <span className="pe-stat-unit">{entry.unitShort}</span>
-          </div>
-          <p className="pe-stat-warning">
-            <span className="material-symbols-outlined">warning</span>
-            Needs storage
-          </p>
-        </div>
-
-        <div className="pe-stat-card pe-stat-rate">
-          <p className="pe-stat-label">Sell rate</p>
-          <div className="pe-stat-value-row">
-            <span className="pe-stat-rate-val">{sellRate}%</span>
-          </div>
-          <p className="pe-stat-note">of produced qty</p>
+        <div className="pe-kpi-card pe-kpi-rate">
+          <p className="pe-kpi-label">Sell rate</p>
+          <h3 className="pe-kpi-val pe-val-rate">{sellRate}%</h3>
+          <p className="pe-kpi-sub">of total available</p>
         </div>
 
       </div>
 
-      {/* ── Full entry details table ── */}
-      <div className="pe-detail-card">
-        <div className="pe-detail-head">
-          <div className="pe-detail-head-left">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>description</span>
-            <h3 className="pe-detail-title">
-              Full entry details — {entry.name} — 29 May 2026
-            </h3>
+      {/* ── Details 2/3 + 1/3 grid ── */}
+      <div className="pe-details-grid">
+
+        {/* Left: Production details table */}
+        <div className="pe-card">
+          <div className="pe-card-head">
+            <span className="material-symbols-outlined pe-head-icon">inventory</span>
+            <h4 className="pe-head-title">Production details</h4>
           </div>
-          <button type="button" className="pe-print-btn">
-            <span className="material-symbols-outlined">print</span>
-          </button>
+          <div className="pe-table-scroll">
+            <table className="pe-table">
+              <tbody>
+                <tr className="pe-tr">
+                  <th className="pe-th">Product</th>
+                  <td className="pe-td pe-td-bold">{p.name}</td>
+                </tr>
+                <tr className="pe-tr">
+                  <th className="pe-th">Date</th>
+                  <td className="pe-td">{p.date}</td>
+                </tr>
+                <tr className="pe-tr">
+                  <th className="pe-th">Unit</th>
+                  <td className="pe-td">{p.unit} ({p.unitShort})</td>
+                </tr>
+                <tr className="pe-tr">
+                  <th className="pe-th">Opening stock</th>
+                  <td className="pe-td">
+                    <p className="pe-td-bold pe-td-primary">{p.openingQty} {p.unitShort}</p>
+                    <p className="pe-td-note">carried from {p.openingFrom}</p>
+                  </td>
+                </tr>
+                <tr className="pe-tr">
+                  <th className="pe-th">Fresh produced today</th>
+                  <td className="pe-td pe-td-bold">{p.freshQty} {p.unitShort}</td>
+                </tr>
+                <tr className="pe-tr pe-tr-tinted">
+                  <th className="pe-th">Total available</th>
+                  <td className="pe-td">
+                    <p className="pe-td-bold pe-td-primary">{totalAvail} {p.unitShort}</p>
+                    <p className="pe-td-note">
+                      {p.openingQty}{p.unitShort} opening + {p.freshQty}{p.unitShort} fresh
+                    </p>
+                  </td>
+                </tr>
+                <tr className="pe-tr">
+                  <th className="pe-th">Qty sold today</th>
+                  <td className="pe-td pe-td-bold pe-td-secondary">
+                    {p.soldQty} {p.unitShort}
+                  </td>
+                </tr>
+                <tr className="pe-tr">
+                  <th className="pe-th">Price per {p.unitShort}</th>
+                  <td className="pe-td">₹ {p.pricePerUnit} / {p.unitShort}</td>
+                </tr>
+                <tr className="pe-tr pe-tr-income">
+                  <th className="pe-th pe-th-income">Total income today</th>
+                  <td className="pe-td pe-td-income">{fmt(income)}</td>
+                </tr>
+                <tr className="pe-tr">
+                  <th className="pe-th">Leftover qty</th>
+                  <td className="pe-td">
+                    <p className="pe-td-bold pe-td-error">{leftover} {p.unitShort}</p>
+                    <p className="pe-td-note">
+                      {totalAvail}{p.unitShort} total — {p.soldQty}{p.unitShort} sold
+                    </p>
+                  </td>
+                </tr>
+                <tr className="pe-tr">
+                  <th className="pe-th">Sell-through rate</th>
+                  <td className="pe-td">
+                    <p className="pe-td-bold pe-td-rate">{sellRate}%</p>
+                    <p className="pe-td-note">
+                      {p.soldQty} sold ÷ {totalAvail} available × 100
+                    </p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div className="pe-detail-body">
+        {/* Right column */}
+        <div className="pe-side-col">
 
-          <div className="pe-detail-row pe-row-alt">
-            <span className="pe-row-key">Product</span>
-            <span className="pe-row-val pe-row-bold">{entry.name}</span>
-          </div>
-          <div className="pe-detail-row">
-            <span className="pe-row-key">Date</span>
-            <span className="pe-row-val">{entry.date}</span>
-          </div>
-          <div className="pe-detail-row pe-row-alt">
-            <span className="pe-row-key">Unit</span>
-            <span className="pe-row-val">{entry.unit.charAt(0).toUpperCase() + entry.unit.slice(1)} ({entry.unitShort})</span>
-          </div>
-          <div className="pe-detail-row">
-            <span className="pe-row-key">Qty produced today</span>
-            <span className="pe-row-val pe-row-bold">{entry.produced} {entry.unitShort}</span>
-          </div>
-          <div className="pe-detail-row pe-row-alt">
-            <span className="pe-row-key">Qty sold today</span>
-            <span className="pe-row-val pe-row-bold pe-row-sold">{entry.sold} {entry.unitShort}</span>
-          </div>
-          <div className="pe-detail-row">
-            <span className="pe-row-key">Price per {entry.unit}</span>
-            <span className="pe-row-val">{fmt(entry.pricePerUnit)}</span>
-          </div>
-          <div className="pe-detail-row pe-row-highlight">
-            <span className="pe-row-key">Total income today</span>
-            <span className="pe-row-val">
-              <span className="pe-row-income">{fmt(income)}</span>
-              <span className="pe-row-formula">
-                ({entry.sold} {entry.unitShort} × {fmt(entry.pricePerUnit)})
-              </span>
-            </span>
-          </div>
-          <div className="pe-detail-row pe-row-alt">
-            <span className="pe-row-key">Leftover qty</span>
-            <span className="pe-row-val">
-              <span className="pe-row-leftover">{leftover} {entry.unitShort}</span>
-              <span className="pe-row-formula">
-                ({entry.produced} produced − {entry.sold} sold)
-              </span>
-            </span>
-          </div>
-          <div className="pe-detail-row">
-            <span className="pe-row-key">Leftover action taken</span>
-            <span className="pe-row-val pe-row-italic">{entry.leftoverAction}</span>
-          </div>
-          <div className="pe-detail-row pe-row-alt">
-            <span className="pe-row-key">Notes</span>
-            <span className="pe-row-val pe-row-muted">
-              {entry.notes ?? "— (No additional notes added)"}
-            </span>
-          </div>
-          <div className="pe-detail-row">
-            <span className="pe-row-key">Sell-through rate</span>
-            <span className="pe-row-val">
-              <span className="pe-row-rate-badge">{sellRate}%</span>
-              <span className="pe-row-formula">of produced quantity was sold today</span>
-            </span>
-          </div>
-          <div className="pe-detail-row pe-row-alt">
-            <span className="pe-row-key">Saved by</span>
-            <span className="pe-row-val pe-row-saved-by">
-              <span className="pe-avatar">AS</span>
-              <span>{entry.savedBy} — {entry.savedAt}</span>
-            </span>
+          {/* Leftover Stock Details */}
+          <div className="pe-card">
+            <div className="pe-card-head">
+              <span className="material-symbols-outlined pe-head-icon">delete_sweep</span>
+              <h4 className="pe-head-title">Leftover stock details</h4>
+            </div>
+            <div className="pe-side-body">
+
+              <div className="pe-side-item">
+                <p className="pe-side-key">Leftover qty</p>
+                <p className="pe-side-val pe-side-error">{leftover} {p.unitShort}</p>
+              </div>
+
+              <div className="pe-side-item">
+                <p className="pe-side-key">Expiry date</p>
+                <p className="pe-side-val pe-side-error">{p.expiryDate}</p>
+                <p className="pe-side-note">{p.expiryStatus}</p>
+              </div>
+
+              <div className="pe-side-item">
+                <p className="pe-side-key">Action taken</p>
+                <span className={`pe-action-badge${p.actionKey === "dumped" ? " pe-action-error" : " pe-action-neutral"}`}>
+                  <span className="material-symbols-outlined pe-action-icon">{p.actionIcon}</span>
+                  {p.actionLabel}
+                </span>
+              </div>
+
+              <div className="pe-side-item">
+                <p className="pe-side-key">Notes</p>
+                <p className="pe-side-notes">
+                  {p.notes ? `"${p.notes}"` : "— (No notes added)"}
+                </p>
+              </div>
+
+              <div className="pe-side-item">
+                <p className="pe-side-key">Carries to next day</p>
+                <span className="pe-carry-badge">
+                  <span className="material-symbols-outlined pe-action-icon">
+                    {p.carryToNext ? "check_circle" : "block"}
+                  </span>
+                  {p.carryToNext ? "Yes — transferred" : "No — fully cleared"}
+                </span>
+              </div>
+
+            </div>
           </div>
 
-        </div>
-      </div>
+          {/* Entry Record */}
+          <div className="pe-card">
+            <div className="pe-card-head">
+              <span className="material-symbols-outlined pe-head-icon">history</span>
+              <h4 className="pe-head-title">Entry record</h4>
+            </div>
+            <div className="pe-side-body">
 
-      {/* ── Quality Assurance section ── */}
-      <div className="pe-qa-card">
-        <div className="pe-qa-image-box">
-          <span className="material-symbols-outlined pe-qa-bg-icon">{entry.icon}</span>
-          <span className="material-symbols-outlined pe-qa-center-icon">{entry.icon}</span>
-        </div>
-        <div className="pe-qa-content">
-          <h4 className="pe-qa-title">Quality Assurance Check</h4>
-          <p className="pe-qa-desc">{entry.qaNote}</p>
-          <div className="pe-qa-badges">
-            {entry.qaCertified && (
-              <div className="pe-qa-badge">
-                <span className="material-symbols-outlined">verified_user</span>
-                <span>Certified Batch</span>
+              <div className="pe-record-row">
+                <p className="pe-side-key">Saved by</p>
+                <p className="pe-record-val">{p.savedBy}</p>
               </div>
-            )}
-            {entry.qaColdChain ? (
-              <div className="pe-qa-badge">
-                <span className="material-symbols-outlined">ac_unit</span>
-                <span>Cold Chain Intact</span>
+
+              <div className="pe-record-row pe-record-border">
+                <p className="pe-side-key">Saved on</p>
+                <div className="pe-record-right">
+                  <p className="pe-record-val">{p.savedDate}</p>
+                  <p className="pe-record-time">{p.savedTime}</p>
+                </div>
               </div>
-            ) : (
-              <div className="pe-qa-badge pe-qa-badge-warn">
-                <span className="material-symbols-outlined">warning</span>
-                <span>Cold Chain Issue — Resolved</span>
+
+              <div className="pe-record-row pe-record-border">
+                <p className="pe-side-key">Last edited</p>
+                <div className="pe-record-right">
+                  <p className="pe-record-val">{p.lastEditedDate}</p>
+                  <p className="pe-record-time">{p.lastEditedTime}</p>
+                </div>
               </div>
-            )}
+
+            </div>
           </div>
+
+          {/* Decorative atmospheric block */}
+          <div className="pe-deco-block">
+            <div className="pe-deco-overlay">
+              <p className="pe-deco-name">Heritage Hearth</p>
+              <p className="pe-deco-tagline">Committed to Quality since 1928</p>
+            </div>
+          </div>
+
         </div>
       </div>
 

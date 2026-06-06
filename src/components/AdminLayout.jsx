@@ -70,8 +70,15 @@ function AdminLayout() {
   }
       <aside className="admin-sidebar">
         <div className="admin-brand">
-          <h1 className="admin-brand-title">Gir Rituals</h1>
-          <p className="admin-brand-sub">Premium Admin</p>
+          <div className="admin-brand-logo-row">
+            <div className="admin-brand-icon-box">
+              <span className="material-symbols-outlined admin-brand-eco">eco</span>
+            </div>
+            <div>
+              <h1 className="admin-brand-title">Gir Rituals</h1>
+              <p className="admin-brand-sub">Premium Dairy Admin</p>
+            </div>
+          </div>
         </div>
 
         <nav className="admin-nav">
@@ -98,6 +105,8 @@ function AdminLayout() {
     /* ── Fixed top header ── */
   }
       <header className="admin-topbar">
+        <div className="admin-topbar-left">
+          <h2 className="admin-console-title">Admin Console</h2>
         <div className="admin-search-wrap">
           <span className="material-symbols-outlined admin-search-icon">search</span>
           <input
@@ -107,6 +116,7 @@ function AdminLayout() {
     value={searchQuery}
     onChange={(e) => setSearchQuery(e.target.value)}
   />
+        </div>
         </div>
         <div className="admin-topbar-actions">
 

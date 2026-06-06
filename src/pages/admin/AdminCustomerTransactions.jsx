@@ -1,107 +1,112 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { api } from "../../lib/api";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "./AdminCustomerTransactions.css";
 
-const MOCK_MAP = {
-  GR00124: { clientId: "GR00124", name: "Priya Shah",    initials: "PS", tier: "Premium Member",  city: "Navrangpura, Ahmd",  walletBalance: 12450.50, totalCredits: "₹45,200", totalDebits: "₹32,749" },
-  GR00089: { clientId: "GR00089", name: "Rahul Mehta",   initials: "RM", tier: "Standard Member", city: "Satellite, Ahmd",    walletBalance: 0,        totalCredits: "₹18,400", totalDebits: "₹18,400" },
-  GR00201: { clientId: "GR00201", name: "Anjali Kapoor", initials: "AK", tier: "Premium Member",  city: "Vastrapur, Ahmd",    walletBalance: 350,      totalCredits: "₹28,700", totalDebits: "₹28,350" },
-  GR00057: { clientId: "GR00057", name: "Meena Patel",   initials: "MP", tier: "Paused Member",   city: "Bopal, Ahmd",        walletBalance: 0,        totalCredits: "₹9,200",  totalDebits: "₹9,200"  },
-  GR00312: { clientId: "GR00312", name: "Suresh Joshi",  initials: "SJ", tier: "Premium Member",  city: "Paldi, Ahmd",        walletBalance: 200,      totalCredits: "₹15,600", totalDebits: "₹15,400" },
-  GR00098: { clientId: "GR00098", name: "Kavita Rao",    initials: "KR", tier: "Standard Member", city: "Maninagar, Ahmd",    walletBalance: 75,       totalCredits: "₹11,200", totalDebits: "₹11,125" },
-  GR00143: { clientId: "GR00143", name: "Deepak Nair",   initials: "DN", tier: "New Member",      city: "Rajkot",             walletBalance: 0,        totalCredits: "₹2,100",  totalDebits: "₹2,100"  },
-  GR00178: { clientId: "GR00178", name: "Sunita Verma",  initials: "SV", tier: "Premium Member",  city: "Ahmedabad",          walletBalance: 500,      totalCredits: "₹34,500", totalDebits: "₹34,000" },
-  GR00234: { clientId: "GR00234", name: "Arjun Desai",   initials: "AD", tier: "New Member",      city: "Surat",              walletBalance: 0,        totalCredits: "₹3,200",  totalDebits: "₹3,200"  },
-  GR00267: { clientId: "GR00267", name: "Pooja Sharma",  initials: "PS", tier: "Paused Member",   city: "Gandhinagar",        walletBalance: 0,        totalCredits: "₹7,800",  totalDebits: "₹7,800"  },
+/* ── Customer name lookup ── */
+const MOCK_NAMES = {
+  GR00124: "Priya Shah",    GR00089: "Rahul Mehta",
+  GR00201: "Anjali Kapoor", GR00057: "Meena Patel",
+  GR00312: "Suresh Joshi",  GR00098: "Kavita Rao",
+  GR00143: "Deepak Nair",   GR00178: "Sunita Verma",
+  GR00234: "Arjun Desai",   GR00267: "Pooja Sharma",
 };
 
+/* ── Mock transaction rows ── */
 const ALL_TXNS = [
-  { id: "#TXN-88219", date: "Oct 24, 2023", time: "10:45 AM", desc: "Wallet Recharge",           type: "recharge", credit: true,  amount: "₹5,000.00", method: "HDFC Bank •••• 4291",  methodIcon: "credit_card",          status: "completed" },
-  { id: "#TXN-88104", date: "Oct 22, 2023", time: "07:12 AM", desc: "Order Payment #ORD-552",    type: "order",    credit: false, amount: "₹1,240.00", method: "Wallet Balance",          methodIcon: "account_balance_wallet", status: "completed" },
-  { id: "#TXN-87992", date: "Oct 19, 2023", time: "03:50 PM", desc: "Refund for #ORD-519",       type: "refund",   credit: true,  amount: "₹450.00",   method: "Wallet Balance",          methodIcon: "account_balance_wallet", status: "completed" },
-  { id: "#TXN-87901", date: "Oct 15, 2023", time: "08:00 AM", desc: "Monthly Subscription Bill", type: "order",    credit: false, amount: "₹3,200.00", method: "Wallet Balance",          methodIcon: "account_balance_wallet", status: "completed" },
-  { id: "#TXN-87610", date: "Oct 10, 2023", time: "11:30 AM", desc: "Wallet Recharge",           type: "recharge", credit: true,  amount: "₹5,000.00", method: "Paytm •••• 8812",         methodIcon: "credit_card",          status: "completed" },
-  { id: "#TXN-87440", date: "Oct 05, 2023", time: "09:15 AM", desc: "Order Payment #ORD-541",    type: "order",    credit: false, amount: "₹840.00",   method: "Wallet Balance",          methodIcon: "account_balance_wallet", status: "completed" },
-  { id: "#TXN-87201", date: "Sep 28, 2023", time: "06:45 AM", desc: "Refund for #ORD-498",       type: "refund",   credit: true,  amount: "₹280.00",   method: "Wallet Balance",          methodIcon: "account_balance_wallet", status: "completed" },
-  { id: "#TXN-87050", date: "Sep 22, 2023", time: "10:00 AM", desc: "Monthly Subscription Bill", type: "order",    credit: false, amount: "₹3,200.00", method: "Wallet Balance",          methodIcon: "account_balance_wallet", status: "completed" },
+  { id: "TXN-99823", date: "02/06/2026", time: "11:45 AM", planType: "Wallet",       planNote: null,             methodIcon: "smartphone",      method: "Immediate Online (GPay)",          amount: "+ ₹500",   credit: true,  status: "success", action: "print"      },
+  { id: "TXN-98412", date: "31/05/2026", time: "08:12 AM", planType: "Subscription", planNote: "May Summary",     methodIcon: "payments",        method: "Month Bill Cash (Driver)",         amount: "+ ₹2,310", credit: true,  status: "success", action: "print"      },
+  { id: "TXN-97304", date: "28/05/2026", time: "09:30 AM", planType: "Individual",   planNote: "Ghee",            methodIcon: "smartphone",      method: "Immediate Online (PhonePe)",       amount: "+ ₹650",   credit: true,  status: "success", action: "print"      },
+  { id: "TXN-REF44", date: "22/05/2026", time: "04:20 PM", planType: "Extra",        planNote: "Damaged Milk",    methodIcon: "account_balance", method: "Immediate Online (Bank Transfer)",  amount: "- ₹150",   credit: false, status: "success", action: "visibility" },
+  { id: "TXN-95112", date: "15/05/2026", time: "07:15 PM", planType: "Individual",   planNote: "Paneer",          methodIcon: "smartphone",      method: "Immediate Online (Paytm)",         amount: "+ ₹130",   credit: true,  status: "failed",  action: "replay"     },
+  { id: "TXN-93880", date: "10/05/2026", time: "02:00 PM", planType: "Subscription", planNote: "Apr Summary",     methodIcon: "payments",        method: "Month Bill Cash (Driver)",         amount: "+ ₹2,100", credit: true,  status: "success", action: "print"      },
+  { id: "TXN-92441", date: "05/05/2026", time: "10:15 AM", planType: "Wallet",       planNote: null,             methodIcon: "smartphone",      method: "Immediate Online (GPay)",          amount: "+ ₹1,000", credit: true,  status: "success", action: "print"      },
+  { id: "TXN-91104", date: "01/05/2026", time: "06:45 AM", planType: "Extra",        planNote: "Cow Butter",      methodIcon: "local_shipping",  method: "COD (Driver)",                     amount: "+ ₹150",   credit: true,  status: "success", action: "print"      },
+  { id: "TXN-89740", date: "28/04/2026", time: "08:00 AM", planType: "Subscription", planNote: "Mar Summary",     methodIcon: "payments",        method: "Month Bill Cash (Driver)",         amount: "+ ₹2,100", credit: true,  status: "success", action: "print"      },
+  { id: "TXN-88301", date: "20/04/2026", time: "03:30 PM", planType: "Individual",   planNote: "Paneer",          methodIcon: "smartphone",      method: "Immediate Online (Paytm)",         amount: "+ ₹260",   credit: true,  status: "success", action: "print"      },
 ];
 
-const TYPE_META = {
-  recharge: { icon: "add_card",          bg: "var(--admin-primary-fixed)",      color: "#274e3d"  },
-  order:    { icon: "shopping_basket",   bg: "var(--admin-secondary-container)", color: "#7a532a" },
-  refund:   { icon: "assignment_return", bg: "#ffdcc4",                         color: "#6f3800"  },
-};
+/* ── KPI data ── */
+const KPIS = [
+  { label: "Total Transactions",       value: "128",     icon: "receipt_long",    iconBg: "ct-icon-primary",    valCls: ""           },
+  { label: "Total COD Amount",         value: "₹12,450", icon: "payments",        iconBg: "ct-icon-secondary",  valCls: ""           },
+  { label: "Total Paid Till Date",     value: "₹45,200", icon: "payments",        iconBg: "ct-icon-primary",    valCls: ""           },
+  { label: "Total Online Transactions",value: "86",       icon: "smartphone",      iconBg: "ct-icon-primary",    valCls: ""           },
+  { label: "Total Online Amount",      value: "₹32,750", icon: "credit_card",     iconBg: "ct-icon-primary",    valCls: ""           },
+  { label: "Total COD",                value: "42",       icon: "local_shipping",  iconBg: "ct-icon-secondary",  valCls: ""           },
+  { label: "Total Refunds",            value: "₹1,240",  icon: "keyboard_return", iconBg: "ct-icon-error",      valCls: "ct-kpi-error" },
+];
 
-const PAGE_SIZE = 4;
+const SUB_TABS = [
+  { key: "schedule",      label: "Schedule"      },
+  { key: "bills",         label: "Bills"         },
+  { key: "orders",        label: "Orders"        },
+  { key: "order-history", label: "Order History" },
+  { key: "transactions",  label: "Transactions"  },
+];
 
+const PAGE_SIZE = 5;
+
+/* ══ Component ══ */
 function AdminCustomerTransactions() {
-  const { id } = useParams();
-  const [apiCustomer, setApiCustomer] = useState(null);
-  const [typeFilter,  setTypeFilter]  = useState("all");
-  const [page,        setPage]        = useState(1);
+  const { id }       = useParams();
+  const navigate     = useNavigate();
+  const [viewMode,   setViewMode]   = useState("month");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [rangeFilter,setRangeFilter]= useState("6m");
+  const [page,       setPage]       = useState(1);
 
-  useEffect(() => {
-    api.adminCustomer(id).then(c => {
-      setApiCustomer({
-        clientId:      c.clientId,
-        name:          `${c.firstName} ${c.lastName}`,
-        initials:      `${c.firstName[0] || "?"}${c.lastName[0] || "?"}`.toUpperCase(),
-        tier:          "Premium Member",
-        city:          c.deliveryAddress?.city || "Ahmedabad",
-        walletBalance: c.walletBalance || 0,
-        totalCredits:  "₹45,200",
-        totalDebits:   "₹32,749",
-      });
-    }).catch(() => {});
-  }, [id]);
+  const name = MOCK_NAMES[id] || id || "Customer";
 
-  const customer = apiCustomer || (id ? MOCK_MAP[id] : undefined);
-
-  if (!customer) {
-    return (
-      <div className="ct-not-found">
-        <span className="material-symbols-outlined ct-not-found-icon">person_off</span>
-        <p className="ct-not-found-title">Customer not found</p>
-        <Link to="/admin/customers" className="ct-back-link">← Back to Customers</Link>
-      </div>
-    );
+  function handleTabClick(key) {
+    if (key === "transactions") return;
+    if (key === "schedule")      navigate(`/admin/customers/${id}`);
+    if (key === "bills")         navigate(`/admin/customers/${id}/billing`);
+    if (key === "orders")        navigate(`/admin/customers/${id}/orders`);
+    if (key === "order-history") navigate(`/admin/customers/${id}/orders`);
   }
 
-  const filtered = typeFilter === "all"
-    ? ALL_TXNS
-    : ALL_TXNS.filter(t => t.type === typeFilter);
+  const filtered = ALL_TXNS.filter(t => {
+    if (typeFilter === "all") return true;
+    if (typeFilter === "wallet")       return t.planType === "Wallet";
+    if (typeFilter === "subscription") return t.planType === "Subscription";
+    if (typeFilter === "order")        return t.planType === "Individual" || t.planType === "Extra";
+    if (typeFilter === "refund")       return !t.credit;
+    return true;
+  });
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  function handleTypeChange(e) {
-    setTypeFilter(e.target.value);
-    setPage(1);
-  }
+  function changeType(val) { setTypeFilter(val); setPage(1); }
 
   return (
     <div className="ct-page">
 
-      {/* ── Breadcrumb + header ── */}
-      <div className="ct-header">
-        <div>
-          <div className="ct-breadcrumb">
-            <Link to="/admin/customers" className="ct-crumb-link">Customers</Link>
-            <span className="material-symbols-outlined ct-crumb-sep">chevron_right</span>
-            <span className="ct-crumb-cur">{customer.name}</span>
+      {/* ── Breadcrumb + controls ── */}
+      <div className="ct-topbar">
+        <nav className="ct-breadcrumb">
+          <Link to="/admin/customers" className="ct-crumb-link">Customers</Link>
+          <span className="material-symbols-outlined ct-crumb-sep">chevron_right</span>
+          <Link to={`/admin/customers/${id}`} className="ct-crumb-link">{name}</Link>
+          <span className="material-symbols-outlined ct-crumb-sep">chevron_right</span>
+          <span className="ct-crumb-current">Transactions</span>
+        </nav>
+        <div className="ct-topbar-right">
+          <div className="ct-view-toggle">
+            <button
+              type="button"
+              className={`ct-toggle-btn${viewMode === "today" ? " ct-toggle-active" : ""}`}
+              onClick={() => setViewMode("today")}
+            >Today</button>
+            <button
+              type="button"
+              className={`ct-toggle-btn${viewMode === "month" ? " ct-toggle-active" : ""}`}
+              onClick={() => setViewMode("month")}
+            >This Month</button>
+            <button type="button" className="ct-toggle-icon">
+              <span className="material-symbols-outlined">calendar_today</span>
+            </button>
           </div>
-          <h2 className="ct-name">{customer.name}</h2>
-          <div className="ct-badges">
-            <span className="ct-tier-badge">{customer.tier}</span>
-            <span className="ct-location">
-              <span className="material-symbols-outlined">location_on</span>
-              {customer.city}
-            </span>
-          </div>
-        </div>
-        <div className="ct-header-actions">
-          <button type="button" className="ct-btn-outline">Download Statement</button>
           <button type="button" className="ct-btn-solid">
             <span className="material-symbols-outlined">add</span>
             Manual Credit/Debit
@@ -109,91 +114,53 @@ function AdminCustomerTransactions() {
         </div>
       </div>
 
-      {/* ── Top grid ── */}
-      <div className="ct-top-grid">
-
-        {/* Wallet balance bento */}
-        <div className="ct-wallet-card">
-          <span className="material-symbols-outlined ct-wallet-bg-icon">account_balance_wallet</span>
-          <div className="ct-wallet-inner">
-            <div className="ct-wallet-top">
-              <div>
-                <p className="ct-wallet-label">Wallet Balance</p>
-                <h3 className="ct-wallet-amount">
-                  ₹{customer.walletBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                </h3>
-              </div>
-              <div className="ct-wallet-icon-box">
-                <span className="material-symbols-outlined">account_balance_wallet</span>
-              </div>
-            </div>
-            <div className="ct-wallet-stats">
-              <div className="ct-wallet-stat">
-                <p className="ct-wallet-stat-label">Total Credits</p>
-                <p className="ct-wallet-stat-val ct-credits">{customer.totalCredits}</p>
-              </div>
-              <div className="ct-wallet-stat">
-                <p className="ct-wallet-stat-label">Total Debits</p>
-                <p className="ct-wallet-stat-val ct-debits">{customer.totalDebits}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Metrics cards */}
-        <div className="ct-metrics-grid">
-          <div className="ct-metric-card">
-            <div className="ct-metric-top">
-              <div className="ct-metric-icon-box" style={{ background: "var(--admin-secondary-container)", color: "#7a532a" }}>
-                <span className="material-symbols-outlined">shopping_basket</span>
-              </div>
-              <span className="ct-metric-badge">Last 30 Days</span>
-            </div>
-            <div className="ct-metric-body">
-              <p className="ct-metric-label">Subscription Revenue</p>
-              <h4 className="ct-metric-amount">₹8,400.00</h4>
-              <div className="ct-metric-trend">
-                <span className="material-symbols-outlined">trending_up</span>
-                12% increase from last month
-              </div>
-            </div>
-          </div>
-
-          <div className="ct-metric-card">
-            <div className="ct-metric-top">
-              <div className="ct-metric-icon-box" style={{ background: "#ffdcc4", color: "#6f3800" }}>
-                <span className="material-symbols-outlined">refresh</span>
-              </div>
-              <span className="ct-metric-badge">Active</span>
-            </div>
-            <div className="ct-metric-body">
-              <p className="ct-metric-label">Auto-Recharge</p>
-              <h4 className="ct-metric-amount">₹5,000.00</h4>
-              <p className="ct-metric-note">Triggered at ₹1,000 balance</p>
-            </div>
-          </div>
-        </div>
+      {/* ── Sub-nav tabs ── */}
+      <div className="ct-sub-tabs">
+        {SUB_TABS.map(t => (
+          <button
+            key={t.key}
+            type="button"
+            className={`ct-sub-tab${t.key === "transactions" ? " ct-sub-tab-active" : ""}`}
+            onClick={() => handleTabClick(t.key)}
+          >{t.label}</button>
+        ))}
       </div>
 
-      {/* ── Transaction ledger ── */}
+      {/* ── 7 KPI cards ── */}
+      <div className="ct-kpi-grid">
+        {KPIS.map(k => (
+          <div key={k.label} className="ct-kpi-card">
+            <div>
+              <p className="ct-kpi-label">{k.label}</p>
+              <h4 className={`ct-kpi-value ${k.valCls}`}>{k.value}</h4>
+            </div>
+            <div className={`ct-kpi-icon-box ${k.iconBg}`}>
+              <span className="material-symbols-outlined">{k.icon}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Transaction Ledger ── */}
       <div className="ct-ledger">
         <div className="ct-ledger-header">
           <h3 className="ct-ledger-title">Transaction Ledger</h3>
           <div className="ct-ledger-filters">
             <div className="ct-select-wrap">
-              <select className="ct-select" value={typeFilter} onChange={handleTypeChange}>
+              <select className="ct-select" value={typeFilter} onChange={e => changeType(e.target.value)}>
                 <option value="all">All Types</option>
-                <option value="recharge">Wallet Recharge</option>
+                <option value="wallet">Wallet Recharge</option>
+                <option value="subscription">Subscription</option>
                 <option value="order">Order Payment</option>
                 <option value="refund">Refund</option>
               </select>
               <span className="material-symbols-outlined ct-select-arrow">expand_more</span>
             </div>
             <div className="ct-select-wrap">
-              <select className="ct-select">
-                <option>Last 6 Months</option>
-                <option>Last 30 Days</option>
-                <option>Year 2023</option>
+              <select className="ct-select" value={rangeFilter} onChange={e => setRangeFilter(e.target.value)}>
+                <option value="6m">Last 6 Months</option>
+                <option value="30d">Last 30 Days</option>
+                <option value="2023">Year 2023</option>
               </select>
               <span className="material-symbols-outlined ct-select-arrow">expand_more</span>
             </div>
@@ -204,92 +171,84 @@ function AdminCustomerTransactions() {
           <table className="ct-table">
             <thead>
               <tr>
-                <th>Transaction ID</th>
-                <th>Date</th>
-                <th>Description</th>
+                <th>Date &amp; Time</th>
+                <th>TXN ID</th>
+                <th>Plan Type</th>
+                <th>Method / Mode</th>
                 <th>Amount</th>
-                <th>Payment Method</th>
                 <th>Status</th>
+                <th className="ct-th-center">Action</th>
               </tr>
             </thead>
             <tbody>
-              {paginated.map(txn => {
-                const meta = TYPE_META[txn.type];
-                return (
-                  <tr key={txn.id}>
-                    <td className="ct-td-id">{txn.id}</td>
-                    <td>
-                      <span className="ct-td-date">{txn.date}</span>
-                      <span className="ct-td-time">{txn.time}</span>
-                    </td>
-                    <td>
-                      <div className="ct-desc-cell">
-                        <span
-                          className="ct-desc-icon"
-                          style={{ background: meta.bg, color: meta.color }}
-                        >
-                          <span className="material-symbols-outlined">{meta.icon}</span>
-                        </span>
-                        <span className="ct-desc-text">{txn.desc}</span>
-                      </div>
-                    </td>
-                    <td className={`ct-amount ${txn.credit ? "ct-amount-credit" : "ct-amount-debit"}`}>
-                      {txn.credit ? "+ " : "- "}₹{txn.amount}
-                    </td>
-                    <td>
-                      <div className="ct-method-cell">
-                        <span className="material-symbols-outlined ct-method-icon">{txn.methodIcon}</span>
-                        <span className="ct-method-text">{txn.method}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="ct-status-badge">
+              {paginated.map(txn => (
+                <tr key={txn.id} className="ct-row">
+                  <td>
+                    <div className="ct-date">{txn.date}</div>
+                    <div className="ct-time">{txn.time}</div>
+                  </td>
+                  <td className="ct-td-id">{txn.id}</td>
+                  <td>
+                    <div className="ct-plan-name">{txn.planType}</div>
+                    {txn.planNote && <div className="ct-plan-note">({txn.planNote})</div>}
+                  </td>
+                  <td>
+                    <div className="ct-method-cell">
+                      <span className="material-symbols-outlined ct-method-icon">{txn.methodIcon}</span>
+                      <span className="ct-method-text">{txn.method}</span>
+                    </div>
+                  </td>
+                  <td className={`ct-amount ${txn.credit ? "ct-amount-credit" : "ct-amount-debit"}`}>
+                    {txn.amount}
+                  </td>
+                  <td>
+                    {txn.status === "success" ? (
+                      <span className="ct-status ct-status-success">
                         <span className="ct-status-dot" />
-                        Completed
+                        Success
                       </span>
-                    </td>
-                  </tr>
-                );
-              })}
+                    ) : (
+                      <span className="ct-status ct-status-failed">
+                        <span className="ct-status-dot ct-dot-error" />
+                        Failed
+                      </span>
+                    )}
+                  </td>
+                  <td className="ct-th-center">
+                    <button type="button" className={`ct-action-btn ${txn.status === "failed" ? "ct-action-secondary" : ""}`}>
+                      <span className="material-symbols-outlined">{txn.action}</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
         <div className="ct-pagination">
-          <p className="ct-pagination-info">
+          <p className="ct-page-info">
             Showing {(page - 1) * PAGE_SIZE + 1} to {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} transactions
           </p>
-          <div className="ct-pagination-controls">
-            <button
-              type="button"
-              className="ct-page-btn"
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
+          <div className="ct-page-controls">
+            <button className="ct-page-arrow" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
               <span className="material-symbols-outlined">chevron_left</span>
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
               <button
                 key={n}
                 type="button"
-                className={`ct-page-btn${page === n ? " ct-page-btn-active" : ""}`}
+                className={`ct-page-num${page === n ? " ct-page-num-active" : ""}`}
                 onClick={() => setPage(n)}
-              >
-                {n}
-              </button>
+              >{n}</button>
             ))}
-            <button
-              type="button"
-              className="ct-page-btn"
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-            >
+            <button className="ct-page-arrow" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
               <span className="material-symbols-outlined">chevron_right</span>
             </button>
           </div>
         </div>
       </div>
+
     </div>
   );
 }

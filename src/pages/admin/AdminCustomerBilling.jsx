@@ -1,257 +1,318 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { api } from "../../lib/api";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "./AdminCustomerBilling.css";
 
-const MOCK_MAP = {
-  GR00124: { clientId: "GR00124", name: "Priya Shah",    initials: "PS", joined: "Jan 2025", tier: "Premium Subscriber",   walletBalance: 120,  upi: "priya@upi"    },
-  GR00089: { clientId: "GR00089", name: "Rahul Mehta",   initials: "RM", joined: "Feb 2026", tier: "Standard Subscriber",  walletBalance: 0,    upi: "rahul@upi"    },
-  GR00201: { clientId: "GR00201", name: "Anjali Kapoor", initials: "AK", joined: "Feb 2026", tier: "Premium Subscriber",   walletBalance: 350,  upi: "anjali@upi"   },
-  GR00057: { clientId: "GR00057", name: "Meena Patel",   initials: "MP", joined: "Nov 2025", tier: "Paused Subscriber",    walletBalance: 0,    upi: "meena@upi"    },
-  GR00312: { clientId: "GR00312", name: "Suresh Joshi",  initials: "SJ", joined: "Mar 2026", tier: "Premium Subscriber",   walletBalance: 200,  upi: "suresh@upi"   },
-  GR00098: { clientId: "GR00098", name: "Kavita Rao",    initials: "KR", joined: "Dec 2025", tier: "Standard Subscriber",  walletBalance: 75,   upi: "kavita@upi"   },
-  GR00143: { clientId: "GR00143", name: "Deepak Nair",   initials: "DN", joined: "Mar 2026", tier: "New Subscriber",       walletBalance: 0,    upi: "deepak@upi"   },
-  GR00178: { clientId: "GR00178", name: "Sunita Verma",  initials: "SV", joined: "Apr 2026", tier: "Premium Subscriber",   walletBalance: 500,  upi: "sunita@upi"   },
-  GR00234: { clientId: "GR00234", name: "Arjun Desai",   initials: "AD", joined: "May 2026", tier: "New Subscriber",       walletBalance: 0,    upi: "arjun@upi"    },
-  GR00267: { clientId: "GR00267", name: "Pooja Sharma",  initials: "PS", joined: "May 2026", tier: "Paused Subscriber",    walletBalance: 0,    upi: "pooja@upi"    },
+/* ── Mock data ── */
+const MOCK_CUSTOMER = {
+  GR00124: { name: "Priya Shah"    },
+  GR00089: { name: "Rahul Mehta"   },
+  GR00201: { name: "Anjali Kapoor" },
+  GR00057: { name: "Meena Patel"   },
+  GR00312: { name: "Suresh Joshi"  },
+  GR00098: { name: "Kavita Rao"    },
+  GR00143: { name: "Deepak Nair"   },
+  GR00178: { name: "Sunita Verma"  },
+  GR00234: { name: "Arjun Desai"   },
+  GR00267: { name: "Pooja Sharma"  },
 };
 
 const MOCK_BILLS = [
-  { id: "#GIR-9982", date: "28 Oct 2024", period: "Oct 01 – Oct 28", amount: "₹3,420.00", status: "pending"  },
-  { id: "#GIR-9214", date: "15 Oct 2024", period: "Sep 15 – Oct 14", amount: "₹830.00",   status: "overdue"  },
-  { id: "#GIR-8851", date: "01 Oct 2024", period: "Sep 01 – Sep 30", amount: "₹1,840.00", status: "paid"     },
-  { id: "#GIR-8120", date: "01 Sep 2024", period: "Aug 01 – Aug 31", amount: "₹2,100.00", status: "paid"     },
-  { id: "#GIR-7544", date: "01 Aug 2024", period: "Jul 01 – Jul 31", amount: "₹1,950.00", status: "paid"     },
-  { id: "#GIR-6901", date: "01 Jul 2024", period: "Jun 01 – Jun 30", amount: "₹1,780.00", status: "paid"     },
-  { id: "#GIR-6210", date: "01 Jun 2024", period: "May 01 – May 31", amount: "₹1,680.00", status: "paid"     },
+  {
+    month: "May 2026",
+    note: "Current month (Due 31/05)",
+    noteVariant: "normal",
+    sub: "₹2,940",
+    extras: "₹650",
+    extrasNote: "1 extra item",
+    total: "₹3,590",
+    paid: "₹0",
+    status: "unpaid",
+    variant: "current",
+  },
+  {
+    month: "April 2026",
+    note: "Overdue since 30/04",
+    noteVariant: "error",
+    sub: "₹2,800",
+    extras: "₹0",
+    extrasNote: null,
+    total: "₹2,800",
+    paid: "₹0",
+    status: "overdue",
+    variant: "overdue",
+  },
+  {
+    month: "March 2026",
+    note: "Paid on 28/03",
+    noteVariant: "normal",
+    sub: "₹2,800",
+    extras: "₹325",
+    extrasNote: "1 extra item",
+    total: "₹3,125",
+    paid: "₹3,125",
+    status: "paid",
+    variant: "normal",
+  },
 ];
 
-const CHART_DATA = [
-  { month: "May", pct: 60  },
-  { month: "Jun", pct: 80  },
-  { month: "Jul", pct: 45  },
-  { month: "Aug", pct: 90  },
-  { month: "Sep", pct: 100, active: true },
-  { month: "Oct", pct: 70  },
+const MOCK_ITEMS = [
+  { date: "25/05/2026", product: "Cow Ghee",      isExtra: true,  qty: "250g", amount: "₹325", status: "paid",         method: "UPI (10:15 AM)"      },
+  { date: "18/05/2026", product: "Buffalo Milk",   isExtra: false, qty: "2L",   amount: "₹150", status: "unpaid",       method: "Pay immediate"       },
+  { date: "10/05/2026", product: "Paneer",         isExtra: false, qty: "500g", amount: "₹375", status: "added-to-bill", method: "Monthly settlement" },
 ];
 
-const BADGE = {
-  paid:    { cls: "cb-badge-paid",    label: "Paid"    },
-  pending: { cls: "cb-badge-pending", label: "Pending" },
-  overdue: { cls: "cb-badge-overdue", label: "Overdue" },
+const BILL_STATUS = {
+  paid:         { label: "Paid",         cls: "cb-status-paid"    },
+  unpaid:       { label: "Unpaid",       cls: "cb-status-unpaid"  },
+  overdue:      { label: "Overdue",      cls: "cb-status-overdue" },
+  "added-to-bill": { label: "Added to bill", cls: "cb-status-bill" },
 };
 
-const TABS = [
-  { key: "general",       label: "General Info"   },
-  { key: "subscriptions", label: "Subscriptions"  },
-  { key: "orders",        label: "Order History"  },
-  { key: "bills",         label: "Bills"          },
-  { key: "preferences",   label: "Preferences"    },
+const NAV_TABS = [
+  { key: "schedule",      label: "Schedule"      },
+  { key: "bills",         label: "Bills"         },
+  { key: "orders",        label: "Orders"        },
+  { key: "order-history", label: "Order History" },
+  { key: "transactions",  label: "Transactions"  },
 ];
 
 function AdminCustomerBilling() {
-  const { id } = useParams();
-  const [apiCustomer, setApiCustomer] = useState(null);
-  const [activeTab,   setActiveTab]   = useState("bills");
-  const [showAll,     setShowAll]     = useState(false);
+  const { id }     = useParams();
+  const navigate   = useNavigate();
+  const [fabOpen,  setFabOpen]  = useState(false);
 
-  useEffect(() => {
-    api.adminCustomer(id).then(c => {
-      setApiCustomer({
-        clientId:      c.clientId,
-        name:          `${c.firstName} ${c.lastName}`,
-        initials:      `${c.firstName[0] || "?"}${c.lastName[0] || "?"}`.toUpperCase(),
-        joined:        c.createdAt
-          ? new Date(c.createdAt).toLocaleDateString("en-IN", { month: "short", year: "numeric" })
-          : "—",
-        tier:          "Premium Subscriber",
-        walletBalance: c.walletBalance || 0,
-        upi:           `${c.firstName?.toLowerCase()}@upi`,
-      });
-    }).catch(() => {});
-  }, [id]);
+  const customer = MOCK_CUSTOMER[id] || { name: id || "Customer" };
 
-  const customer = apiCustomer || (id ? MOCK_MAP[id] : undefined);
-
-  if (!customer) {
-    return (
-      <div className="cb-not-found">
-        <span className="material-symbols-outlined cb-not-found-icon">person_off</span>
-        <p className="cb-not-found-title">Customer not found</p>
-        <Link to="/admin/customers" className="cb-back-link">← Back to Customers</Link>
-      </div>
-    );
+  function handleTabClick(key) {
+    if (key === "bills") return;
+    if (key === "schedule")     navigate(`/admin/customers/${id}`);
+    if (key === "orders")       navigate(`/admin/customers/${id}/orders`);
+    if (key === "order-history")navigate(`/admin/customers/${id}/orders`);
+    if (key === "transactions") navigate(`/admin/customers/${id}/transactions`);
   }
-
-  const visibleBills = showAll ? MOCK_BILLS : MOCK_BILLS.slice(0, 5);
 
   return (
     <div className="cb-page">
 
-      {/* ── Profile header ── */}
-      <div className="cb-profile-header">
-        <div className="cb-profile-row">
-          <div className="cb-avatar">{customer.initials}</div>
-          <div className="cb-profile-info">
-            <h2 className="cb-profile-name">{customer.name}</h2>
-            <p className="cb-profile-sub">{customer.tier} • Member since {customer.joined}</p>
-          </div>
-          <div className="cb-profile-actions">
-            <Link to={`/admin/customers/${id}`} className="cb-btn-outline">
-              <span className="material-symbols-outlined">arrow_back</span>
-              Back to Detail
-            </Link>
-            <button type="button" className="cb-btn-solid">Actions</button>
-          </div>
-        </div>
+      {/* ── Breadcrumb + actions ── */}
+      <div className="cb-topbar">
+        <nav className="cb-breadcrumb">
+          <Link to="/admin/customers" className="cb-crumb-link">Customers</Link>
+          <span className="material-symbols-outlined cb-crumb-sep">chevron_right</span>
+          <Link to={`/admin/customers/${id}`} className="cb-crumb-link">{customer.name}</Link>
+          <span className="material-symbols-outlined cb-crumb-sep">chevron_right</span>
+          <span className="cb-crumb-current">Billing</span>
+        </nav>
+        <button type="button" className="cb-btn-whatsapp">
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>chat</span>
+          Send bill on WhatsApp
+        </button>
+      </div>
 
-        {/* Tab bar */}
-        <div className="cb-tabs-bar">
-          {TABS.map(t => (
-            <button
-              key={t.key}
-              type="button"
-              className={`cb-tab${activeTab === t.key ? " cb-tab-active" : ""}`}
-              onClick={() => setActiveTab(t.key)}
-            >
-              {t.label}
-            </button>
-          ))}
+      {/* ── Sub-nav tabs ── */}
+      <div className="cb-tabs-row">
+        {NAV_TABS.map(t => (
+          <button
+            key={t.key}
+            type="button"
+            className={`cb-tab${t.key === "bills" ? " cb-tab-active" : ""}`}
+            onClick={() => handleTabClick(t.key)}
+          >{t.label}</button>
+        ))}
+      </div>
+
+      {/* ── KPI grid ── */}
+      <div className="cb-kpi-grid">
+        <div className="cb-kpi-card">
+          <p className="cb-kpi-label">Total Month Bill Amt</p>
+          <h3 className="cb-kpi-value">₹3,590</h3>
+          <p className="cb-kpi-note">For May 2026</p>
+        </div>
+        <div className="cb-kpi-card">
+          <p className="cb-kpi-label">Total Paid in Month</p>
+          <h3 className="cb-kpi-value cb-kpi-paid">₹700</h3>
+          <p className="cb-kpi-note">Updated 5 mins ago</p>
+        </div>
+        <div className="cb-kpi-card">
+          <p className="cb-kpi-label">Amount Remaining to Pay of Month</p>
+          <h3 className="cb-kpi-value">₹2,890</h3>
+          <p className="cb-kpi-note">Due by 31 May 2026</p>
+        </div>
+        <div className="cb-kpi-card cb-kpi-card-overdue">
+          <p className="cb-kpi-label cb-kpi-label-error">Total Amt Remaining to Pay Till Current Dt</p>
+          <h3 className="cb-kpi-value cb-kpi-overdue">₹6,390</h3>
+          <p className="cb-kpi-note cb-kpi-note-error">Includes overdue amounts</p>
         </div>
       </div>
 
-      {/* ── Non-bills tabs placeholder ── */}
-      {activeTab !== "bills" && (
-        <div className="cb-placeholder">
-          <span className="material-symbols-outlined cb-placeholder-icon">construction</span>
-          <p className="cb-placeholder-text">{TABS.find(t => t.key === activeTab)?.label} coming soon</p>
+      {/* ── Monthly Bills History ── */}
+      <section className="cb-section">
+        <div className="cb-section-header">
+          <div className="cb-section-title-row">
+            <span className="material-symbols-outlined cb-section-icon">receipt_long</span>
+            <h3 className="cb-section-title">Monthly Bills History</h3>
+          </div>
+          <div className="cb-section-badges">
+            <span className="cb-tag cb-tag-error">1 Overdue</span>
+            <span className="cb-tag cb-tag-paid">3 Paid</span>
+          </div>
         </div>
-      )}
 
-      {/* ── Bills tab ── */}
-      {activeTab === "bills" && (
-        <>
-          {/* Summary cards */}
-          <div className="cb-summary-grid">
-            <div className="cb-summary-card cb-summary-dark">
-              <span className="material-symbols-outlined cb-summary-bg-icon">payments</span>
-              <p className="cb-summary-label">Total Outstanding</p>
-              <h3 className="cb-summary-amount">₹4,250.00</h3>
-              <p className="cb-summary-note">Next auto-debit on 05 Nov 2024</p>
-            </div>
-
-            <div className="cb-summary-card cb-summary-light">
-              <p className="cb-summary-label">Last Payment</p>
-              <h4 className="cb-summary-sub-amount">₹1,840.00</h4>
-              <div className="cb-summary-verified">
-                <span className="material-symbols-outlined">verified</span>
-                Paid on 02 Oct 2024
-              </div>
-            </div>
-
-            <div className="cb-summary-card cb-summary-light">
-              <p className="cb-summary-label">Billing Method</p>
-              <h4 className="cb-summary-sub-amount">UPI / Auto-pay</h4>
-              <div className="cb-summary-method">
-                <span className="material-symbols-outlined">credit_card</span>
-                Linked: {customer.upi}
-              </div>
-            </div>
-          </div>
-
-          {/* Billing history table */}
-          <div className="cb-table-card">
-            <div className="cb-table-header">
-              <h4 className="cb-table-title">Billing History</h4>
-              <div className="cb-table-actions">
-                <button type="button" className="cb-filter-btn">
-                  <span className="material-symbols-outlined">filter_list</span>
-                  Filter
-                </button>
-                <button type="button" className="cb-filter-btn">
-                  <span className="material-symbols-outlined">calendar_today</span>
-                  Date Range
-                </button>
-              </div>
-            </div>
-
-            <div className="cb-table-scroll">
-              <table className="cb-table">
-                <thead>
-                  <tr>
-                    <th>Bill ID</th>
-                    <th>Date</th>
-                    <th>Billing Period</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th style={{ textAlign: "right" }}>Actions</th>
+        <div className="cb-table-card">
+          <div className="cb-table-scroll">
+            <table className="cb-table cb-bills-table">
+              <thead>
+                <tr>
+                  <th>Month / Year</th>
+                  <th>Subscription</th>
+                  <th>Extras</th>
+                  <th>Total Bill</th>
+                  <th>Paid</th>
+                  <th>Status</th>
+                  <th className="cb-th-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {MOCK_BILLS.map((b, i) => (
+                  <tr key={i} className={`cb-bill-row cb-bill-${b.variant}`}>
+                    <td>
+                      <div className={`cb-month-name ${b.variant === "overdue" ? "cb-month-error" : ""}`}>{b.month}</div>
+                      <div className={`cb-month-note ${b.variant === "overdue" ? "cb-month-note-error" : ""}`}>{b.note}</div>
+                    </td>
+                    <td>{b.sub}</td>
+                    <td>
+                      {b.extras}
+                      {b.extrasNote && <span className="cb-extras-note">{b.extrasNote}</span>}
+                    </td>
+                    <td className={`cb-total-cell ${b.variant === "overdue" ? "cb-total-error" : ""}`}>{b.total}</td>
+                    <td className={b.status === "paid" ? "cb-paid-cell" : ""}>{b.paid}</td>
+                    <td>
+                      <span className={`cb-status-badge ${BILL_STATUS[b.status]?.cls}`}>
+                        {BILL_STATUS[b.status]?.label}
+                      </span>
+                    </td>
+                    <td className="cb-action-cell">
+                      {b.variant === "current" && (
+                        <div className="cb-action-btns">
+                          <button type="button" className="cb-act-primary">Mark paid</button>
+                          <button type="button" className="cb-act-outline">View</button>
+                        </div>
+                      )}
+                      {b.variant === "overdue" && (
+                        <div className="cb-action-btns">
+                          <button type="button" className="cb-act-error">Remind</button>
+                          <button type="button" className="cb-act-outline">View</button>
+                        </div>
+                      )}
+                      {b.variant === "normal" && (
+                        <button type="button" className="cb-act-outline">View</button>
+                      )}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {visibleBills.map(bill => (
-                    <tr key={bill.id}>
-                      <td className="cb-td-id">{bill.id}</td>
-                      <td>{bill.date}</td>
-                      <td className="cb-td-muted">{bill.period}</td>
-                      <td className="cb-td-bold">{bill.amount}</td>
-                      <td>
-                        <span className={`cb-badge ${BADGE[bill.status].cls}`}>
-                          {BADGE[bill.status].label}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: "right" }}>
-                        <button type="button" className="cb-download-btn">
-                          <span className="material-symbols-outlined">download</span>
-                          Download PDF
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="cb-table-footer">
-              <button type="button" className="cb-view-more" onClick={() => setShowAll(v => !v)}>
-                {showAll ? "Show less" : "View More Billing History"}
-                <span className="material-symbols-outlined">{showAll ? "expand_less" : "expand_more"}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Bento bottom */}
-          <div className="cb-bento-grid">
-            {/* Spending trend */}
-            <div className="cb-bento-card">
-              <div className="cb-bento-card-header">
-                <h5 className="cb-bento-title">6-Month Spending Trend</h5>
-                <span className="material-symbols-outlined cb-bento-icon">trending_up</span>
-              </div>
-              <div className="cb-chart">
-                {CHART_DATA.map(bar => (
-                  <div key={bar.month} className="cb-chart-col">
-                    <div
-                      className={`cb-bar${bar.active ? " cb-bar-active" : ""}`}
-                      style={{ height: `${bar.pct}%` }}
-                    />
-                    <span className="cb-chart-label">{bar.month}</span>
-                  </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Loyalty savings */}
-            <div className="cb-loyalty-card">
-              <span className="material-symbols-outlined cb-loyalty-icon">loyalty</span>
-              <h5 className="cb-loyalty-title">Loyalty Savings</h5>
-              <p className="cb-loyalty-text">
-                {customer.name.split(" ")[0]} has saved ₹2,150 this year through the premium A2 milk subscription plan.
-              </p>
-              <button type="button" className="cb-loyalty-btn">Review Plan Details</button>
-            </div>
+              </tbody>
+              <tfoot>
+                <tr className="cb-tfoot-row">
+                  <td colSpan={3} className="cb-tfoot-label">Total across all months</td>
+                  <td className="cb-tfoot-total">₹15,485</td>
+                  <td className="cb-tfoot-paid">₹9,095 paid</td>
+                  <td colSpan={2} className="cb-tfoot-pending">₹6,390 pending</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
-        </>
-      )}
+        </div>
+
+        <div className="cb-info-bar">
+          <span className="material-symbols-outlined cb-info-icon">info</span>
+          <p className="cb-info-text">
+            Monthly bill calculation: Subscription deliveries × rate + individual items "Added to month bill".
+            Items already paid individually are <strong>NOT</strong> counted again in the monthly bill.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Individual Items ── */}
+      <section className="cb-section">
+        <div className="cb-section-header">
+          <div className="cb-section-title-row">
+            <span className="material-symbols-outlined cb-section-icon cb-section-icon-secondary">shopping_basket</span>
+            <h3 className="cb-section-title">Individual Items — May 2026</h3>
+          </div>
+          <button type="button" className="cb-export-btn">
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>ios_share</span>
+            Export CSV
+          </button>
+        </div>
+
+        <div className="cb-table-card">
+          <div className="cb-table-scroll">
+            <table className="cb-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Method</th>
+                  <th className="cb-th-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {MOCK_ITEMS.map((item, i) => (
+                  <tr key={i} className={item.status === "unpaid" ? "cb-row-error" : ""}>
+                    <td className="cb-td-bold">{item.date}</td>
+                    <td>
+                      {item.product}
+                      {item.isExtra && <span className="cb-extra-chip">Extra</span>}
+                    </td>
+                    <td>{item.qty}</td>
+                    <td>{item.amount}</td>
+                    <td>
+                      <span className={`cb-status-badge ${BILL_STATUS[item.status]?.cls}`}>
+                        {BILL_STATUS[item.status]?.label}
+                      </span>
+                    </td>
+                    <td className={`cb-method-cell ${item.status === "unpaid" ? "cb-method-error" : ""}`}>{item.method}</td>
+                    <td className="cb-action-cell">
+                      {item.status === "unpaid" ? (
+                        <button type="button" className="cb-act-primary">Mark Paid</button>
+                      ) : (
+                        <button type="button" className="cb-icon-btn material-symbols-outlined">visibility</button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAB ── */}
+      <div className="cb-fab-wrap">
+        {fabOpen && (
+          <div className="cb-fab-menu">
+            <button type="button" className="cb-fab-item">
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>mail</span>
+              Email Statement
+            </button>
+            <button type="button" className="cb-fab-item">
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>print</span>
+              Print Invoice
+            </button>
+          </div>
+        )}
+        <button
+          type="button"
+          className={`cb-fab${fabOpen ? " cb-fab-open" : ""}`}
+          onClick={() => setFabOpen(v => !v)}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 28 }}>add</span>
+        </button>
+      </div>
+
     </div>
   );
 }

@@ -15,6 +15,13 @@ import { AdminCustomerDetail } from "./pages/admin/AdminCustomerDetail";
 import { AdminCustomerBilling } from "./pages/admin/AdminCustomerBilling";
 import { AdminCustomerOrders } from "./pages/admin/AdminCustomerOrders";
 import { AdminCustomerTransactions } from "./pages/admin/AdminCustomerTransactions";
+import { AdminCustomerActiveOrders } from "./pages/admin/AdminCustomerActiveOrders";
+import { AdminStockInventory } from "./pages/admin/AdminStockInventory";
+import { AdminLowStock } from "./pages/admin/AdminLowStock";
+import { AdminOutOfStock } from "./pages/admin/AdminOutOfStock";
+import { AdminAddProduct } from "./pages/admin/AdminAddProduct";
+import { AdminEditProduct } from "./pages/admin/AdminEditProduct";
+import { AdminViewProduct } from "./pages/admin/AdminViewProduct";
 import { AdminCustomers } from "./pages/admin/AdminCustomers";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminDeliveries } from "./pages/admin/AdminDeliveries";
@@ -71,12 +78,19 @@ function AppRoutes() {
         <Route path="customers/:id/billing" element={<AdminCustomerBilling />} />
         <Route path="customers/:id/orders" element={<AdminCustomerOrders />} />
         <Route path="customers/:id/transactions" element={<AdminCustomerTransactions />} />
+        <Route path="customers/:id/active-orders" element={<AdminCustomerActiveOrders />} />
         <Route path="deliveries" element={<AdminDeliveries />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="products/new" element={<AdminAddProduct />} />
+        <Route path="products/:id" element={<AdminViewProduct />} />
+        <Route path="products/:id/edit" element={<AdminEditProduct />} />
         <Route path="production" element={<AdminProduction />} />
         <Route path="production/:productId" element={<AdminProductionEntry />} />
         <Route path="production/:productId/edit" element={<AdminProductionForm />} />
+        <Route path="stock" element={<AdminStockInventory />} />
+        <Route path="low-stock" element={<AdminLowStock />} />
+        <Route path="out-of-stock" element={<AdminOutOfStock />} />
         <Route path="stock-history" element={<AdminStockLedger />} />
         <Route path="leftover-stock" element={<AdminLeftoverStock />} />
         <Route path="production-log" element={<AdminProductionLog />} />

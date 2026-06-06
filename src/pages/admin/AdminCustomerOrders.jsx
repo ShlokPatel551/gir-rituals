@@ -1,240 +1,238 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { api } from "../../lib/api";
+import { useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import "./AdminCustomerOrders.css";
 
-const MOCK_MAP = {
-  GR00124: { clientId: "GR00124", name: "Priya Shah",    initials: "PS", tier: "Premium Member",  city: "Navrangpura, Ahmd"  },
-  GR00089: { clientId: "GR00089", name: "Rahul Mehta",   initials: "RM", tier: "Standard Member", city: "Satellite, Ahmd"    },
-  GR00201: { clientId: "GR00201", name: "Anjali Kapoor", initials: "AK", tier: "Premium Member",  city: "Vastrapur, Ahmd"    },
-  GR00057: { clientId: "GR00057", name: "Meena Patel",   initials: "MP", tier: "Paused Member",   city: "Bopal, Ahmd"        },
-  GR00312: { clientId: "GR00312", name: "Suresh Joshi",  initials: "SJ", tier: "Premium Member",  city: "Paldi, Ahmd"        },
-  GR00098: { clientId: "GR00098", name: "Kavita Rao",    initials: "KR", tier: "Standard Member", city: "Maninagar, Ahmd"    },
-  GR00143: { clientId: "GR00143", name: "Deepak Nair",   initials: "DN", tier: "New Member",      city: "Rajkot"             },
-  GR00178: { clientId: "GR00178", name: "Sunita Verma",  initials: "SV", tier: "Premium Member",  city: "Ahmedabad"          },
-  GR00234: { clientId: "GR00234", name: "Arjun Desai",   initials: "AD", tier: "New Member",      city: "Surat"              },
-  GR00267: { clientId: "GR00267", name: "Pooja Sharma",  initials: "PS", tier: "Paused Member",   city: "Gandhinagar"        },
+/* ── Customer name lookup ── */
+const MOCK_NAMES = {
+  GR00124: "Priya Shah",    GR00089: "Rahul Mehta",
+  GR00201: "Anjali Kapoor", GR00057: "Meena Patel",
+  GR00312: "Suresh Joshi",  GR00098: "Kavita Rao",
+  GR00143: "Deepak Nair",   GR00178: "Sunita Verma",
+  GR00234: "Arjun Desai",   GR00267: "Pooja Sharma",
 };
 
+/* ── Mock order rows ── */
 const ALL_ORDERS = [
-  { id: "#GR-9921", date: "Oct 24, 2023", items: "A2 Desi Cow Milk x 2, Vedic Ghee 500g",    amount: "₹1,450.00", status: "scheduled"        },
-  { id: "#GR-9844", date: "Oct 20, 2023", items: "Organic Paneer 250g x 4",                   amount: "₹840.00",   status: "delivered"        },
-  { id: "#GR-9712", date: "Oct 18, 2023", items: "Full Cream Curd 1kg x 1",                   amount: "₹210.00",   status: "out_for_delivery" },
-  { id: "#GR-9650", date: "Oct 15, 2023", items: "Vedic Ghee 1L x 2, Honey 500g",             amount: "₹4,200.00", status: "delivered"        },
-  { id: "#GR-9580", date: "Oct 08, 2023", items: "A2 Desi Cow Milk x 3",                      amount: "₹960.00",   status: "delivered"        },
-  { id: "#GR-9421", date: "Sep 28, 2023", items: "Premium Curd 500g x 2, Ghee 250g",          amount: "₹680.00",   status: "delivered"        },
-  { id: "#GR-9312", date: "Sep 20, 2023", items: "A2 Desi Cow Milk x 2",                      amount: "₹640.00",   status: "delivered"        },
-  { id: "#GR-9201", date: "Sep 12, 2023", items: "Bilona Ghee 250g x 2, Buttermilk 1L",       amount: "₹1,120.00", status: "delivered"        },
+  { id: "ORD-0998", planType: "extra",        product: "Buffalo Milk",     icon: "water_drop",    qty: "2 L",   amount: "₹50",  method: "Immediate",  mode: "Online (GPay)",    orderDate: "28/05/2026", orderTime: "07:11 AM", deliveryDate: "28/05/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0985", planType: "individual",   product: "Organic Ghee",     icon: "liquor",        qty: "500g",  amount: "₹650", method: "Month Bill", mode: "COD (Driver)",     orderDate: "26/05/2026", orderTime: "11:45 AM", deliveryDate: "27/05/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0964", planType: "individual",   product: "Paneer",           icon: "bakery_dining", qty: "250g",  amount: "₹130", method: "Immediate",  mode: "Online (Paytm)",   orderDate: "24/05/2026", orderTime: "03:22 PM", deliveryDate: "25/05/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0950", planType: "extra",        product: "Cow Milk",         icon: "water_drop",    qty: "1 L",   amount: "₹35",  method: "Immediate",  mode: "Online (PhonePe)", orderDate: "22/05/2026", orderTime: "08:02 AM", deliveryDate: "22/05/2026", slot: "Morning", status: "cancelled" },
+  { id: "ORD-0911", planType: "individual",   product: "Shrikhand",        icon: "icecream",      qty: "500g",  amount: "₹180", method: "Month Bill", mode: "COD (Driver)",     orderDate: "19/05/2026", orderTime: "05:14 PM", deliveryDate: "20/05/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0892", planType: "extra",        product: "Cow Butter",       icon: "kitchen",       qty: "200g",  amount: "₹150", method: "Immediate",  mode: "Online (GPay)",    orderDate: "15/05/2026", orderTime: "09:30 AM", deliveryDate: "15/05/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0871", planType: "subscription", product: "A2 Desi Cow Milk", icon: "water_drop",    qty: "2 L",   amount: "₹140", method: "Month Bill", mode: "COD (Driver)",     orderDate: "10/05/2026", orderTime: "06:30 AM", deliveryDate: "10/05/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0842", planType: "subscription", product: "A2 Desi Cow Milk", icon: "water_drop",    qty: "2 L",   amount: "₹140", method: "Month Bill", mode: "COD (Driver)",     orderDate: "05/05/2026", orderTime: "06:30 AM", deliveryDate: "05/05/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0820", planType: "extra",        product: "Bilona Ghee",      icon: "liquor",        qty: "250g",  amount: "₹325", method: "Immediate",  mode: "Online (GPay)",    orderDate: "01/05/2026", orderTime: "10:00 AM", deliveryDate: "02/05/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0798", planType: "subscription", product: "A2 Desi Cow Milk", icon: "water_drop",    qty: "2 L",   amount: "₹140", method: "Month Bill", mode: "COD (Driver)",     orderDate: "28/04/2026", orderTime: "06:30 AM", deliveryDate: "28/04/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0771", planType: "individual",   product: "Paneer",           icon: "bakery_dining", qty: "500g",  amount: "₹260", method: "Immediate",  mode: "Online (Paytm)",   orderDate: "20/04/2026", orderTime: "02:15 PM", deliveryDate: "21/04/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0755", planType: "subscription", product: "A2 Desi Cow Milk", icon: "water_drop",    qty: "2 L",   amount: "₹140", method: "Month Bill", mode: "COD (Driver)",     orderDate: "15/04/2026", orderTime: "06:30 AM", deliveryDate: "15/04/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0730", planType: "extra",        product: "Cow Milk",         icon: "water_drop",    qty: "2 L",   amount: "₹70",  method: "Immediate",  mode: "Online (GPay)",    orderDate: "10/04/2026", orderTime: "07:45 AM", deliveryDate: "10/04/2026", slot: "Morning", status: "delivered" },
+  { id: "ORD-0701", planType: "individual",   product: "Organic Ghee",     icon: "liquor",        qty: "250g",  amount: "₹325", method: "Month Bill", mode: "COD (Driver)",     orderDate: "05/04/2026", orderTime: "11:00 AM", deliveryDate: "06/04/2026", slot: "Morning", status: "delivered" },
 ];
 
-const STATUS_META = {
-  scheduled:        { icon: "event_note",     bg: "#ffdcc4", color: "#2f1400", dotColor: "#8a3a00", label: "Scheduled"         },
-  delivered:        { icon: "package_2",      bg: "#c1ecd4", color: "#274e3d", dotColor: "#1b4332", label: "Delivered"         },
-  out_for_delivery: { icon: "local_shipping", bg: "#ffdcbd", color: "#2c1600", dotColor: "#7d562d", label: "Out for Delivery"  },
+/* ── Config maps ── */
+const PLAN_CFG = {
+  extra:        { label: "Extra",        cls: "co-plan-extra"        },
+  individual:   { label: "Individual",   cls: "co-plan-individual"   },
+  subscription: { label: "Subscription", cls: "co-plan-subscription" },
 };
 
-const PAGE_SIZE = 4;
+const STATUS_CFG = {
+  delivered: { label: "Delivered", cls: "co-status-delivered" },
+  cancelled: { label: "Cancelled", cls: "co-status-cancelled" },
+  pending:   { label: "Pending",   cls: "co-status-pending"   },
+};
 
+const TYPE_TABS = [
+  { key: "all",          label: "All Orders"    },
+  { key: "subscription", label: "Subscription"  },
+  { key: "extra",        label: "Extra"         },
+  { key: "individual",   label: "Individual"    },
+];
+
+const PAGE_SIZE = 6;
+
+/* ── KPI constants (would come from API in prod) ── */
+const KPI = { total: 28, subscription: 8, extra: 6, individual: 2, mostOrdered: "A2 Desi Cow Milk", mostCount: 18 };
+
+/* ══ Component ══ */
 function AdminCustomerOrders() {
-  const { id }     = useParams();
-  const navigate   = useNavigate();
-  const [apiCustomer,  setApiCustomer]  = useState(null);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [page,         setPage]         = useState(1);
+  const { id } = useParams();
+  const [viewMode,    setViewMode]    = useState("today");
+  const [typeFilter,  setTypeFilter]  = useState("all");
+  const [page,        setPage]        = useState(1);
 
-  useEffect(() => {
-    api.adminCustomer(id).then(c => {
-      setApiCustomer({
-        clientId: c.clientId,
-        name:     `${c.firstName} ${c.lastName}`,
-        initials: `${c.firstName[0] || "?"}${c.lastName[0] || "?"}`.toUpperCase(),
-        tier:     "Premium Member",
-        city:     c.deliveryAddress?.city || "Ahmedabad",
-      });
-    }).catch(() => {});
-  }, [id]);
+  const name = MOCK_NAMES[id] || id || "Customer";
 
-  const customer = apiCustomer || (id ? MOCK_MAP[id] : undefined);
+  const filtered = useMemo(() => {
+    if (typeFilter === "all") return ALL_ORDERS;
+    return ALL_ORDERS.filter(o => o.planType === typeFilter);
+  }, [typeFilter]);
 
-  if (!customer) {
-    return (
-      <div className="co-not-found">
-        <span className="material-symbols-outlined co-not-found-icon">person_off</span>
-        <p className="co-not-found-title">Customer not found</p>
-        <Link to="/admin/customers" className="co-back-link">← Back to Customers</Link>
-      </div>
-    );
-  }
-
-  const filtered   = statusFilter === "all" ? ALL_ORDERS : ALL_ORDERS.filter(o => o.status === statusFilter);
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  function handleStatusChange(e) {
-    setStatusFilter(e.target.value);
-    setPage(1);
-  }
+  function changeType(key) { setTypeFilter(key); setPage(1); }
 
   return (
     <div className="co-page">
 
-      {/* ── Breadcrumb + header ── */}
-      <div className="co-header">
-        <div>
-          <div className="co-breadcrumb">
-            <Link to="/admin/customers" className="co-crumb-link">Customers</Link>
-            <span className="material-symbols-outlined co-crumb-sep">chevron_right</span>
-            <span className="co-crumb-cur">{customer.name}</span>
-          </div>
-          <h2 className="co-name">{customer.name}</h2>
-          <div className="co-badges">
-            <span className="co-tier-badge">{customer.tier}</span>
-            <span className="co-location">
-              <span className="material-symbols-outlined">location_on</span>
-              {customer.city}
-            </span>
-          </div>
-        </div>
-        <div className="co-header-actions">
-          <button type="button" className="co-btn-outline" onClick={() => navigate(`/admin/customers/${id}`)}>
-            <span className="material-symbols-outlined">arrow_back</span>
-            Back to Detail
-          </button>
-          <button type="button" className="co-btn-solid">
-            <span className="material-symbols-outlined">add_shopping_cart</span>
-            Place New Order
-          </button>
-        </div>
-      </div>
-
-      {/* ── Filter bar ── */}
-      <div className="co-filter-bar">
-        <h3 className="co-section-title">All Orders</h3>
-        <div className="co-filter-actions">
-          <div className="co-select-wrap">
-            <span className="material-symbols-outlined co-select-icon">filter_list</span>
-            <select className="co-select" value={statusFilter} onChange={handleStatusChange}>
-              <option value="all">Status: All</option>
-              <option value="delivered">Delivered</option>
-              <option value="out_for_delivery">Out for Delivery</option>
-              <option value="scheduled">Scheduled</option>
-            </select>
-            <span className="material-symbols-outlined co-select-arrow">expand_more</span>
-          </div>
-          <button type="button" className="co-export-btn">
-            <span className="material-symbols-outlined">file_download</span>
-            Export CSV
-          </button>
-        </div>
-      </div>
-
-      {/* ── Order cards ── */}
-      <div className="co-orders-list">
-        {paginated.map(order => {
-          const meta = STATUS_META[order.status];
-          return (
-            <div key={order.id} className="co-order-card">
-              <div className="co-order-left">
-                <div className="co-order-icon-box">
-                  <span className="material-symbols-outlined">{meta.icon}</span>
-                </div>
-                <div className="co-order-fields">
-                  <div className="co-order-field">
-                    <p className="co-field-label">Order ID</p>
-                    <p className="co-field-id">{order.id}</p>
-                  </div>
-                  <div className="co-order-field">
-                    <p className="co-field-label">Order Date</p>
-                    <p className="co-field-value">{order.date}</p>
-                  </div>
-                  <div className="co-order-field co-field-items">
-                    <p className="co-field-label">Items Summary</p>
-                    <p className="co-field-value co-items-text">{order.items}</p>
-                  </div>
-                  <div className="co-order-field">
-                    <p className="co-field-label">Total Amount</p>
-                    <p className="co-field-amount">{order.amount}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="co-order-right">
-                <span className="co-status-badge" style={{ background: meta.bg, color: meta.color }}>
-                  <span className="co-status-dot" style={{ background: meta.dotColor }} />
-                  {meta.label}
-                </span>
-                <button type="button" className="co-view-btn">
-                  View Details
-                  <span className="material-symbols-outlined">chevron_right</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ── Pagination ── */}
-      <div className="co-pagination">
-        <p className="co-pagination-info">
-          Showing <strong>{(page - 1) * PAGE_SIZE + 1} – {Math.min(page * PAGE_SIZE, filtered.length)}</strong>{" "}
-          of <strong>{filtered.length}</strong> orders
-        </p>
-        <div className="co-pagination-controls">
+      {/* ── Breadcrumb + view toggle ── */}
+      <div className="co-topbar">
+        <nav className="co-breadcrumb">
+          <Link to="/admin/customers" className="co-crumb-link">Customers</Link>
+          <span className="material-symbols-outlined co-crumb-sep">chevron_right</span>
+          <Link to={`/admin/customers/${id}`} className="co-crumb-link">{name}</Link>
+          <span className="material-symbols-outlined co-crumb-sep">chevron_right</span>
+          <span className="co-crumb-current">Order History</span>
+        </nav>
+        <div className="co-view-toggle">
           <button
             type="button"
-            className="co-page-btn"
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            <span className="material-symbols-outlined">chevron_left</span>
+            className={`co-toggle-btn${viewMode === "today" ? " co-toggle-active" : ""}`}
+            onClick={() => setViewMode("today")}
+          >Today</button>
+          <button
+            type="button"
+            className={`co-toggle-btn${viewMode === "month" ? " co-toggle-active" : ""}`}
+            onClick={() => setViewMode("month")}
+          >This Month</button>
+          <button type="button" className="co-toggle-icon">
+            <span className="material-symbols-outlined">calendar_today</span>
           </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-            <button
-              key={n}
-              type="button"
-              className={`co-page-btn${page === n ? " co-page-btn-active" : ""}`}
-              onClick={() => setPage(n)}
-            >
-              {n}
+        </div>
+      </div>
+
+      {/* ── KPI grid ── */}
+      <div className="co-kpi-grid">
+        <div className="co-kpi-card">
+          <p className="co-kpi-label">Total Orders</p>
+          <h3 className="co-kpi-val co-kpi-primary">{KPI.total}</h3>
+        </div>
+        <div className="co-kpi-card">
+          <p className="co-kpi-label">Subscription</p>
+          <h3 className="co-kpi-val co-kpi-secondary">{KPI.subscription}</h3>
+        </div>
+        <div className="co-kpi-card">
+          <p className="co-kpi-label">Extra</p>
+          <h3 className="co-kpi-val co-kpi-tertiary">{KPI.extra}</h3>
+        </div>
+        <div className="co-kpi-card">
+          <p className="co-kpi-label">Individual</p>
+          <h3 className="co-kpi-val co-kpi-brown">{KPI.individual}</h3>
+        </div>
+        <div className="co-kpi-card co-kpi-dark">
+          <div className="co-kpi-dark-body">
+            <p className="co-kpi-label co-kpi-label-light">Mostly Ordered</p>
+            <h3 className="co-kpi-dark-name">{KPI.mostOrdered}</h3>
+            <p className="co-kpi-dark-sub">{KPI.mostCount} times</p>
+          </div>
+          <span className="material-symbols-outlined co-kpi-dark-icon">water_drop</span>
+        </div>
+      </div>
+
+      {/* ── Type filter tabs ── */}
+      <div className="co-type-tabs">
+        {TYPE_TABS.map(t => (
+          <button
+            key={t.key}
+            type="button"
+            className={`co-type-tab${typeFilter === t.key ? " co-type-tab-active" : ""}`}
+            onClick={() => changeType(t.key)}
+          >{t.label}</button>
+        ))}
+      </div>
+
+      {/* ── Table card ── */}
+      <div className="co-table-card">
+        {/* Table header */}
+        <div className="co-table-hdr">
+          <h4 className="co-table-title">
+            Orders History — {name}&nbsp;({id})
+            <span className="co-table-subtitle">VIEW-ONLY ARCHIVED HISTORY</span>
+          </h4>
+        </div>
+
+        {/* Table */}
+        <div className="co-table-scroll">
+          <table className="co-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Plan Type</th>
+                <th>Product Details</th>
+                <th className="co-th-center">Qty</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Mode</th>
+                <th>Order Date/Time</th>
+                <th className="co-th-center">Delivery Date</th>
+                <th className="co-th-center">Status</th>
+                <th className="co-th-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.map(order => {
+                const plan   = PLAN_CFG[order.planType]   || PLAN_CFG.extra;
+                const status = STATUS_CFG[order.status]   || STATUS_CFG.pending;
+                return (
+                  <tr key={order.id} className="co-row">
+                    <td className="co-td-id">{order.id}</td>
+                    <td>
+                      <span className={`co-plan-badge ${plan.cls}`}>{plan.label}</span>
+                    </td>
+                    <td>
+                      <div className="co-product-cell">
+                        <div className="co-product-icon-box">
+                          <span className="material-symbols-outlined co-product-icon">{order.icon}</span>
+                        </div>
+                        {order.product}
+                      </div>
+                    </td>
+                    <td className="co-td-center">{order.qty}</td>
+                    <td className="co-td-amount">{order.amount}</td>
+                    <td className="co-td-method">{order.method}</td>
+                    <td className="co-td-mode">{order.mode}</td>
+                    <td>
+                      <div className="co-order-date">{order.orderDate}</div>
+                      <div className="co-order-time">{order.orderTime}</div>
+                    </td>
+                    <td className="co-td-center">
+                      <div className="co-del-date">{order.deliveryDate}</div>
+                      <div className="co-del-slot">({order.slot})</div>
+                    </td>
+                    <td className="co-td-center">
+                      <span className={`co-status-badge ${status.cls}`}>{status.label}</span>
+                    </td>
+                    <td className="co-td-center">
+                      <button type="button" className="co-details-btn">Details</button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="co-pagination">
+          <p className="co-page-info">
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} historical records
+          </p>
+          <div className="co-page-controls">
+            <button className="co-page-arrow" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+              <span className="material-symbols-outlined">chevron_left</span>
             </button>
-          ))}
-          <button
-            type="button"
-            className="co-page-btn"
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-          >
-            <span className="material-symbols-outlined">chevron_right</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ── Stats bento grid ── */}
-      <div className="co-stats-grid">
-        <div className="co-stat-card">
-          <span className="material-symbols-outlined co-stat-bg-icon">payments</span>
-          <h4 className="co-stat-label">Lifetime Value</h4>
-          <p className="co-stat-amount">₹42,850.00</p>
-          <div className="co-stat-trend co-trend-up">
-            <span className="material-symbols-outlined">trending_up</span>
-            +12% from last month
-          </div>
-        </div>
-        <div className="co-stat-card">
-          <span className="material-symbols-outlined co-stat-bg-icon">shopping_basket</span>
-          <h4 className="co-stat-label">Total Orders</h4>
-          <p className="co-stat-amount">28 Orders</p>
-          <div className="co-stat-trend co-trend-neutral">
-            <span className="material-symbols-outlined">schedule</span>
-            Average 2.4 orders / month
-          </div>
-        </div>
-        <div className="co-stat-card">
-          <span className="material-symbols-outlined co-stat-bg-icon">star</span>
-          <h4 className="co-stat-label">Favorite Product</h4>
-          <p className="co-stat-amount">A2 Desi Cow Milk</p>
-          <div className="co-stat-trend co-trend-neutral">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-            Ordered 18 times
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                type="button"
+                className={`co-page-num${page === n ? " co-page-num-active" : ""}`}
+                onClick={() => setPage(n)}
+              >{n}</button>
+            ))}
+            <button className="co-page-arrow" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
           </div>
         </div>
       </div>
