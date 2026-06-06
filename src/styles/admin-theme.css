@@ -1,61 +1,61 @@
-@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Manrope:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap');
 
 :root {
-  /* Primary — deep forest green */
-  --admin-primary: #012d1d;
+  /* Primary — warm sienna brown */
+  --admin-primary: #7B5233;
   --admin-on-primary: #ffffff;
-  --admin-primary-container: #1b4332;
-  --admin-on-primary-container: #86af99;
-  --admin-primary-fixed: #c1ecd4;
-  --admin-primary-fixed-dim: #a5d0b9;
-  --admin-on-primary-fixed: #002114;
-  --admin-on-primary-fixed-variant: #274e3d;
-  --admin-inverse-primary: #a5d0b9;
+  --admin-primary-container: #F5DFC8;
+  --admin-on-primary-container: #2C1500;
+  --admin-primary-fixed: #F4E3D0;
+  --admin-primary-fixed-dim: #D9C5B2;
+  --admin-on-primary-fixed: #2C1500;
+  --admin-on-primary-fixed-variant: #5A3B22;
+  --admin-inverse-primary: #C4A882;
 
-  /* Secondary — warm amber */
-  --admin-secondary: #7d562d;
+  /* Secondary — warm tan */
+  --admin-secondary: #A08060;
   --admin-on-secondary: #ffffff;
-  --admin-secondary-container: #ffca98;
-  --admin-on-secondary-container: #7a532a;
-  --admin-secondary-fixed: #ffdcbd;
-  --admin-secondary-fixed-dim: #f0bd8b;
-  --admin-on-secondary-fixed: #2c1600;
-  --admin-on-secondary-fixed-variant: #623f18;
+  --admin-secondary-container: #F4E3D0;
+  --admin-on-secondary-container: #3C1F08;
+  --admin-secondary-fixed: #EBE0D2;
+  --admin-secondary-fixed-dim: #D9C5B2;
+  --admin-on-secondary-fixed: #2C1500;
+  --admin-on-secondary-fixed-variant: #5A3B22;
 
-  /* Tertiary — deep earth brown */
-  --admin-tertiary: #3f1d00;
+  /* Tertiary — sand gold */
+  --admin-tertiary: #8B6B4A;
   --admin-on-tertiary: #ffffff;
-  --admin-tertiary-container: #5f2f00;
-  --admin-on-tertiary-container: #ea9147;
-  --admin-tertiary-fixed: #ffdcc4;
-  --admin-tertiary-fixed-dim: #ffb781;
-  --admin-on-tertiary-fixed: #2f1400;
-  --admin-on-tertiary-fixed-variant: #6f3800;
+  --admin-tertiary-container: #D9C5B2;
+  --admin-on-tertiary-container: #2C1500;
+  --admin-tertiary-fixed: #EBE0D2;
+  --admin-tertiary-fixed-dim: #C4A882;
+  --admin-on-tertiary-fixed: #2C1500;
+  --admin-on-tertiary-fixed-variant: #5A3B22;
 
-  /* Surface */
-  --admin-background: #fdf8f7;
-  --admin-surface: #fdf8f7;
-  --admin-surface-bright: #fdf8f7;
-  --admin-surface-dim: #ddd9d8;
+  /* Surface — warm cream */
+  --admin-background: #FDF9F5;
+  --admin-surface: #FDF9F5;
+  --admin-surface-bright: #FDF9F5;
+  --admin-surface-dim: #EDE4D8;
   --admin-surface-container-lowest: #ffffff;
-  --admin-surface-container-low: #f7f2f1;
-  --admin-surface-container: #f2edec;
-  --admin-surface-container-high: #ece7e6;
-  --admin-surface-container-highest: #e6e1e0;
-  --admin-surface-variant: #e6e1e0;
-  --admin-surface-tint: #3f6653;
+  --admin-surface-container-low: #F9F3E9;
+  --admin-surface-container: #F2E9DC;
+  --admin-surface-container-high: #EBE0D2;
+  --admin-surface-container-highest: #E3D6C5;
+  --admin-surface-variant: #E3D6C5;
+  --admin-surface-tint: #7B5233;
 
   /* On-surface */
-  --admin-on-background: #1c1b1b;
-  --admin-on-surface: #1c1b1b;
-  --admin-on-surface-variant: #414844;
-  --admin-inverse-surface: #313030;
-  --admin-inverse-on-surface: #f4f0ef;
+  --admin-on-background: #3C2A21;
+  --admin-on-surface: #3C2A21;
+  --admin-on-surface-variant: #6B5040;
+  --admin-inverse-surface: #3C2A21;
+  --admin-inverse-on-surface: #FDF9F5;
 
   /* Outline */
-  --admin-outline: #717973;
-  --admin-outline-variant: #c1c8c2;
+  --admin-outline: #9A7B68;
+  --admin-outline-variant: #D9C5B2;
 
   /* Error */
   --admin-error: #ba1a1a;
@@ -63,9 +63,9 @@
   --admin-error-container: #ffdad6;
   --admin-on-error-container: #93000a;
 
-  /* Typography */
-  --admin-font-display: 'Libre Caslon Text', Georgia, serif;
-  --admin-font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* Typography — matching client side */
+  --admin-font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --admin-font-body: 'Manrope', system-ui, sans-serif;
 
   /* Shape */
   --admin-radius-sm: 0.5rem;
@@ -73,9 +73,9 @@
   --admin-radius-xl: 1rem;
   --admin-radius-full: 9999px;
 
-  /* Elevation */
-  --admin-shadow-card: 0 4px 20px -2px rgba(27, 67, 50, 0.04);
-  --admin-shadow-card-hover: 0 10px 30px -4px rgba(27, 67, 50, 0.08);
+  /* Elevation — brown-tinted shadows */
+  --admin-shadow-card: 0 4px 20px -2px rgba(60, 42, 33, 0.05);
+  --admin-shadow-card-hover: 0 10px 30px -4px rgba(60, 42, 33, 0.10);
 }
 
 .material-symbols-outlined {

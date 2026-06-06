@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "./AdminCustomerOrders.css";
 
 /* ── Customer name lookup ── */
@@ -57,6 +57,7 @@ const KPI = { total: 28, subscription: 8, extra: 6, individual: 2, mostOrdered: 
 /* ══ Component ══ */
 function AdminCustomerOrders() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [viewMode,    setViewMode]    = useState("today");
   const [typeFilter,  setTypeFilter]  = useState("all");
   const [page,        setPage]        = useState(1);
@@ -204,7 +205,7 @@ function AdminCustomerOrders() {
                       <span className={`co-status-badge ${status.cls}`}>{status.label}</span>
                     </td>
                     <td className="co-td-center">
-                      <button type="button" className="co-details-btn">Details</button>
+                      <button type="button" className="co-details-btn" onClick={() => navigate(`/admin/orders/${o.id}`)}>Details</button>
                     </td>
                   </tr>
                 );

@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .co-page {
   display: flex;
   flex-direction: column;
@@ -92,12 +92,12 @@
   border: 1px solid rgba(193, 200, 194, 0.3);
   border-radius: 0.75rem;
   padding: 1rem 1.25rem;
-  box-shadow: 0 4px 12px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 12px rgba(90, 59, 34, 0.04);
   transition: transform 0.18s, box-shadow 0.18s;
 }
 .co-kpi-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(27, 67, 50, 0.1);
+  box-shadow: 0 12px 28px rgba(90, 59, 34, 0.1);
 }
 
 .co-kpi-label {
@@ -134,7 +134,7 @@
 }
 .co-kpi-dark:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(27, 67, 50, 0.18);
+  box-shadow: 0 12px 28px rgba(90, 59, 34, 0.18);
 }
 
 .co-kpi-dark-body { position: relative; z-index: 1; }
@@ -198,7 +198,7 @@
   background: #ffffff;
   border: 1px solid rgba(193, 200, 194, 0.5);
   border-radius: 0.75rem;
-  box-shadow: 0 8px 24px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 8px 24px rgba(90, 59, 34, 0.06);
   overflow: hidden;
 }
 
@@ -293,7 +293,7 @@
 
 .co-plan-extra        { background: #ffdcc4; color: #6f3800; }
 .co-plan-individual   { background: #ffdcbd; color: #623f18; }
-.co-plan-subscription { background: var(--admin-primary-fixed); color: #274e3d; }
+.co-plan-subscription { background: var(--admin-primary-fixed); color: #5A3B22; }
 
 /* Product cell */
 .co-product-cell {
@@ -336,7 +336,7 @@
   white-space: nowrap;
 }
 
-.co-status-delivered { background: #e8f5e9; color: #2e7d32; }
+.co-status-delivered { background: #F4E3D0; color: #7B5233; }
 .co-status-cancelled { background: #ffebee; color: #c62828; }
 .co-status-pending   { background: #ffdcc4; color: #6f3800; }
 

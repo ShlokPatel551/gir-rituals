@@ -1,4 +1,4 @@
-/* ── Page shell ── */
+﻿/* ── Page shell ── */
 .ls-page {
   display: flex;
   flex-direction: column;
@@ -25,7 +25,7 @@
   font-family: var(--admin-font-body);
   font-size: 0.875rem;
   font-weight: 600;
-  box-shadow: 0 6px 24px rgba(27, 67, 50, 0.3);
+  box-shadow: 0 6px 24px rgba(90, 59, 34, 0.3);
   z-index: 999;
   animation: ls-toast-in 0.25s ease;
 }
@@ -80,7 +80,7 @@
   transition: background 0.15s;
   white-space: nowrap;
 }
-.ls-btn-outline:hover { background: rgba(1, 45, 29, 0.04); }
+.ls-btn-outline:hover { background: rgba(123, 82, 51, 0.04); }
 .ls-btn-outline .material-symbols-outlined { font-size: 20px; }
 
 .ls-btn-solid {
@@ -96,7 +96,7 @@
   font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(27, 67, 50, 0.2);
+  box-shadow: 0 2px 10px rgba(90, 59, 34, 0.2);
   transition: opacity 0.15s, transform 0.1s;
   white-space: nowrap;
 }
@@ -147,7 +147,7 @@
   border: 1px solid rgba(193, 200, 194, 0.3);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  box-shadow: 0 1px 6px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 1px 6px rgba(90, 59, 34, 0.06);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -159,8 +159,8 @@
 }
 
 .ls-metric-safe {
-  background: var(--admin-primary-fixed, #c1ecd4);
-  border-color: rgba(1, 45, 29, 0.1);
+  background: var(--admin-primary-fixed, #F5DFC8);
+  border-color: rgba(123, 82, 51, 0.1);
 }
 
 .ls-metric-lbl {
@@ -181,7 +181,7 @@
 }
 
 .ls-val-error-big { color: var(--admin-error); }
-.ls-val-safe-big  { color: #002114; }
+.ls-val-safe-big  { color: #2C1500; }
 
 .ls-metric-note {
   font-family: var(--admin-font-body);
@@ -202,7 +202,7 @@
 .ls-section {
   background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.08);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.08);
   border: 1px solid rgba(193, 200, 194, 0.3);
   overflow: hidden;
 }
@@ -279,8 +279,8 @@
 }
 
 .ls-badge-safe {
-  background: var(--admin-primary-fixed, #c1ecd4);
-  color: #274e3d;
+  background: var(--admin-primary-fixed, #F5DFC8);
+  color: #5A3B22;
 }
 
 /* ── Form shared ── */
@@ -314,7 +314,7 @@
 .ls-input:focus {
   outline: none;
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+  box-shadow: 0 0 0 3px rgba(123, 82, 51, 0.08);
 }
 .ls-input::placeholder { color: var(--admin-outline); }
 
@@ -341,16 +341,16 @@
 
 .ls-input-primary {
   background: rgba(193, 236, 212, 0.45);
-  border-color: var(--admin-primary-fixed, #c1ecd4);
+  border-color: var(--admin-primary-fixed, #F5DFC8);
   font-weight: 700;
-  color: #002114;
+  color: #2C1500;
 }
 
 .ls-input-closing {
   background: rgba(193, 236, 212, 0.45);
-  border-color: var(--admin-primary-fixed, #c1ecd4);
+  border-color: var(--admin-primary-fixed, #F5DFC8);
   font-weight: 700;
-  color: #002114;
+  color: #2C1500;
   cursor: not-allowed;
 }
 
@@ -397,7 +397,7 @@
 .ls-select:focus {
   outline: none;
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+  box-shadow: 0 0 0 3px rgba(123, 82, 51, 0.08);
 }
 
 .ls-select-arrow {
@@ -425,7 +425,7 @@
 .ls-textarea:focus {
   outline: none;
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+  box-shadow: 0 0 0 3px rgba(123, 82, 51, 0.08);
 }
 .ls-textarea::placeholder { color: var(--admin-outline); }
 
@@ -553,7 +553,7 @@
 
 .ls-save-btn-full { width: 100%; }
 
-.ls-save-done { background: #2e7d32 !important; }
+.ls-save-done { background: #7B5233 !important; }
 
 @keyframes ls-spin {
   to { transform: rotate(360deg); }
@@ -635,7 +635,7 @@
   transition: background 0.15s;
   white-space: nowrap;
 }
-.ls-btn-outline-sm:hover { background: rgba(1, 45, 29, 0.04); }
+.ls-btn-outline-sm:hover { background: rgba(123, 82, 51, 0.04); }
 
 .ls-btn-solid-sm {
   padding: 0.5625rem 1.25rem;
@@ -647,11 +647,11 @@
   font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.2);
+  box-shadow: 0 2px 8px rgba(90, 59, 34, 0.2);
   transition: opacity 0.15s, transform 0.1s, background 0.25s;
   white-space: nowrap;
 }
 .ls-btn-solid-sm:hover:not(:disabled) { opacity: 0.9; }
 .ls-btn-solid-sm:active:not(:disabled) { transform: scale(0.98); }
 .ls-btn-solid-sm:disabled { opacity: 0.75; cursor: not-allowed; }
-.ls-btn-solid-sm.ls-save-done-sm { background: #2e7d32 !important; }
+.ls-btn-solid-sm.ls-save-done-sm { background: #7B5233 !important; }

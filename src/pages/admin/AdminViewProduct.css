@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .pv-page {
   display: flex;
   flex-direction: column;
@@ -147,7 +147,7 @@
   background: #ffffff;
   border-radius: 0.75rem;
   border: 1px solid var(--admin-surface-variant);
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.04);
   overflow: hidden;
 }
 

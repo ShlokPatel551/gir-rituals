@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .ls-page {
   display: flex;
   flex-direction: column;
@@ -25,7 +25,7 @@
 .ls-kpi-card {
   background: #ffffff;
   border-radius: 0.75rem;
-  box-shadow: 0 1px 6px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 1px 6px rgba(90, 59, 34, 0.06);
   border-left: 4px solid transparent;
   padding: 1rem;
   display: flex;
@@ -36,7 +36,7 @@
 .ls-kpi-secondary { border-left-color: var(--admin-secondary); }
 .ls-kpi-error     { border-left-color: var(--admin-error);     }
 .ls-kpi-primary   { border-left-color: var(--admin-primary);   }
-.ls-kpi-green     { border-left-color: #86af99;                }
+.ls-kpi-green     { border-left-color: #C4A882;                }
 
 /* KPI icon row */
 .ls-kpi-icon-row {
@@ -54,7 +54,7 @@
 .ls-icon-secondary { color: var(--admin-secondary); }
 .ls-icon-error     { color: var(--admin-error);     }
 .ls-icon-primary   { color: var(--admin-primary);   }
-.ls-icon-green     { color: #86af99;                }
+.ls-icon-green     { color: #C4A882;                }
 
 /* Badges */
 .ls-kpi-badge {
@@ -139,7 +139,7 @@
   background: #ffffff;
   border: 1px solid var(--admin-outline-variant);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 6px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 1px 6px rgba(90, 59, 34, 0.06);
   overflow: hidden;
 }
 
@@ -282,7 +282,7 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
-.ls-cat-milk   { background: rgba(165, 208, 185, 0.3); color: #274e3d; }
+.ls-cat-milk   { background: rgba(165, 208, 185, 0.3); color: #5A3B22; }
 .ls-cat-curd   { background: rgba(255, 220, 189, 0.3); color: #7a532a; }
 .ls-cat-butter { background: rgba(255, 220, 196, 0.3); color: #6f3800; }
 
@@ -369,7 +369,7 @@
 }
 .ls-restock-input::-webkit-outer-spin-button,
 .ls-restock-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-.ls-restock-input:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 2px rgba(1, 45, 29, 0.12); }
+.ls-restock-input:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 2px rgba(123, 82, 51, 0.12); }
 .ls-input-critical { border-color: var(--admin-outline); }
 
 .ls-restock-unit {

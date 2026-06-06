@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .pe-page {
   display: flex;
   flex-direction: column;
@@ -54,7 +54,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
-  box-shadow: 0 1px 4px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 1px 4px rgba(90, 59, 34, 0.06);
   white-space: nowrap;
 }
 .pe-edit-btn:hover { background: var(--admin-surface-container-highest); }
@@ -74,7 +74,7 @@
   border-radius: 1rem;
   padding: 1.25rem;
   border-left: 4px solid transparent;
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.04);
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
@@ -82,17 +82,17 @@
 }
 .pe-kpi-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 8px 30px rgba(90, 59, 34, 0.06);
 }
 
 .pe-kpi-total    { border-left-color: var(--admin-primary); }
 .pe-kpi-sold     { border-left-color: var(--admin-secondary); }
-.pe-kpi-income   { border-left-color: #a5d0b9; }
+.pe-kpi-income   { border-left-color: #D9C5B2; }
 .pe-kpi-leftover {
   border-left-color: var(--admin-error);
   background: rgba(255, 218, 214, 0.2);
 }
-.pe-kpi-rate { border-left-color: #274e3d; }
+.pe-kpi-rate { border-left-color: #5A3B22; }
 
 .pe-kpi-label {
   font-size: 0.6875rem;
@@ -114,7 +114,7 @@
 .pe-val-primary   { color: var(--admin-primary); }
 .pe-val-secondary { color: var(--admin-secondary); }
 .pe-val-error     { color: var(--admin-error); }
-.pe-val-rate      { color: #274e3d; }
+.pe-val-rate      { color: #5A3B22; }
 
 .pe-kpi-sub {
   font-size: 0.75rem;
@@ -139,13 +139,13 @@
 .pe-card {
   background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.04);
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .pe-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 8px 30px rgba(90, 59, 34, 0.06);
 }
 
 .pe-card-head {
@@ -189,7 +189,7 @@
 
 .pe-tr-tinted { background: rgba(247, 242, 241, 0.5); }
 
-.pe-tr-income { background: rgba(1, 45, 29, 0.04); }
+.pe-tr-income { background: rgba(123, 82, 51, 0.04); }
 
 .pe-th {
   padding: 1rem 1.25rem;
@@ -219,7 +219,7 @@
 .pe-td-primary   { color: var(--admin-primary); margin: 0; }
 .pe-td-secondary { color: var(--admin-secondary); }
 .pe-td-error     { color: var(--admin-error); margin: 0; }
-.pe-td-rate      { color: #274e3d; margin: 0; }
+.pe-td-rate      { color: #5A3B22; margin: 0; }
 .pe-td-income {
   font-family: var(--admin-font-display);
   font-size: 1.375rem;
@@ -367,21 +367,21 @@
 .pe-deco-block {
   border-radius: 0.75rem;
   height: 10rem;
-  background: linear-gradient(135deg, var(--admin-primary) 0%, #2d6a4f 50%, #1b4332 100%);
+  background: linear-gradient(135deg, var(--admin-primary) 0%, #7B5233 50%, #5A3B22 100%);
   overflow: hidden;
   position: relative;
-  box-shadow: 0 4px 16px rgba(1, 45, 29, 0.2);
+  box-shadow: 0 4px 16px rgba(123, 82, 51, 0.2);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .pe-deco-block:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(1, 45, 29, 0.25);
+  box-shadow: 0 8px 30px rgba(123, 82, 51, 0.25);
 }
 
 .pe-deco-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(1, 45, 29, 0.7) 0%, transparent 60%);
+  background: linear-gradient(to top, rgba(123, 82, 51, 0.7) 0%, transparent 60%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;

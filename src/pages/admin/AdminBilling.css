@@ -1,4 +1,4 @@
-/* ── Page shell ── */
+﻿/* ── Page shell ── */
 .bil-page {
   display: flex;
   flex-direction: column;
@@ -33,7 +33,7 @@
 }
 
 .bil-metric-card:hover {
-  border-color: rgba(1, 45, 29, 0.2);
+  border-color: rgba(123, 82, 51, 0.2);
 }
 
 .bil-metric-top {
@@ -71,7 +71,7 @@
 }
 
 .bil-note-error  { color: var(--admin-error, #ba1a1a); }
-.bil-note-green  { color: #274e3d; }
+.bil-note-green  { color: #5A3B22; }
 
 /* ── Icon accent colors ── */
 .bil-icon-brown    { color: #5f2f00; }
@@ -233,7 +233,7 @@
 }
 
 .bil-btn-outline:hover {
-  background: var(--admin-primary-fixed, #c1ecd4);
+  background: var(--admin-primary-fixed, #F5DFC8);
 }
 
 /* ── Table helpers ── */
@@ -311,8 +311,8 @@
 
 .bil-badge-paid,
 .bil-badge-success {
-  background: #c1ecd4;
-  color: #274e3d;
+  background: #F5DFC8;
+  color: #5A3B22;
 }
 
 .bil-badge-overdue,
@@ -339,7 +339,7 @@
 }
 
 .bil-insights-dark {
-  background: var(--admin-primary-container, #1b4332);
+  background: var(--admin-primary-container, #5A3B22);
   border-radius: 20px;
   padding: 2rem;
   position: relative;
@@ -357,7 +357,7 @@
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: var(--admin-primary-fixed, #c1ecd4);
+  background: var(--admin-primary-fixed, #F5DFC8);
   opacity: 0.05;
   filter: blur(40px);
   pointer-events: none;
@@ -382,7 +382,7 @@
 .bil-insights-desc {
   font-family: var(--admin-font-body);
   font-size: 0.875rem;
-  color: #86af99;
+  color: #C4A882;
   margin: 0;
   max-width: 480px;
   line-height: 1.6;
@@ -409,14 +409,14 @@
 }
 
 .bil-insights-btn-light:hover {
-  background: var(--admin-primary-fixed, #c1ecd4);
+  background: var(--admin-primary-fixed, #F5DFC8);
 }
 
 .bil-insights-btn-ghost {
   padding: 9px 20px;
   background: transparent;
   color: #fff;
-  border: 1.5px solid #86af99;
+  border: 1.5px solid #C4A882;
   border-radius: 10px;
   font-family: var(--admin-font-body);
   font-size: 0.8rem;
@@ -426,7 +426,7 @@
 }
 
 .bil-insights-btn-ghost:hover {
-  background: rgba(1, 45, 29, 0.25);
+  background: rgba(123, 82, 51, 0.25);
 }
 
 /* ── Refund card ── */
@@ -448,7 +448,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(1, 45, 29, 0.08);
+  box-shadow: 0 4px 20px rgba(123, 82, 51, 0.08);
   margin-bottom: 4px;
 }
 
@@ -523,7 +523,7 @@
   gap: 10px;
   padding: 12px 20px;
   border-radius: 14px;
-  box-shadow: 0 8px 32px rgba(1, 45, 29, 0.25);
+  box-shadow: 0 8px 32px rgba(123, 82, 51, 0.25);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.22s, transform 0.22s;

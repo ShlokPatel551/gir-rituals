@@ -1,9 +1,9 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminProducts.css";
 
 const PRODUCTS = [
-  { id: "PRD-001", name: "Cow milk (A2)",    desc: "Pure Gir cow milk",          icon: "water_drop",       iconBg: "#c1ecd4", category: "MILK",   catCls: "inv-cat-milk",   subRate: "₹68 / L",       buyOnceRate: "₹75 / L",       stockQty: "150 L",  stockPct: 85, stockStatus: "in_stock"     },
+  { id: "PRD-001", name: "Cow milk (A2)",    desc: "Pure Gir cow milk",          icon: "water_drop",       iconBg: "#F5DFC8", category: "MILK",   catCls: "inv-cat-milk",   subRate: "₹68 / L",       buyOnceRate: "₹75 / L",       stockQty: "150 L",  stockPct: 85, stockStatus: "in_stock"     },
   { id: "PRD-002", name: "Buffalo milk",      desc: "Fresh buffalo milk",          icon: "water_drop",       iconBg: "#e6e1e0", category: "MILK",   catCls: "inv-cat-milk",   subRate: "₹52 / L",       buyOnceRate: "₹58 / L",       stockQty: "18 L",   stockPct: 20, stockStatus: "low_stock"    },
   { id: "PRD-003", name: "Cow ghee (A2)",     desc: "Pure cultured ghee",          icon: "local_fire_department", iconBg: "#ffca98", category: "GHEE", catCls: "inv-cat-ghee",   subRate: "₹620 / 500g",   buyOnceRate: "₹680 / 500g",   stockQty: "42 kg",  stockPct: 65, stockStatus: "in_stock"     },
   { id: "PRD-004", name: "Paneer (fresh)",    desc: "Soft fresh paneer",           icon: "bakery_dining",    iconBg: "#ffdcbd", category: "PANEER", catCls: "inv-cat-paneer", subRate: "₹90 / 250g",    buyOnceRate: "₹110 / 250g",   stockQty: "0 kg",   stockPct: 0,  stockStatus: "out_of_stock" },
@@ -11,8 +11,8 @@ const PRODUCTS = [
   { id: "PRD-006", name: "White butter",      desc: "Fresh Gir cow makhan",        icon: "kitchen",          iconBg: "#ffdcc4", category: "BUTTER", catCls: "inv-cat-butter", subRate: "₹180 / 200g",   buyOnceRate: "₹220 / 200g",   stockQty: "25 kg",  stockPct: 55, stockStatus: "in_stock"     },
   { id: "PRD-007", name: "Shrikhand",         desc: "Sweetened strained yoghurt",  icon: "icecream",         iconBg: "#ffdcbd", category: "CURD",   catCls: "inv-cat-curd",   subRate: "₹120 / 500g",   buyOnceRate: "₹150 / 500g",   stockQty: "30 kg",  stockPct: 60, stockStatus: "in_stock"     },
   { id: "PRD-008", name: "Bilona ghee",       desc: "Hand-churned bilona method",  icon: "local_fire_department", iconBg: "#ffca98", category: "GHEE", catCls: "inv-cat-ghee",   subRate: "₹950 / 500g",   buyOnceRate: "₹1,050 / 500g", stockQty: "12 kg",  stockPct: 22, stockStatus: "low_stock"    },
-  { id: "PRD-009", name: "Lassi (sweet)",     desc: "Chilled churned lassi",       icon: "local_cafe",       iconBg: "#c1ecd4", category: "CURD",   catCls: "inv-cat-curd",   subRate: "₹35 / 200ml",   buyOnceRate: "₹42 / 200ml",   stockQty: "60 L",   stockPct: 75, stockStatus: "in_stock"     },
-  { id: "PRD-010", name: "Cow colostrum",     desc: "First-milk superfood",        icon: "water_drop",       iconBg: "#c1ecd4", category: "MILK",   catCls: "inv-cat-milk",   subRate: "₹120 / 200ml",  buyOnceRate: "₹150 / 200ml",  stockQty: "10 L",   stockPct: 18, stockStatus: "low_stock"    },
+  { id: "PRD-009", name: "Lassi (sweet)",     desc: "Chilled churned lassi",       icon: "local_cafe",       iconBg: "#F5DFC8", category: "CURD",   catCls: "inv-cat-curd",   subRate: "₹35 / 200ml",   buyOnceRate: "₹42 / 200ml",   stockQty: "60 L",   stockPct: 75, stockStatus: "in_stock"     },
+  { id: "PRD-010", name: "Cow colostrum",     desc: "First-milk superfood",        icon: "water_drop",       iconBg: "#F5DFC8", category: "MILK",   catCls: "inv-cat-milk",   subRate: "₹120 / 200ml",  buyOnceRate: "₹150 / 200ml",  stockQty: "10 L",   stockPct: 18, stockStatus: "low_stock"    },
   { id: "PRD-011", name: "Peda (milk sweet)", desc: "Traditional milk sweet",      icon: "cake",             iconBg: "#ffdcbd", category: "SWEET",  catCls: "inv-cat-sweet",  subRate: "₹60 / 100g",    buyOnceRate: "₹75 / 100g",    stockQty: "20 kg",  stockPct: 40, stockStatus: "in_stock"     },
   { id: "PRD-012", name: "Buttermilk (Chaas)", desc: "Spiced salted buttermilk",   icon: "local_cafe",       iconBg: "#e6e1e0", category: "CURD",   catCls: "inv-cat-curd",   subRate: "₹20 / 200ml",   buyOnceRate: "₹28 / 200ml",   stockQty: "80 L",   stockPct: 90, stockStatus: "in_stock"     },
 ];
@@ -52,23 +52,23 @@ function AdminProducts() {
 
       {/* ── KPI cards ── */}
       <div className="inv-kpi-grid">
-        <div className="inv-kpi-card inv-kpi-primary">
+        <div className="inv-kpi-card inv-kpi-primary" style={{ cursor: "pointer" }} onClick={() => navigate("/admin/stock")}>
           <div className="inv-kpi-top">
             <span className="inv-kpi-label">Total products</span>
             <span className="material-symbols-outlined inv-kpi-icon inv-icon-primary">inventory</span>
           </div>
           <p className="inv-kpi-big inv-big-primary">{PRODUCTS.length}</p>
-          <p className="inv-kpi-sub">across all categories</p>
+          <p className="inv-kpi-sub">view stock inventory →</p>
         </div>
-        <div className="inv-kpi-card inv-kpi-secondary">
+        <div className="inv-kpi-card inv-kpi-secondary" style={{ cursor: "pointer" }} onClick={() => navigate("/admin/finance")}>
           <div className="inv-kpi-top">
             <span className="inv-kpi-label">Highest selling</span>
             <span className="material-symbols-outlined inv-kpi-icon inv-icon-secondary">trending_up</span>
           </div>
           <p className="inv-kpi-name inv-name-secondary">Cow milk</p>
-          <p className="inv-kpi-sub">1,240 L sold this month</p>
+          <p className="inv-kpi-sub">1,240 L sold — view finance →</p>
         </div>
-        <div className="inv-kpi-card inv-kpi-warning">
+        <div className="inv-kpi-card inv-kpi-warning" style={{ cursor: "pointer" }} onClick={() => navigate("/admin/low-stock")}>
           <div className="inv-kpi-top">
             <span className="inv-kpi-label">Low stock alerts</span>
             <span className="material-symbols-outlined inv-kpi-icon inv-icon-warning">warning</span>
@@ -76,9 +76,9 @@ function AdminProducts() {
           <p className="inv-kpi-big inv-big-warning">
             {PRODUCTS.filter(p => p.stockStatus === "low_stock").length}
           </p>
-          <p className="inv-kpi-sub">products running low</p>
+          <p className="inv-kpi-sub">products running low — view →</p>
         </div>
-        <div className="inv-kpi-card inv-kpi-error">
+        <div className="inv-kpi-card inv-kpi-error" style={{ cursor: "pointer" }} onClick={() => navigate("/admin/out-of-stock")}>
           <div className="inv-kpi-top">
             <span className="inv-kpi-label">Out of stock</span>
             <span className="material-symbols-outlined inv-kpi-icon inv-icon-error">block</span>
@@ -86,7 +86,7 @@ function AdminProducts() {
           <p className="inv-kpi-big inv-big-error">
             {PRODUCTS.filter(p => p.stockStatus === "out_of_stock").length}
           </p>
-          <p className="inv-kpi-sub">product unavailable</p>
+          <p className="inv-kpi-sub">product unavailable — view →</p>
         </div>
       </div>
 

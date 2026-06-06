@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "./AdminCustomerActiveOrders.css";
 
@@ -27,7 +27,7 @@ const TASKS_INIT = [
 const STATUS_CFG = {
   pending:          { label: "Pending",          cls: "ao-s-pending",   dot: "#ea9147" },
   out_for_delivery: { label: "Out for Delivery", cls: "ao-s-otd",       dot: "#7d562d" },
-  delivered:        { label: "Delivered",        cls: "ao-s-delivered", dot: "#2e7d32" },
+  delivered:        { label: "Delivered",        cls: "ao-s-delivered", dot: "#7B5233" },
   scheduled:        { label: "Scheduled",        cls: "ao-s-scheduled", dot: "#717973" },
 };
 

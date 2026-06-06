@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../../lib/api";
 import "./AdminCustomerDetail.css";
@@ -84,7 +84,7 @@ const MOCK_SUBSCRIPTION = {
 
 /* ── Delivery status helpers ── */
 const DS_CONFIG = {
-  delivered: { dot: "#2e7d32", label: "Delivered",  cls: "cd-ds-delivered" },
+  delivered: { dot: "#7B5233", label: "Delivered",  cls: "cd-ds-delivered" },
   pending:   { dot: "#ea9147", label: "Pending",    cls: "cd-ds-pending"   },
   paused:    { dot: "#ea9147", label: "Paused",     cls: "cd-ds-pending"   },
   cancelled: { dot: "#ba1a1a", label: "Cancelled",  cls: "cd-ds-error"     },
@@ -424,7 +424,7 @@ function AdminCustomerDetail() {
               </div>
               <div className="cd-sub-plan-actions">
                 <button type="button" className="cd-sub-btn-pause"><span className="material-symbols-outlined">pause_circle</span>Pause</button>
-                <button type="button" className="cd-btn-primary"><span className="material-symbols-outlined">edit</span>Edit Plan</button>
+                <button type="button" className="cd-btn-primary" onClick={() => navigate(`/admin/customers/${id}/active-orders`)}><span className="material-symbols-outlined">edit</span>Edit Plan</button>
               </div>
             </div>
             <div className="cd-sub-meta-grid">
@@ -438,7 +438,7 @@ function AdminCustomerDetail() {
           <div className="cd-card cd-sub-addons-card">
             <div className="cd-sub-section-header">
               <h4 className="cd-sub-section-title">Add-ons</h4>
-              <button type="button" className="cd-sub-btn-add"><span className="material-symbols-outlined">add</span>Add product</button>
+              <button type="button" className="cd-sub-btn-add" onClick={() => navigate("/admin/orders/new")}><span className="material-symbols-outlined">add</span>Add product</button>
             </div>
             <div className="cd-sub-addons-list">
               {MOCK_SUBSCRIPTION.addOns.map((a, i) => (
@@ -542,7 +542,7 @@ function AdminCustomerDetail() {
                     <td className="cd-td-bold cd-td-muted">{t.id}</td>
                     <td>{t.desc}</td>
                     <td className="cd-td-muted">{t.date}</td>
-                    <td style={{ textAlign: "right", fontWeight: 600, color: t.credit ? "#2d6a4f" : "var(--admin-error)" }}>{t.amount}</td>
+                    <td style={{ textAlign: "right", fontWeight: 600, color: t.credit ? "#7B5233" : "var(--admin-error)" }}>{t.amount}</td>
                   </tr>
                 ))}
               </tbody>

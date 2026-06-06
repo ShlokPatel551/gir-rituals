@@ -1,4 +1,4 @@
-/* ── Page wrapper ── */
+﻿/* ── Page wrapper ── */
 .adm-dashboard {
   display: flex;
   flex-direction: column;
@@ -35,6 +35,16 @@
   color: var(--admin-on-surface);
 }
 
+/* ── Section fade animation (triggered by key change on toggle) ── */
+@keyframes adm-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.adm-section-fade {
+  animation: adm-fade-in 0.22s ease both;
+}
+
 /* ── Today/Month toggle ── */
 .adm-view-toggle {
   display: flex;
@@ -59,7 +69,7 @@
 .adm-toggle-btn.active {
   background: var(--admin-surface-container-lowest);
   color: var(--admin-primary);
-  box-shadow: 0 2px 8px rgba(1, 45, 29, 0.08);
+  box-shadow: 0 2px 8px rgba(123, 82, 51, 0.08);
 }
 
 .adm-toggle-btn:hover:not(.active) {
@@ -460,7 +470,7 @@
 
 .adm-alert-primary  { background: var(--admin-primary-container);  color: var(--admin-on-primary-container);  }
 .adm-alert-tertiary { background: var(--admin-tertiary);            color: var(--admin-on-tertiary);           }
-.adm-alert-green    { background: #1b4332;                          color: #ffffff;                            }
+.adm-alert-green    { background: #5A3B22;                          color: #ffffff;                            }
 
 .adm-alert-left {
   display: flex;

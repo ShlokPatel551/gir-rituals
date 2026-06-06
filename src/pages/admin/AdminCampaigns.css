@@ -1,4 +1,4 @@
-/* ── Page shell ── */
+﻿/* ── Page shell ── */
 .camp-page {
   display: flex;
   flex-direction: column;
@@ -66,7 +66,7 @@
 }
 
 .camp-btn-filled:hover {
-  background: #1b4332;
+  background: #5A3B22;
 }
 
 /* ── Stats bento grid ── */
@@ -115,7 +115,7 @@
 
 .camp-pill-green {
   background: #dcfce7;
-  color: #166534;
+  color: #5A3B22;
 }
 
 .camp-pill-tan {
@@ -204,7 +204,7 @@
 
 .camp-status-live {
   background: #dcfce7;
-  color: #166534;
+  color: #5A3B22;
 }
 
 .camp-status-live::before {
@@ -212,7 +212,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #166534;
+  background: #5A3B22;
   animation: camp-live-pulse 1.4s ease-in-out infinite;
 }
 
@@ -456,7 +456,7 @@
 
 .camp-badge-active {
   background: #dcfce7;
-  color: #166534;
+  color: #5A3B22;
 }
 
 .camp-badge-expired {

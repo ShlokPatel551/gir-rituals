@@ -1,10 +1,10 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./AdminEditProduct.css";
 
 const PRODUCT_DATA = {
   "PRD-001": {
-    id: "PRD-001", name: "Cow milk (A2)",     icon: "water_drop",            iconBg: "#c1ecd4", iconBg2: "#d4eef8", iconBg3: "#d6f0de",
+    id: "PRD-001", name: "Cow milk (A2)",     icon: "water_drop",            iconBg: "#F5DFC8", iconBg2: "#d4eef8", iconBg3: "#d6f0de",
     category: "Milk",   unit: "Litre",
     subRate: "68", buyOnceRate: "75", gst: "0% (Exempt)",
     currentStock: "150", lowStockThreshold: "20", shelfLife: "1",

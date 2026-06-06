@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import "./AdminCampaigns.css";
 const BANNERS = [
   {
@@ -14,7 +14,7 @@ const BANNERS = [
     stat3Label: "CTR",
     stat3Value: "5.2%",
     stat3Primary: true,
-    gradient: "linear-gradient(150deg, #012d1d 0%, #1b4332 55%, #3f6653 100%)",
+    gradient: "linear-gradient(150deg, #7B5233 0%, #5A3B22 55%, #3f6653 100%)",
     emoji: "\u{1F95B}"
   },
   {
@@ -36,7 +36,7 @@ const BANNERS = [
 ];
 const LOG_ROWS = [
   { id: "l1", name: "Bilona Ghee Promo", gradient: "linear-gradient(135deg, #f59e0b, #d97706)", emoji: "\u{1FAD9}", location: "App Home Carousel", ctrPct: 65, ctrLabel: "6.8%", duration: "Sep 15 \u2013 Oct 15", status: "expired" },
-  { id: "l2", name: "Farm Storytelling", gradient: "linear-gradient(135deg, #2e7d32, #66bb6a)", emoji: "\u{1F33E}", location: "Checkout Page", ctrPct: 42, ctrLabel: "3.1%", duration: "Permanent", status: "active" },
+  { id: "l2", name: "Farm Storytelling", gradient: "linear-gradient(135deg, #7B5233, #A08060)", emoji: "\u{1F33E}", location: "Checkout Page", ctrPct: 42, ctrLabel: "3.1%", duration: "Permanent", status: "active" },
   { id: "l3", name: "Diwali Specials", gradient: "linear-gradient(135deg, #b5451b, #ff8f00)", emoji: "\u{1FA94}", location: "Category Top", ctrPct: null, ctrLabel: null, duration: "Oct 24 \u2013 Nov 04", status: "pending" }
 ];
 const LOG_STATUS_CSS = {

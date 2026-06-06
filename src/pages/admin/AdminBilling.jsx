@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminBilling.css";
 const SUBSCRIPTIONS = [
   { id: "s1", clientId: "GR00124", initials: "AV", avatarBg: "#ffca98", avatarColor: "#7a532a", name: "Ananya Varma", subId: "GR-SUB-4291", plan: "A2 Desi Milk (2L/day)", renewal: "Oct 24, 2023", amount: "\u20B95,400", status: "paid" },
   { id: "s2", clientId: "GR00089", initials: "RK", avatarBg: "#ffdcc4", avatarColor: "#6f3800", name: "Rahul Kapoor", subId: "GR-SUB-8812", plan: "Farm Fresh Paneer (Weekly)", renewal: "Oct 21, 2023", amount: "\u20B92,850", status: "overdue" },
-  { id: "s3", clientId: "GR00201", initials: "SM", avatarBg: "#c1ecd4", avatarColor: "#002114", name: "Sanya Malhotra", subId: "GR-SUB-1054", plan: "Classic Gir Milk (1L/day)", renewal: "Oct 26, 2023", amount: "\u20B92,100", status: "pending" }
+  { id: "s3", clientId: "GR00201", initials: "SM", avatarBg: "#F5DFC8", avatarColor: "#2C1500", name: "Sanya Malhotra", subId: "GR-SUB-1054", plan: "Classic Gir Milk (1L/day)", renewal: "Oct 26, 2023", amount: "\u20B92,100", status: "pending" }
 ];
 const ORDERS = [
   { id: "o1", orderId: "#ORD-9021", product: "A2 Vedic Ghee (500ml)", payMethod: "upi", payIcon: "payments", amount: "\u20B91,250", status: "success", time: "10:45 AM" },

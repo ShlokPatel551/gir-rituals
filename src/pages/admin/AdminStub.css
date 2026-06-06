@@ -1,4 +1,4 @@
-/* Shared styles for all secondary admin pages */
+﻿/* Shared styles for all secondary admin pages */
 
 .stub-page {
   display: flex;
@@ -75,13 +75,13 @@
 }
 
 /* ── Badges ── */
-.stub-badge-green { background: var(--admin-primary-fixed); color: #274e3d; }
+.stub-badge-green { background: var(--admin-primary-fixed); color: #5A3B22; }
 .stub-badge-tan   { background: var(--admin-secondary-container); color: #7a532a; }
 .stub-badge-muted { background: var(--admin-surface-container-high); color: var(--admin-on-surface-variant); }
 .stub-badge-error { background: var(--admin-error-container); color: var(--admin-on-error-container); }
 
 /* ── Color helpers ── */
-.stub-val-green { color: #2d6a4f; }
+.stub-val-green { color: #7B5233; }
 .stub-val-tan   { color: #7a532a; }
 .stub-val-error { color: var(--admin-error); }
 
@@ -219,7 +219,7 @@
   margin: 0;
 }
 
-.stub-trend-up { color: #2d6a4f; }
+.stub-trend-up { color: #7B5233; }
 
 /* ── Product cell ── */
 .stub-product-cell {
@@ -399,7 +399,7 @@
 
 .stub-input:focus {
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 2px rgba(1, 45, 29, 0.12);
+  box-shadow: 0 0 0 2px rgba(123, 82, 51, 0.12);
 }
 
 .stub-textarea { resize: vertical; }
@@ -412,7 +412,7 @@
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   background: var(--admin-primary-fixed);
-  color: #274e3d;
+  color: #5A3B22;
   border-radius: var(--admin-radius-sm);
   font-size: 0.875rem;
   font-weight: 600;
@@ -518,5 +518,5 @@
 
 .stub-quick-link:hover {
   background: var(--admin-primary-fixed);
-  color: #274e3d;
+  color: #5A3B22;
 }

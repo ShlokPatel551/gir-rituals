@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .pl-page {
   display: flex;
   flex-direction: column;
@@ -61,7 +61,7 @@
   color: #ffffff;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.1s;
-  box-shadow: 0 1px 4px rgba(27, 67, 50, 0.2);
+  box-shadow: 0 1px 4px rgba(90, 59, 34, 0.2);
   white-space: nowrap;
 }
 .pl-add-btn:hover  { opacity: 0.9; }
@@ -108,7 +108,7 @@
   background: #ffffff;
   border-radius: 1rem;
   border: 1px solid var(--admin-outline-variant);
-  box-shadow: 0 1px 6px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 1px 6px rgba(90, 59, 34, 0.06);
   overflow: hidden;
 }
 
@@ -195,7 +195,7 @@
 }
 .pl-th-center    { text-align: center; }
 .pl-th-right     { text-align: right; }
-.pl-th-highlight { background: rgba(1, 45, 29, 0.05); color: var(--admin-primary); }
+.pl-th-highlight { background: rgba(123, 82, 51, 0.05); color: var(--admin-primary); }
 
 /* Rows */
 .pl-row {
@@ -218,7 +218,7 @@
 }
 .pl-td-center    { text-align: center; }
 .pl-td-right     { text-align: right; }
-.pl-td-highlight { background: rgba(1, 45, 29, 0.05); }
+.pl-td-highlight { background: rgba(123, 82, 51, 0.05); }
 
 /* Product cell */
 .pl-product-cell {

@@ -264,7 +264,7 @@ function AdminProduction() {
           {filtered.map(entry =>
             entry.id === "cow_milk" && cat === "all" ? (
               /* Highlight card — dark green */
-              <div key={entry.id} className="pd-card-hl">
+              <div key={entry.id} className="pd-card-hl" style={{ cursor: "pointer" }} onClick={() => navigate(`/admin/production/${entry.id}`)}>
                 <span className="material-symbols-outlined pd-card-hl-bg">{entry.icon}</span>
                 <div className="pd-card-hl-inner">
                   <div className="pd-card-hl-top">
@@ -288,7 +288,7 @@ function AdminProduction() {
               </div>
             ) : (
               /* Normal card — white */
-              <div key={entry.id} className="pd-card">
+              <div key={entry.id} className="pd-card" style={{ cursor: "pointer" }} onClick={() => navigate(`/admin/production/${entry.id}`)}>
                 <span className="material-symbols-outlined pd-card-bg-icon">{entry.icon}</span>
                 <div className="pd-card-inner">
                   <span className="material-symbols-outlined pd-card-icon">{entry.icon}</span>
@@ -359,7 +359,7 @@ function AdminProduction() {
                         <button
                           type="button"
                           className="pd-action-btn pd-action-edit"
-                          onClick={() => showToast(`Editing ${entry.name} entry…`)}
+                          onClick={() => navigate(`/admin/production/${entry.id}/edit`)}
                         >
                           <span className="material-symbols-outlined">edit</span>
                         </button>

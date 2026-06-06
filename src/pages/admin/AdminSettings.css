@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .as-page {
   display: flex;
   flex-direction: column;
@@ -56,7 +56,7 @@
 
 .as-btn-filled:hover {
   opacity: 0.88;
-  box-shadow: 0 4px 12px rgba(1, 45, 29, 0.22);
+  box-shadow: 0 4px 12px rgba(123, 82, 51, 0.22);
 }
 
 .as-btn-outline {
@@ -75,7 +75,7 @@
   transition: background 0.2s;
 }
 
-.as-btn-outline:hover { background: rgba(1, 45, 29, 0.06); }
+.as-btn-outline:hover { background: rgba(123, 82, 51, 0.06); }
 
 .as-btn-add {
   display: inline-flex;
@@ -88,7 +88,7 @@
   font-family: var(--admin-font-body);
   font-size: 0.875rem;
   font-weight: 600;
-  color: #274e3d;
+  color: #5A3B22;
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -255,7 +255,7 @@
 .as-edit-btn:hover {
   background: var(--admin-primary-fixed);
   border-color: var(--admin-primary);
-  color: #274e3d;
+  color: #5A3B22;
 }
 
 /* ── Info cards ── */
@@ -390,14 +390,14 @@
   border-radius: var(--admin-radius-full);
   font-size: 0.75rem;
   font-weight: 600;
-  color: #274e3d;
+  color: #5A3B22;
 }
 
 .as-pulse-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #2d6a4f;
+  background: #7B5233;
   animation: as-pulse 2s ease-in-out infinite;
 }
 
@@ -509,7 +509,7 @@
 
 .as-tab-pill-on {
   background: var(--admin-primary-fixed);
-  color: #274e3d;
+  color: #5A3B22;
 }
 
 .as-tab-pill-off {
@@ -537,7 +537,7 @@
 
 .as-twofa-status-on {
   background: var(--admin-primary-fixed);
-  border: 1px solid rgba(1, 45, 29, 0.15);
+  border: 1px solid rgba(123, 82, 51, 0.15);
 }
 
 .as-twofa-status-off {
@@ -741,7 +741,7 @@
 
 .as-twofa-otp-input:focus {
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.1);
+  box-shadow: 0 0 0 3px rgba(123, 82, 51, 0.1);
 }
 
 .as-twofa-otp-input-error {
@@ -780,7 +780,7 @@
 
 .as-twofa-success-icon {
   font-size: 56px;
-  color: #2d6a4f;
+  color: #7B5233;
 }
 
 .as-twofa-success-title {

@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .inv-page {
   display: flex;
   flex-direction: column;
@@ -37,7 +37,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(1, 45, 29, 0.2);
+  box-shadow: 0 2px 8px rgba(123, 82, 51, 0.2);
   transition: opacity 0.2s;
   white-space: nowrap;
 }
@@ -56,13 +56,13 @@
   background: #ffffff;
   padding: 1.5rem;
   border-radius: 0.75rem;
-  box-shadow: 0 4px 24px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 24px rgba(90, 59, 34, 0.04);
   border-left: 4px solid transparent;
   transition: transform 0.18s, box-shadow 0.18s;
 }
 .inv-kpi-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(27, 67, 50, 0.1);
+  box-shadow: 0 12px 28px rgba(90, 59, 34, 0.1);
 }
 
 .inv-kpi-primary   { border-left-color: var(--admin-primary);   }
@@ -156,7 +156,7 @@
   background: var(--admin-primary);
   border-color: var(--admin-primary);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(1, 45, 29, 0.18);
+  box-shadow: 0 2px 8px rgba(123, 82, 51, 0.18);
 }
 .inv-filter-pill-active:hover { opacity: 0.9; background: var(--admin-primary); }
 
@@ -165,7 +165,7 @@
   background: #ffffff;
   border-radius: 0.75rem;
   border: 1px solid var(--admin-surface-container-high);
-  box-shadow: 0 4px 24px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 24px rgba(90, 59, 34, 0.04);
   overflow: hidden;
 }
 
@@ -274,7 +274,7 @@
   white-space: nowrap;
 }
 
-.inv-cat-milk   { background: rgba(193, 236, 212, 0.3); color: #274e3d; }
+.inv-cat-milk   { background: rgba(193, 236, 212, 0.3); color: #5A3B22; }
 .inv-cat-ghee   { background: rgba(255, 202, 152, 0.3); color: #7a532a; }
 .inv-cat-paneer { background: rgba(255, 183, 129, 0.3); color: #6f3800; }
 .inv-cat-curd   { background: rgba(193, 200, 194, 0.3); color: #414844; }

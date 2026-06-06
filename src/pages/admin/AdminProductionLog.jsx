@@ -1,4 +1,5 @@
-import { useState } from "react";
+﻿import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AdminProductionLog.css";
 
 const DISPLAY_DATE  = "05/06/2026";
@@ -11,7 +12,7 @@ const LOG_ENTRIES = [
     name:         "Cow milk",
     unit:         "Litre (L)",
     icon:         "water_drop",
-    iconBg:       "#c1ecd4",
+    iconBg:       "#F5DFC8",
     iconColor:    "var(--admin-primary)",
     openingQty:   50,   openingUnit: "L",
     freshQty:     20,   freshUnit:   "L",
@@ -99,6 +100,7 @@ function fmt(n) {
 }
 
 function AdminProductionLog() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
 
   const totalIncome = LOG_ENTRIES.reduce((s, e) => s + e.soldQty * e.pricePerUnit, 0);
@@ -255,10 +257,10 @@ function AdminProductionLog() {
                     {/* Actions */}
                     <td className="pl-td pl-td-right">
                       <div className="pl-act-row">
-                        <button type="button" className="pl-act-btn" title="Edit">
+                        <button type="button" className="pl-act-btn" title="Edit" onClick={() => navigate(`/admin/production/${e.id}/edit`)}>
                           <span className="material-symbols-outlined">edit</span>
                         </button>
-                        <button type="button" className="pl-act-btn" title="View">
+                        <button type="button" className="pl-act-btn" title="View" onClick={() => navigate(`/admin/production/${e.id}`)}>
                           <span className="material-symbols-outlined">visibility</span>
                         </button>
                       </div>

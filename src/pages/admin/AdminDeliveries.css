@@ -1,4 +1,4 @@
-/* ── Page wrapper ── */
+﻿/* ── Page wrapper ── */
 .del-page {
   display: flex;
   flex-direction: column;
@@ -66,7 +66,7 @@
 }
 
 .del-btn-outline:hover {
-  background: rgba(1, 45, 29, 0.05);
+  background: rgba(123, 82, 51, 0.05);
 }
 
 .del-btn-filled {
@@ -140,7 +140,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
-  box-shadow: 0 4px 12px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 12px rgba(90, 59, 34, 0.04);
 }
 
 .del-metric-label {
@@ -184,7 +184,7 @@
   background: var(--admin-surface-container-lowest);
   border: 1px solid var(--admin-surface-container);
   border-radius: var(--admin-radius-xl);
-  box-shadow: 0 8px 30px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 8px 30px rgba(90, 59, 34, 0.04);
   overflow: hidden;
 }
 
@@ -244,7 +244,7 @@
 
 .del-badge-delivered {
   background: var(--admin-primary-fixed);
-  color: #274e3d;
+  color: #5A3B22;
 }
 
 .del-badge-out {
@@ -381,7 +381,7 @@
   background: var(--admin-primary);
   color: #fff;
   border: none;
-  box-shadow: 0 8px 24px rgba(1, 45, 29, 0.35);
+  box-shadow: 0 8px 24px rgba(123, 82, 51, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;

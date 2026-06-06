@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .ep-page {
   display: flex;
   flex-direction: column;
@@ -123,7 +123,7 @@
   background: #ffffff;
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.04);
 }
 
 .ep-card-heading {
@@ -328,7 +328,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(1, 45, 29, 0.9);
+  background: rgba(123, 82, 51, 0.9);
   color: #ffffff;
   font-size: 0.5625rem;
   font-weight: 700;
@@ -454,7 +454,7 @@
   cursor: pointer;
   transition: opacity 0.15s, transform 0.1s;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.2);
+  box-shadow: 0 2px 8px rgba(90, 59, 34, 0.2);
 }
 .ep-save-btn:hover { opacity: 0.9; }
 .ep-save-btn:active { transform: scale(0.98); }

@@ -1,4 +1,4 @@
-/* ── Page wrapper ── */
+﻿/* ── Page wrapper ── */
 .comms-page {
   height: calc(100vh - 128px); /* 80px topbar + 24px top + 24px bottom padding */
   display: flex;
@@ -101,7 +101,7 @@
 .comms-ch-btn:hover { background: var(--admin-surface-container-high); color: var(--admin-on-surface); }
 
 .comms-ch-active {
-  background: rgba(1, 45, 29, 0.06) !important;
+  background: rgba(123, 82, 51, 0.06) !important;
   color: var(--admin-primary) !important;
 }
 
@@ -174,14 +174,14 @@
   font-size: 0.8125rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(1, 45, 29, 0.22);
+  box-shadow: 0 2px 8px rgba(123, 82, 51, 0.22);
   transition: opacity 0.2s, background 0.2s;
 }
 
 .comms-broad-btn:hover { opacity: 0.88; }
 
 .comms-broad-sent {
-  background: #166534 !important;
+  background: #5A3B22 !important;
 }
 
 /* ────────────────────────────────
@@ -255,8 +255,8 @@
 .comms-conv-item:hover { background: var(--admin-surface-container-low); }
 
 .comms-conv-active {
-  background: rgba(1, 45, 29, 0.05) !important;
-  border-color: rgba(1, 45, 29, 0.1) !important;
+  background: rgba(123, 82, 51, 0.05) !important;
+  border-color: rgba(123, 82, 51, 0.1) !important;
 }
 
 .comms-conv-top {
@@ -518,7 +518,7 @@
 .comms-bubble-out {
   background: var(--admin-primary);
   border-radius: 16px 16px 0 16px;
-  box-shadow: 0 2px 8px rgba(1, 45, 29, 0.18);
+  box-shadow: 0 2px 8px rgba(123, 82, 51, 0.18);
 }
 
 .comms-bubble-text {
@@ -664,7 +664,7 @@
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(1, 45, 29, 0.3);
+  box-shadow: 0 4px 14px rgba(123, 82, 51, 0.3);
   transition: opacity 0.2s, transform 0.15s;
   flex-shrink: 0;
 }
@@ -697,4 +697,4 @@
 .comms-fab:hover  { transform: scale(1.04); }
 .comms-fab:active { transform: scale(0.96); }
 
-.comms-fab-sent { background: #166534 !important; }
+.comms-fab-sent { background: #5A3B22 !important; }

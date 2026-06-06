@@ -1,4 +1,4 @@
-/* ── Page shell ── */
+﻿/* ── Page shell ── */
 .pd-page {
   display: flex;
   flex-direction: column;
@@ -29,7 +29,7 @@
 }
 .pd-hub-tile:hover {
   border-color: var(--admin-primary);
-  box-shadow: 0 4px 16px rgba(1, 45, 29, 0.1);
+  box-shadow: 0 4px 16px rgba(123, 82, 51, 0.1);
   transform: translateY(-1px);
 }
 
@@ -44,7 +44,7 @@
 }
 .pd-hub-tile-icon .material-symbols-outlined { font-size: 22px; }
 
-.pd-hub-icon-log      { background: rgba(1, 45, 29, 0.08); }
+.pd-hub-icon-log      { background: rgba(123, 82, 51, 0.08); }
 .pd-hub-icon-log .material-symbols-outlined { color: var(--admin-primary); }
 
 .pd-hub-icon-leftover { background: rgba(255, 202, 152, 0.35); }
@@ -103,7 +103,7 @@
   font-family: var(--admin-font-body);
   font-size: 0.875rem;
   font-weight: 600;
-  box-shadow: 0 8px 24px rgba(27, 67, 50, 0.25);
+  box-shadow: 0 8px 24px rgba(90, 59, 34, 0.25);
   animation: pd-toast-in 0.25s ease;
 }
 .pd-toast .material-symbols-outlined { font-size: 20px; }
@@ -212,7 +212,7 @@
 .pd-date-input:focus {
   outline: none;
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+  box-shadow: 0 0 0 3px rgba(123, 82, 51, 0.08);
 }
 
 .pd-date-icon {
@@ -280,8 +280,8 @@
   background: #fff;
   border-radius: 0.75rem;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.05);
-  border-bottom: 4px solid rgba(1, 45, 29, 0.12);
+  box-shadow: 0 2px 8px rgba(90, 59, 34, 0.05);
+  border-bottom: 4px solid rgba(123, 82, 51, 0.12);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -328,7 +328,7 @@
 }
 .pd-stat-trend .material-symbols-outlined { font-size: 14px; }
 
-.pd-trend-up { color: #2e7d32; }
+.pd-trend-up { color: #7B5233; }
 
 .pd-stat-note {
   font-size: 0.75rem;
@@ -449,7 +449,7 @@
   background: var(--admin-primary-container);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  box-shadow: 0 8px 24px rgba(27, 67, 50, 0.22);
+  box-shadow: 0 8px 24px rgba(90, 59, 34, 0.22);
   overflow: hidden;
   transition: transform 0.2s;
 }
@@ -546,14 +546,14 @@
   background: #fff;
   border-radius: 0.75rem;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.05);
+  box-shadow: 0 2px 8px rgba(90, 59, 34, 0.05);
   border: 1px solid var(--admin-outline-variant);
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 .pd-card:hover {
   border-color: var(--admin-primary);
-  box-shadow: 0 8px 24px rgba(27, 67, 50, 0.12);
+  box-shadow: 0 8px 24px rgba(90, 59, 34, 0.12);
   transform: translateY(-2px);
 }
 
@@ -612,7 +612,7 @@
   font-family: var(--admin-font-display);
   font-size: 1.5rem;
   font-weight: 600;
-  color: #274e3d;
+  color: #5A3B22;
   margin: 0;
 }
 
@@ -626,7 +626,7 @@
 .pd-table-wrap {
   background: #fff;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.05);
+  box-shadow: 0 2px 8px rgba(90, 59, 34, 0.05);
   border: 1px solid var(--admin-outline-variant);
   overflow: hidden;
 }

@@ -19,6 +19,9 @@ import { AdminCustomerActiveOrders } from "./pages/admin/AdminCustomerActiveOrde
 import { AdminStockInventory } from "./pages/admin/AdminStockInventory";
 import { AdminLowStock } from "./pages/admin/AdminLowStock";
 import { AdminOutOfStock } from "./pages/admin/AdminOutOfStock";
+import { AdminAddOrder } from "./pages/admin/AdminAddOrder";
+import { AdminOrderDetail } from "./pages/admin/AdminOrderDetail";
+import { AdminEditOrder } from "./pages/admin/AdminEditOrder";
 import { AdminAddProduct } from "./pages/admin/AdminAddProduct";
 import { AdminEditProduct } from "./pages/admin/AdminEditProduct";
 import { AdminViewProduct } from "./pages/admin/AdminViewProduct";
@@ -81,6 +84,9 @@ function AppRoutes() {
         <Route path="customers/:id/active-orders" element={<AdminCustomerActiveOrders />} />
         <Route path="deliveries" element={<AdminDeliveries />} />
         <Route path="orders" element={<AdminOrders />} />
+        <Route path="orders/new" element={<AdminAddOrder />} />
+        <Route path="orders/:id" element={<AdminOrderDetail />} />
+        <Route path="orders/:id/edit" element={<AdminEditOrder />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="products/new" element={<AdminAddProduct />} />
         <Route path="products/:id" element={<AdminViewProduct />} />

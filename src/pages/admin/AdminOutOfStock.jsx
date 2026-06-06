@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminOutOfStock.css";
 
@@ -55,7 +55,7 @@ const OUT_OF_STOCK = [
     id: "PRD-012",
     name: "Flavored Milk Kesar",
     icon: "local_cafe",
-    iconBg: "#c1ecd4",
+    iconBg: "#F5DFC8",
     outDate: "30 May 2024",
     category: "MILK",
     catCls: "os-cat-milk",

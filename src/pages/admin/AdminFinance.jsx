@@ -1,11 +1,11 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminFinance.css";
 const TRANSACTIONS = [
-  { id: "t1", date: "May 27, 2026", customer: "Rajesh Kumar", initials: "RK", avatarBg: "#c1ecd4", avatarColor: "#012d1d", type: "subscription", amount: "\u20B94,500", isDebit: false, status: "completed" },
+  { id: "t1", date: "May 27, 2026", customer: "Rajesh Kumar", initials: "RK", avatarBg: "#F5DFC8", avatarColor: "#7B5233", type: "subscription", amount: "\u20B94,500", isDebit: false, status: "completed" },
   { id: "t2", date: "May 26, 2026", customer: "Sanya Mehta", initials: "SM", avatarBg: "#ffdcbd", avatarColor: "#7a532a", type: "sale", amount: "\u20B91,250", isDebit: false, status: "pending" },
   { id: "t3", date: "May 25, 2026", customer: "Vikram Jain", initials: "VJ", avatarBg: "#ece7e6", avatarColor: "#414844", type: "refund", amount: "\u20B9890", isDebit: true, status: "completed" },
-  { id: "t4", date: "May 25, 2026", customer: "Priya Shah", initials: "PS", avatarBg: "#c1ecd4", avatarColor: "#012d1d", type: "subscription", amount: "\u20B92,100", isDebit: false, status: "completed" },
+  { id: "t4", date: "May 25, 2026", customer: "Priya Shah", initials: "PS", avatarBg: "#F5DFC8", avatarColor: "#7B5233", type: "subscription", amount: "\u20B92,100", isDebit: false, status: "completed" },
   { id: "t5", date: "May 24, 2026", customer: "Anjali Kapoor", initials: "AK", avatarBg: "#ffdcc4", avatarColor: "#5f2f00", type: "sale", amount: "\u20B9600", isDebit: false, status: "completed" },
   { id: "t6", date: "May 23, 2026", customer: "Suresh Joshi", initials: "SJ", avatarBg: "#ffca98", avatarColor: "#7a532a", type: "refund", amount: "\u20B9140", isDebit: true, status: "completed" }
 ];
@@ -28,9 +28,12 @@ const CHART_BARS = [
   { label: "Jun", curr: 75, prev: 80 }
 ];
 const TOOLS = [
-  { icon: "receipt_long", label: "Manage Invoices", sub: "View and send customer receipts", path: "/admin/billing" },
-  { icon: "account_tree", label: "Tax Settings", sub: "GST & Compliance configuration", path: "" },
-  { icon: "card_membership", label: "Subscriptions", sub: "Manage recurring milk deliveries", path: "/admin/billing" }
+  { icon: "receipt_long",    label: "Billing Management",  sub: "View and send customer invoices",      path: "/admin/billing"   },
+  { icon: "local_activity",  label: "Offers & Promotions", sub: "Create and manage discount offers",    path: "/admin/offers"    },
+  { icon: "campaign",        label: "Marketing Campaigns", sub: "SMS, WhatsApp & push campaigns",       path: "/admin/campaigns" },
+  { icon: "analytics",       label: "Reports & Analytics", sub: "Revenue insights and trends",          path: "/admin/analytics" },
+  { icon: "group",           label: "Customers",           sub: "View all customer accounts",           path: "/admin/customers" },
+  { icon: "assignment_return", label: "Refund Requests",   sub: "Review pending refund approvals",      path: "/admin/refunds"   },
 ];
 function AdminFinance() {
   const navigate = useNavigate();

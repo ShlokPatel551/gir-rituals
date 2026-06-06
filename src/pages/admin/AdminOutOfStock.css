@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .os-page {
   display: flex;
   flex-direction: column;
@@ -111,7 +111,7 @@
   background: #ffffff;
   border-radius: 0.75rem;
   border: 1px solid var(--admin-outline-variant);
-  box-shadow: 0 1px 6px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 1px 6px rgba(90, 59, 34, 0.06);
   padding: 1.25rem;
   display: flex;
   align-items: flex-start;
@@ -235,7 +235,7 @@
   background: #ffffff;
   border: 1px solid var(--admin-outline-variant);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 6px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 1px 6px rgba(90, 59, 34, 0.06);
   overflow: hidden;
 }
 
@@ -335,7 +335,7 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
-.os-cat-milk   { background: rgba(165, 208, 185, 0.3); color: #274e3d; }
+.os-cat-milk   { background: rgba(165, 208, 185, 0.3); color: #5A3B22; }
 .os-cat-curd   { background: rgba(255, 220, 189, 0.3); color: #7a532a; }
 .os-cat-butter { background: rgba(255, 220, 196, 0.3); color: #6f3800; }
 .os-cat-paneer { background: rgba(255, 220, 189, 0.25); color: #5c3a1e; }

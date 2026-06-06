@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .cust-page {
   display: flex;
   flex-direction: column;
@@ -43,7 +43,7 @@
   cursor: pointer;
   transition: opacity 0.2s;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(1, 45, 29, 0.2);
+  box-shadow: 0 2px 8px rgba(123, 82, 51, 0.2);
 }
 
 .cust-btn-filled:hover { opacity: 0.88; }
@@ -192,7 +192,7 @@
 }
 
 .cust-search-input:focus {
-  box-shadow: 0 0 0 2px rgba(1, 45, 29, 0.14);
+  box-shadow: 0 0 0 2px rgba(123, 82, 51, 0.14);
 }
 
 .cust-search-input::placeholder { color: var(--admin-outline); }

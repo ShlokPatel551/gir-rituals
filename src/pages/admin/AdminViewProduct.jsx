@@ -1,11 +1,11 @@
-import { useNavigate, useParams } from "react-router-dom";
+﻿import { useNavigate, useParams } from "react-router-dom";
 import "./AdminViewProduct.css";
 
 const PRODUCT_DATA = {
   "PRD-001": {
     id: "PRD-001",
     name: "Cow milk (A2)",
-    icon: "water_drop", iconBg: "#c1ecd4",
+    icon: "water_drop", iconBg: "#F5DFC8",
     icon2: "opacity",   iconBg2: "#d4eef8",
     icon3: "eco",       iconBg3: "#d6f0de",
     category: "Milk",   catCls: "pv-cat-milk",

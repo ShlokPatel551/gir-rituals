@@ -1,4 +1,4 @@
-/* ── Page shell ── */
+﻿/* ── Page shell ── */
 .cb-page {
   display: flex;
   flex-direction: column;
@@ -101,7 +101,7 @@
   border: 1px solid var(--admin-outline-variant);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.04);
 }
 
 .cb-kpi-card-overdue {
@@ -190,14 +190,14 @@
 }
 
 .cb-tag-error { background: var(--admin-error-container); color: var(--admin-on-error-container); }
-.cb-tag-paid  { background: var(--admin-primary-fixed);   color: #274e3d; }
+.cb-tag-paid  { background: var(--admin-primary-fixed);   color: #5A3B22; }
 
 /* ── Table card ── */
 .cb-table-card {
   background: #ffffff;
   border: 1px solid var(--admin-outline-variant);
   border-radius: 0.75rem;
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.04);
   overflow: hidden;
 }
 
@@ -280,7 +280,7 @@
   white-space: nowrap;
 }
 
-.cb-status-paid    { background: var(--admin-primary-fixed);    color: #274e3d; }
+.cb-status-paid    { background: var(--admin-primary-fixed);    color: #5A3B22; }
 .cb-status-unpaid  { background: #ffdcc4;                       color: #6f3800; }
 .cb-status-overdue { background: var(--admin-error);            color: #fff;    }
 .cb-status-bill    { background: #ffdcc4;                       color: #6f3800; }
@@ -466,7 +466,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(1, 45, 29, 0.35);
+  box-shadow: 0 6px 16px rgba(123, 82, 51, 0.35);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .cb-fab:hover       { transform: scale(1.08); }

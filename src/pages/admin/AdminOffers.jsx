@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminOffers.css";
 const PROMOS = [
@@ -127,7 +127,7 @@ function AdminOffers() {
 
         <div className="bento-card promo-stat-card promo-stat-lift">
           <div className="promo-stat-top">
-            <div className="promo-stat-icon-wrap" style={{ background: "#a5d0b9", color: "#274e3d" }}>
+            <div className="promo-stat-icon-wrap" style={{ background: "#D9C5B2", color: "#5A3B22" }}>
               <span className="material-symbols-outlined" style={{ fontSize: 22 }}>trending_up</span>
             </div>
             <span className="promo-stat-badge promo-badge-primary">Top Performing</span>

@@ -248,10 +248,10 @@ function AdminLowStock() {
                     </td>
                     <td className="ls-th-right">
                       <div className="ls-act-row">
-                        <button type="button" className="ls-act-btn" title="Edit product">
+                        <button type="button" className="ls-act-btn" title="Edit product" onClick={() => navigate(`/admin/products/${p.id}/edit`)}>
                           <span className="material-symbols-outlined">edit</span>
                         </button>
-                        <button type="button" className="ls-act-btn" title="View details">
+                        <button type="button" className="ls-act-btn" title="View details" onClick={() => navigate(`/admin/products/${p.id}`)}>
                           <span className="material-symbols-outlined">visibility</span>
                         </button>
                       </div>

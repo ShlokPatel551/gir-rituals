@@ -3,14 +3,39 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
 import "./AdminDashboard.css";
 
-const AVATAR_COLORS = ["#c1ecd4", "#ffdcc4", "#ece7e6", "#ffdcbd", "#a5d0b9"];
+const AVATAR_COLORS = ["#F5DFC8", "#EBE0D2", "#F4E3D0", "#D9C5B2", "#ffdcbd"];
 
-const PRODUCTS = [
-  { name: "Cow milk",     icon: "water_drop",        revenue: "₹4,200" },
-  { name: "Buffalo milk", icon: "opacity",            revenue: "₹2,600" },
-  { name: "Paneer",       icon: "restaurant",         revenue: "₹900"   },
-  { name: "Ghee",         icon: "emoji_food_beverage", revenue: "₹700"  },
+const PRODUCTS_TODAY = [
+  { name: "Cow milk",     icon: "water_drop",         revenue: "₹4,200"   },
+  { name: "Buffalo milk", icon: "opacity",             revenue: "₹2,600"   },
+  { name: "Paneer",       icon: "restaurant",          revenue: "₹900"     },
+  { name: "Ghee",         icon: "emoji_food_beverage", revenue: "₹700"     },
 ];
+
+const PRODUCTS_MONTH = [
+  { name: "Cow milk",     icon: "water_drop",         revenue: "₹1,26,000" },
+  { name: "Buffalo milk", icon: "opacity",             revenue: "₹78,000"   },
+  { name: "Paneer",       icon: "restaurant",          revenue: "₹27,000"   },
+  { name: "Ghee",         icon: "emoji_food_beverage", revenue: "₹21,000"   },
+];
+
+const DONUT_TODAY = {
+  pct: "84%",
+  legend: [
+    { color: "#7B5233", label: "Delivered", val: "148 (84%)", dash: "84 16", offset: "0"   },
+    { color: "#A08060", label: "Pending",   val: "20 (11%)",  dash: "11 89", offset: "-84" },
+    { color: "#ffb781", label: "Paused",    val: "8 (5%)",    dash: "5 95",  offset: "-95" },
+  ],
+};
+
+const DONUT_MONTH = {
+  pct: "92%",
+  legend: [
+    { color: "#7B5233", label: "Delivered", val: "4,180 (92%)", dash: "92 8",  offset: "0"   },
+    { color: "#A08060", label: "Pending",   val: "250 (5%)",    dash: "5 95",  offset: "-92" },
+    { color: "#ffb781", label: "Paused",    val: "120 (3%)",    dash: "3 97",  offset: "-97" },
+  ],
+};
 
 function initials(name = "") {
   return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
@@ -121,57 +146,62 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Today section */}
-      <SectionDivider label={`Today — ${fmtSectionDate()}`} />
+      {/* Dynamic section — switches with toggle */}
+      <SectionDivider label={view === "today" ? `Today — ${fmtSectionDate()}` : `This month — ${fmtMonth()}`} />
 
-      <div className="adm-metrics-grid-6">
-        {todayCards.map(c => <KpiCard key={c.label} {...c} />)}
+      <div className="adm-metrics-grid-6 adm-section-fade" key={view}>
+        {(view === "today" ? todayCards : monthCards).map(c => <KpiCard key={c.label} {...c} />)}
       </div>
 
       {/* Insights: donut + product revenue */}
-      <div className="adm-insights-grid">
+      <div className="adm-insights-grid adm-section-fade" key={`insights-${view}`}>
 
-        {/* Delivery status donut */}
-        <div className="bento-card adm-donut-card">
-          <h4 className="adm-card-heading">Delivery status breakdown</h4>
-          <div className="adm-donut-wrap">
-            <svg viewBox="0 0 36 36" className="adm-donut-svg">
-              <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#e6e1e0" strokeWidth="3" />
-              <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#012d1d" strokeWidth="3"
-                strokeDasharray="84 16" strokeDashoffset="0" />
-              <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#7d562d" strokeWidth="3"
-                strokeDasharray="11 89" strokeDashoffset="-84" />
-              <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#ffb781" strokeWidth="3"
-                strokeDasharray="5 95" strokeDashoffset="-95" />
-            </svg>
-            <div className="adm-donut-center">
-              <span className="adm-donut-pct">84%</span>
-              <span className="adm-donut-lbl">Complete</span>
-            </div>
-          </div>
-          <div className="adm-donut-legend">
-            {[
-              { color: "#012d1d", label: "Delivered", val: "148 (84%)" },
-              { color: "#7d562d", label: "Pending",   val: "20 (11%)"  },
-              { color: "#ffb781", label: "Paused",    val: "8 (5%)"    },
-            ].map(item => (
-              <div key={item.label} className="adm-legend-row">
-                <span className="adm-legend-dot" style={{ background: item.color }} />
-                <span className="adm-legend-name">{item.label}</span>
-                <span className="adm-legend-val">{item.val}</span>
+        {/* Delivery status donut — data swaps on toggle */}
+        {(() => {
+          const donut = view === "today" ? DONUT_TODAY : DONUT_MONTH;
+          return (
+            <div className="bento-card adm-donut-card">
+              <h4 className="adm-card-heading">Delivery status breakdown</h4>
+              <div className="adm-donut-wrap">
+                <svg viewBox="0 0 36 36" className="adm-donut-svg">
+                  <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#e6e1e0" strokeWidth="3" />
+                  {donut.legend.map(seg => (
+                    <circle key={seg.label}
+                      cx="18" cy="18" r="15.915" fill="transparent"
+                      stroke={seg.color} strokeWidth="3"
+                      strokeDasharray={seg.dash}
+                      strokeDashoffset={seg.offset}
+                    />
+                  ))}
+                </svg>
+                <div className="adm-donut-center">
+                  <span className="adm-donut-pct">{donut.pct}</span>
+                  <span className="adm-donut-lbl">Complete</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="adm-donut-legend">
+                {donut.legend.map(item => (
+                  <div key={item.label} className="adm-legend-row">
+                    <span className="adm-legend-dot" style={{ background: item.color }} />
+                    <span className="adm-legend-name">{item.label}</span>
+                    <span className="adm-legend-val">{item.val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Revenue by product */}
         <div className="bento-card adm-product-card">
           <div className="adm-card-heading-row">
-            <h4 className="adm-card-heading">Today's revenue by product</h4>
+            <h4 className="adm-card-heading">
+              {view === "today" ? "Today's" : "This month's"} revenue by product
+            </h4>
             <button className="adm-text-link" onClick={() => navigate("/admin/finance")}>View details</button>
           </div>
           <div className="adm-product-grid">
-            {PRODUCTS.map(p => (
+            {(view === "today" ? PRODUCTS_TODAY : PRODUCTS_MONTH).map(p => (
               <div key={p.name} className="adm-product-tile">
                 <div className="adm-product-icon-wrap">
                   <span className="material-symbols-outlined adm-product-icon">{p.icon}</span>
@@ -182,13 +212,6 @@ function AdminDashboard() {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Monthly section */}
-      <SectionDivider label={`This month — ${fmtMonth()}`} />
-
-      <div className="adm-metrics-grid-6">
-        {monthCards.map(c => <KpiCard key={c.label} {...c} />)}
       </div>
 
       {/* Recent orders table */}
@@ -236,7 +259,7 @@ function AdminDashboard() {
                     <td><span className="adm-amount">{row.amount ? `₹${row.amount}` : "—"}</span></td>
                     <td><span className="adm-badge-paid">Paid</span></td>
                     <td style={{ textAlign: "right" }}>
-                      <button className="adm-view-btn" onClick={() => navigate("/admin/orders")}>View</button>
+                      <button className="adm-view-btn" onClick={() => navigate(`/admin/orders/${row.id}`)}>View</button>
                     </td>
                   </tr>
                 );
@@ -267,7 +290,7 @@ function AdminDashboard() {
             <span className="material-symbols-outlined adm-alert-icon">star</span>
             <p>5 new reviews received</p>
           </div>
-          <button className="adm-alert-action">Read</button>
+          <button className="adm-alert-action" onClick={() => navigate("/admin/analytics")}>Read</button>
         </div>
       </div>
 

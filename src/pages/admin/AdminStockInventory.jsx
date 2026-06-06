@@ -1,15 +1,16 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AdminStockInventory.css";
 
 const INVENTORY = [
   /* ── In stock ── */
-  { id: "PRD-001", name: "Cow Milk A2",      category: "Daily Fresh",      icon: "water_drop",            iconBg: "#c1ecd4", subRate: "₹85",    buyOnce: "₹92",    units: 840,  unitsPct: 84, restockedDate: "Oct 12, 2023", restockedTime: "04:30 AM", stockStatus: "in_stock"     },
+  { id: "PRD-001", name: "Cow Milk A2",      category: "Daily Fresh",      icon: "water_drop",            iconBg: "#F5DFC8", subRate: "₹85",    buyOnce: "₹92",    units: 840,  unitsPct: 84, restockedDate: "Oct 12, 2023", restockedTime: "04:30 AM", stockStatus: "in_stock"     },
   { id: "PRD-003", name: "Cow Ghee A2",      category: "Premium Ghee",     icon: "local_fire_department", iconBg: "#ffca98", subRate: "₹650",   buyOnce: "₹680",   units: 215,  unitsPct: 92, restockedDate: "Oct 14, 2023", restockedTime: "11:15 AM", stockStatus: "in_stock"     },
   { id: "PRD-006", name: "Cheese Block",     category: "Artisanal Cheese", icon: "bakery_dining",         iconBg: "#ffdcbd", subRate: "₹340",   buyOnce: "₹365",   units: 158,  unitsPct: 76, restockedDate: "Oct 10, 2023", restockedTime: "09:00 AM", stockStatus: "in_stock"     },
   { id: "PRD-007", name: "Table Butter",     category: "Fresh Dairy",      icon: "kitchen",               iconBg: "#ffdcc4", subRate: "₹120",   buyOnce: "₹135",   units: 410,  unitsPct: 88, restockedDate: "Oct 13, 2023", restockedTime: "02:45 PM", stockStatus: "in_stock"     },
-  { id: "PRD-010", name: "Buttermilk",       category: "Daily Fresh",      icon: "local_cafe",            iconBg: "#c1ecd4", subRate: "₹45",    buyOnce: "₹50",    units: 1200, unitsPct: 95, restockedDate: "Oct 15, 2023", restockedTime: "06:00 AM", stockStatus: "in_stock"     },
+  { id: "PRD-010", name: "Buttermilk",       category: "Daily Fresh",      icon: "local_cafe",            iconBg: "#F5DFC8", subRate: "₹45",    buyOnce: "₹50",    units: 1200, unitsPct: 95, restockedDate: "Oct 15, 2023", restockedTime: "06:00 AM", stockStatus: "in_stock"     },
   { id: "PRD-012", name: "Sweet Curd",       category: "Fresh Dairy",      icon: "soup_kitchen",          iconBg: "#e6e1e0", subRate: "₹60",    buyOnce: "₹65",    units: 650,  unitsPct: 81, restockedDate: "Oct 14, 2023", restockedTime: "08:20 PM", stockStatus: "in_stock"     },
-  { id: "PRD-009", name: "Lassi (sweet)",    category: "Daily Fresh",      icon: "local_cafe",            iconBg: "#c1ecd4", subRate: "₹35",    buyOnce: "₹42",    units: 480,  unitsPct: 75, restockedDate: "Oct 13, 2023", restockedTime: "07:00 AM", stockStatus: "in_stock"     },
+  { id: "PRD-009", name: "Lassi (sweet)",    category: "Daily Fresh",      icon: "local_cafe",            iconBg: "#F5DFC8", subRate: "₹35",    buyOnce: "₹42",    units: 480,  unitsPct: 75, restockedDate: "Oct 13, 2023", restockedTime: "07:00 AM", stockStatus: "in_stock"     },
   { id: "PRD-011", name: "Peda",             category: "Milk Sweet",       icon: "cake",                  iconBg: "#ffdcbd", subRate: "₹60",    buyOnce: "₹75",    units: 200,  unitsPct: 40, restockedDate: "Oct 11, 2023", restockedTime: "03:00 PM", stockStatus: "in_stock"     },
   /* ── Low stock ── */
   { id: "PRD-002", name: "Buffalo Milk",     category: "Daily Fresh",      icon: "water_drop",            iconBg: "#e6e1e0", subRate: "₹52",    buyOnce: "₹58",    units: 18,   unitsPct: 20, restockedDate: "Oct 08, 2023", restockedTime: "05:00 AM", stockStatus: "low_stock"    },
@@ -33,6 +34,7 @@ const LOW_COUNT = INVENTORY.filter(p => p.stockStatus === "low_stock").length;
 const PAGE_SIZE = 6;
 
 function AdminStockInventory() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("in_stock");
   const [page,   setPage]   = useState(1);
 
@@ -114,10 +116,10 @@ function AdminStockInventory() {
                   </td>
                   <td>
                     <div className="si-act-row">
-                      <button type="button" className="si-act-btn si-act-edit" title="Edit">
+                      <button type="button" className="si-act-btn si-act-edit" title="Edit" onClick={() => navigate(`/admin/products/${p.id}/edit`)}>
                         <span className="material-symbols-outlined">edit_note</span>
                       </button>
-                      <button type="button" className="si-act-btn si-act-view" title="View">
+                      <button type="button" className="si-act-btn si-act-view" title="View" onClick={() => navigate(`/admin/products/${p.id}`)}>
                         <span className="material-symbols-outlined">visibility</span>
                       </button>
                     </div>

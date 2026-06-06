@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .rf-page {
   display: flex;
   flex-direction: column;
@@ -74,7 +74,7 @@
   pointer-events: none;
 }
 
-.rf-glow-primary   { background: rgba(1, 45, 29, 0.05); }
+.rf-glow-primary   { background: rgba(123, 82, 51, 0.05); }
 .rf-glow-secondary { background: rgba(255, 202, 152, 0.15); }
 .rf-glow-tertiary  { background: rgba(95, 47, 0, 0.05); }
 
@@ -280,7 +280,7 @@
 }
 
 .rf-btn-approve:hover {
-  box-shadow: 0 4px 12px rgba(1, 45, 29, 0.25);
+  box-shadow: 0 4px 12px rgba(123, 82, 51, 0.25);
   transform: translateY(-1px);
 }
 
@@ -436,7 +436,7 @@
   background: var(--admin-primary);
   border-radius: var(--admin-radius-xl);
   padding: 1.5rem;
-  box-shadow: 0 8px 24px rgba(1, 45, 29, 0.2);
+  box-shadow: 0 8px 24px rgba(123, 82, 51, 0.2);
   overflow: hidden;
   display: flex;
   flex-direction: column;

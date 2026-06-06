@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .om-page {
   display: flex;
   flex-direction: column;
@@ -292,7 +292,7 @@
 }
 .om-row:hover { background: #f9fafb; }
 
-.om-row-border-sub { border-left-color: #2d6a4f; }
+.om-row-border-sub { border-left-color: #7B5233; }
 .om-row-border-ind { border-left-color: #d97706; }
 .om-row-border-ext { border-left-color: #2563eb; }
 
@@ -347,7 +347,7 @@
   white-space: nowrap;
 }
 
-.om-pill-sub { background: #f0fdf4; color: #15803d; border-color: #6ee7b7; }
+.om-pill-sub { background: #F9F3E9; color: #7B5233; border-color: #D9C5B2; }
 .om-pill-ind { background: #fffbeb; color: #d97706; border-color: #fcd34d; }
 .om-pill-ext { background: #eff6ff; color: #2563eb; border-color: #93c5fd; }
 
@@ -362,7 +362,7 @@
   white-space: nowrap;
 }
 
-.om-pay-monthly   { background: #f0fdf4; color: #15803d; }
+.om-pay-monthly   { background: #F9F3E9; color: #7B5233; }
 .om-pay-unpaid    { background: #fef2f2; color: #dc2626; }
 .om-pay-add-bill  { background: #fff7ed; color: #c2410c; }
 .om-pay-paid-upi  { background: #eff6ff; color: #2563eb; }
@@ -391,13 +391,13 @@
 
 .om-status-pending   { background: #fff7ed;     color: #d97706; }
 .om-status-delivery  { background: #eff6ff;     color: #2563eb; }
-.om-status-delivered { background: transparent; color: #2d6a4f; font-weight: 700; }
+.om-status-delivered { background: transparent; color: #7B5233; font-weight: 700; }
 .om-status-paused    { background: transparent; color: #6b7280; border: 1px solid #e5e7eb; }
 .om-status-cancelled { background: #fee2e2;     color: #991b1b; font-weight: 700; }
 
 .om-status-pending   .om-status-dot { background: #d97706; }
 .om-status-delivery  .om-status-dot { background: #2563eb; }
-.om-status-delivered .om-status-dot { background: #2d6a4f; }
+.om-status-delivered .om-status-dot { background: #7B5233; }
 .om-status-paused    .om-status-dot { background: #9ca3af; }
 .om-status-cancelled .om-status-dot { background: #991b1b; }
 
@@ -466,7 +466,7 @@
   flex-shrink: 0;
 }
 
-.om-bar-sub { background: #2d6a4f; }
+.om-bar-sub { background: #7B5233; }
 .om-bar-ext { background: #2563eb; }
 .om-bar-ind { background: #d97706; }
 

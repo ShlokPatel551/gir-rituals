@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .pf-page {
   display: flex;
   flex-direction: column;
@@ -116,10 +116,10 @@
 
 .pf-kpi-opening { background: var(--admin-surface-container-low); }
 .pf-kpi-fresh   { background: #fff; }
-.pf-kpi-total   { background: rgba(193, 236, 212, 0.2); border-color: rgba(1, 45, 29, 0.15); }
-.pf-kpi-income  { background: #e7f3ee; border-color: rgba(1, 45, 29, 0.15); }
+.pf-kpi-total   { background: rgba(193, 236, 212, 0.2); border-color: rgba(123, 82, 51, 0.15); }
+.pf-kpi-income  { background: #e7f3ee; border-color: rgba(123, 82, 51, 0.15); }
 .pf-kpi-leftover { background: #fef2f2; border-color: rgba(220, 38, 38, 0.2); }
-.pf-kpi-safe    { background: rgba(193, 236, 212, 0.15); border-color: rgba(1, 45, 29, 0.12); }
+.pf-kpi-safe    { background: rgba(193, 236, 212, 0.15); border-color: rgba(123, 82, 51, 0.12); }
 
 .pf-kpi-top {
   display: flex;
@@ -208,7 +208,7 @@
   background: #fff;
   border-radius: 1rem;
   border: 1px solid var(--admin-outline-variant);
-  box-shadow: 0 1px 6px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 1px 6px rgba(90, 59, 34, 0.06);
   overflow: hidden;
 }
 
@@ -306,7 +306,7 @@
 .pf-input:focus {
   outline: none;
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+  box-shadow: 0 0 0 3px rgba(123, 82, 51, 0.08);
 }
 .pf-input::placeholder { color: var(--admin-outline); }
 .pf-input[type="number"]::-webkit-inner-spin-button,
@@ -403,7 +403,7 @@
 .pf-select:focus {
   outline: none;
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+  box-shadow: 0 0 0 3px rgba(123, 82, 51, 0.08);
 }
 
 .pf-select-arrow {
@@ -434,7 +434,7 @@
 .pf-textarea:focus {
   outline: none;
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.08);
+  box-shadow: 0 0 0 3px rgba(123, 82, 51, 0.08);
 }
 .pf-textarea::placeholder { color: var(--admin-outline); }
 
@@ -612,7 +612,7 @@
   font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(1, 45, 29, 0.25);
+  box-shadow: 0 2px 8px rgba(123, 82, 51, 0.25);
   transition: opacity 0.15s, transform 0.1s;
   white-space: nowrap;
 }

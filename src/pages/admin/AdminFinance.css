@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .fin-page {
   display: flex;
   flex-direction: column;
@@ -67,7 +67,7 @@
   font-weight: 600;
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(1, 45, 29, 0.22);
+  box-shadow: 0 2px 8px rgba(123, 82, 51, 0.22);
   transition: opacity 0.2s, transform 0.15s;
 }
 
@@ -113,7 +113,7 @@
   font-weight: 600;
 }
 
-.fin-badge-green { background: var(--admin-primary-fixed); color: #274e3d; }
+.fin-badge-green { background: var(--admin-primary-fixed); color: #5A3B22; }
 .fin-badge-muted { background: var(--admin-surface-container); color: var(--admin-on-surface-variant); }
 
 .fin-metric-label {
@@ -344,7 +344,7 @@
   font-weight: 600;
 }
 
-.fin-cat-subscription { background: var(--admin-primary-fixed); color: #012d1d; }
+.fin-cat-subscription { background: var(--admin-primary-fixed); color: #7B5233; }
 .fin-cat-sale         { background: #ffdcbd; color: #7a532a; }
 .fin-cat-refund       { background: var(--admin-error-container); color: var(--admin-error); }
 
@@ -369,7 +369,7 @@
   font-weight: 600;
 }
 
-.fin-status-completed { background: var(--admin-primary-fixed); color: #274e3d; }
+.fin-status-completed { background: var(--admin-primary-fixed); color: #5A3B22; }
 .fin-status-pending   { background: #ffdcbd; color: #7a532a; }
 
 .fin-status-dot {
@@ -442,7 +442,7 @@
   color: #fff;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(1, 45, 29, 0.28);
+  box-shadow: 0 4px 20px rgba(123, 82, 51, 0.28);
 }
 
 .fin-payout-decor {

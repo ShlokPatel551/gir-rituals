@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .an-page {
   display: flex;
   flex-direction: column;
@@ -69,7 +69,7 @@
 }
 
 .an-btn-export:hover {
-  box-shadow: 0 4px 14px rgba(1, 45, 29, 0.28);
+  box-shadow: 0 4px 14px rgba(123, 82, 51, 0.28);
   transform: translateY(-1px);
 }
 
@@ -127,7 +127,7 @@
   margin: 0;
 }
 
-.an-trend-up   { color: #2d6a4f; }
+.an-trend-up   { color: #7B5233; }
 .an-trend-down { color: var(--admin-error); }
 .an-trend-neutral { color: var(--admin-on-surface-variant); }
 

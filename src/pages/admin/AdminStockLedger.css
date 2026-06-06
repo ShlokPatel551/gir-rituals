@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .sl-page {
   display: flex;
   flex-direction: column;
@@ -32,7 +32,7 @@
   border: 1px solid var(--admin-outline-variant);
   border-radius: 0.625rem;
   padding: 0.5rem 0.875rem;
-  box-shadow: 0 1px 4px rgba(27, 67, 50, 0.05);
+  box-shadow: 0 1px 4px rgba(90, 59, 34, 0.05);
 }
 
 .sl-date-icon {
@@ -98,7 +98,7 @@
   background: #fff;
   border-radius: 1rem;
   padding: 1.375rem 1.25rem 1.25rem;
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.04);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -107,7 +107,7 @@
 }
 .sl-kpi-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(27, 67, 50, 0.06);
+  box-shadow: 0 8px 30px rgba(90, 59, 34, 0.06);
 }
 
 /* Decorative blur-circle */
@@ -173,7 +173,7 @@
 }
 
 .sl-kpi-up {
-  color: #16a34a;
+  color: #8B6B4A;
   font-weight: 700;
 }
 
@@ -226,7 +226,7 @@
 .sl-table-card {
   background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.04);
   overflow: hidden;
 }
 

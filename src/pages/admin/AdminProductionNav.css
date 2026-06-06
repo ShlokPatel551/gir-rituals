@@ -1,4 +1,4 @@
-/* ── Production Quick-Nav Strip ─────────────────────────────── */
+﻿/* ── Production Quick-Nav Strip ─────────────────────────────── */
 .pn-strip {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -25,14 +25,14 @@
 
 .pn-tile:hover:not(:disabled) {
   border-color: var(--admin-primary);
-  box-shadow: 0 4px 16px rgba(1, 45, 29, 0.1);
+  box-shadow: 0 4px 16px rgba(123, 82, 51, 0.1);
   transform: translateY(-1px);
 }
 
 /* Active = current page */
 .pn-tile-active {
   border-color: var(--admin-primary);
-  background: rgba(1, 45, 29, 0.04);
+  background: rgba(123, 82, 51, 0.04);
   cursor: default;
   opacity: 0.85;
 }
@@ -50,7 +50,7 @@
 
 .pn-tile-icon .material-symbols-outlined { font-size: 22px; }
 
-.pn-icon-log      { background: rgba(1, 45, 29, 0.08); }
+.pn-icon-log      { background: rgba(123, 82, 51, 0.08); }
 .pn-icon-log .material-symbols-outlined { color: var(--admin-primary); }
 
 .pn-icon-leftover { background: rgba(255, 202, 152, 0.35); }

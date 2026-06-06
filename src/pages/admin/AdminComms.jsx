@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import "./AdminComms.css";
 const CONVERSATIONS = [
   {
     id: "c1",
     name: "Meera Sharma",
     initials: "MS",
-    avatarBg: "#c1ecd4",
-    avatarColor: "#012d1d",
+    avatarBg: "#F5DFC8",
+    avatarColor: "#7B5233",
     plan: "A2 Desi Ghee Plan",
     preview: '"Is the morning delivery on track?"',
     channel: "whatsapp",
@@ -72,7 +72,7 @@ const QUICK_TEMPLATES = [
 ];
 const CH_BADGE = {
   whatsapp: { label: "WHATSAPP", bg: "#ffca98", color: "#7a532a" },
-  email: { label: "EMAIL", bg: "#c1ecd4", color: "#274e3d" },
+  email: { label: "EMAIL", bg: "#F5DFC8", color: "#5A3B22" },
   sms: { label: "SMS", bg: "#e6e1e0", color: "#414844" }
 };
 const CH_LABEL = {

@@ -1,4 +1,4 @@
-/* ── Page ── */
+﻿/* ── Page ── */
 .ap-page {
   display: flex;
   flex-direction: column;
@@ -76,7 +76,7 @@
   background: #ffffff;
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  box-shadow: 0 4px 20px rgba(90, 59, 34, 0.04);
 }
 
 .ap-card-full {
@@ -157,7 +157,7 @@
 .ap-input::placeholder { color: var(--admin-outline); }
 .ap-input:focus {
   border-color: var(--admin-primary-container);
-  box-shadow: 0 0 0 2px rgba(27, 67, 50, 0.1);
+  box-shadow: 0 0 0 2px rgba(90, 59, 34, 0.1);
 }
 
 .ap-input-disabled {
@@ -397,7 +397,7 @@
   cursor: pointer;
   transition: opacity 0.15s;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.25);
+  box-shadow: 0 2px 8px rgba(90, 59, 34, 0.25);
 }
 .ap-footer-btn-primary:hover { opacity: 0.9; }
 

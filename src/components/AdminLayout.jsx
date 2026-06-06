@@ -196,7 +196,7 @@ function AdminLayout() {
                 <p className="admin-topbar-name">{admin?.name ?? "Admin"}</p>
                 <p className="admin-topbar-org">Gir Rituals HQ</p>
               </div>
-              <div className="admin-topbar-avatar" style={{ background: "#012d1d" }}>
+              <div className="admin-topbar-avatar" style={{ background: "#7B5233" }}>
                 {adminInitials}
               </div>
             </button>
@@ -206,7 +206,7 @@ function AdminLayout() {
     /* Profile header */
   }
                 <div className="admin-user-dd-header">
-                  <div className="admin-user-dd-avatar" style={{ background: "#012d1d" }}>
+                  <div className="admin-user-dd-avatar" style={{ background: "#7B5233" }}>
                     {adminInitials}
                   </div>
                   <div className="admin-user-dd-info">

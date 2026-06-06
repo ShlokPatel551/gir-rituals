@@ -1,4 +1,5 @@
-import { useState } from "react";
+﻿import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AdminOrders.css";
 
 const TABS = [
@@ -12,10 +13,10 @@ const TABS = [
 
 /* Per-status tab active pill colours */
 const TAB_COLORS = {
-  all:              { bg: "rgba(27,67,50,0.07)", text: "#1b4332", border: "rgba(27,67,50,0.25)" },
+  all:              { bg: "rgba(27,67,50,0.07)", text: "#5A3B22", border: "rgba(27,67,50,0.25)" },
   pending:          { bg: "#fffbeb",             text: "#d97706", border: "#fcd34d"              },
   out_for_delivery: { bg: "#eff6ff",             text: "#2563eb", border: "#93c5fd"              },
-  delivered:        { bg: "#f0fdf4",             text: "#166534", border: "#a7f3d0"              },
+  delivered:        { bg: "#F9F3E9",             text: "#5A3B22", border: "#F5DFC8"              },
   paused:           { bg: "#f9fafb",             text: "#4b5563", border: "#e5e7eb"              },
   cancelled:        { bg: "#fef2f2",             text: "#b91c1c", border: "#fca5a5"              },
 };
@@ -45,45 +46,46 @@ const STATUS_META = {
 
 /* Fixed value colours per KPI, separate active-label/border for the highlighted state */
 const KPI = [
-  { label: "Total Orders",     value: "1,284", noteText: "+ 12% this month",  noteColor: "#16a34a", valueColor: "#1b4332", statusKey: null,              activeLabelColor: "#1b4332", activeBorderColor: "#1b4332" },
+  { label: "Total Orders",     value: "1,284", noteText: "+ 12% this month",  noteColor: "#8B6B4A", valueColor: "#5A3B22", statusKey: null,              activeLabelColor: "#5A3B22", activeBorderColor: "#5A3B22" },
   { label: "Pending",          value: "42",    noteText: "need action today", noteColor: "#9ca3af", valueColor: "#d97706", statusKey: "pending",         activeLabelColor: "#d97706", activeBorderColor: "#d97706" },
   { label: "Out for delivery", value: "18",    noteText: "live right now",    noteColor: "#9ca3af", valueColor: "#2563eb", statusKey: "out_for_delivery", activeLabelColor: "#2563eb", activeBorderColor: "#2563eb" },
-  { label: "Delivered",        value: "86",    noteText: "completed today",   noteColor: "#9ca3af", valueColor: "#166534", statusKey: "delivered",        activeLabelColor: "#166534", activeBorderColor: "#16a34a" },
+  { label: "Delivered",        value: "86",    noteText: "completed today",   noteColor: "#9ca3af", valueColor: "#5A3B22", statusKey: "delivered",        activeLabelColor: "#5A3B22", activeBorderColor: "#8B6B4A" },
   { label: "Paused",           value: "12",    noteText: "customer paused",   noteColor: "#9ca3af", valueColor: "#374151", statusKey: "paused",           activeLabelColor: "#4b5563", activeBorderColor: "#9ca3af" },
   { label: "Cancelled",        value: "5",     noteText: "today",             noteColor: "#9ca3af", valueColor: "#b91c1c", statusKey: "cancelled",        activeLabelColor: "#dc2626", activeBorderColor: "#ef4444" },
 ];
 
 const ORDERS = [
   /* ── pending ── */
-  { id: "#ORD-92855", initials: "MP", avatarBg: "#c1ecd4", avatarFg: "#002114", customer: "Meera Patel",    clientId: "CLT-0023", orderType: "subscription", product: "Buffalo Milk",             qty: "1 L",        frequency: "Alternate days",  orderDate: "12 May 2026", deliveryDate: "5 June 2026", amount: "₹1,100", amountNote: "/month",       payment: "monthly_bill",  status: "pending"          },
+  { id: "#ORD-92855", initials: "MP", avatarBg: "#F5DFC8", avatarFg: "#2C1500", customer: "Meera Patel",    clientId: "CLT-0023", orderType: "subscription", product: "Buffalo Milk",             qty: "1 L",        frequency: "Alternate days",  orderDate: "12 May 2026", deliveryDate: "5 June 2026", amount: "₹1,100", amountNote: "/month",       payment: "monthly_bill",  status: "pending"          },
   { id: "#ORD-92872", initials: "SK", avatarBg: "#ffdcbd", avatarFg: "#7a532a", customer: "Sanjay Kapoor", clientId: "CLT-0209", orderType: "individual",   product: "Organic Curd",             qty: "1 kg × 3",   frequency: "One time",        orderDate: "5 June 2026", deliveryDate: "6 June 2026", amount: "₹540",   amountNote: "unpaid",       payment: "unpaid",        status: "pending"          },
   { id: "#ORD-92901", initials: "AR", avatarBg: "#ffdcc4", avatarFg: "#2f1400", customer: "Anita Rao",     clientId: "CLT-0512", orderType: "subscription", product: "A2 Gir Cow Milk",          qty: "1 L",        frequency: "Daily",           orderDate: "2 June 2026", deliveryDate: "5 June 2026", amount: "₹2,040", amountNote: "/month",       payment: "monthly_bill",  status: "pending"          },
-  { id: "#ORD-92910", initials: "DK", avatarBg: "#a5d0b9", avatarFg: "#002114", customer: "Dev Kapadia",   clientId: "CLT-0621", orderType: "extra",        product: "Fresh Paneer",             qty: "500 g",      frequency: "One time add-on", orderDate: "5 June 2026", deliveryDate: "5 June 2026", amount: "₹420",   amountNote: "add to bill",  payment: "add_to_bill",   status: "pending"          },
+  { id: "#ORD-92910", initials: "DK", avatarBg: "#D9C5B2", avatarFg: "#2C1500", customer: "Dev Kapadia",   clientId: "CLT-0621", orderType: "extra",        product: "Fresh Paneer",             qty: "500 g",      frequency: "One time add-on", orderDate: "5 June 2026", deliveryDate: "5 June 2026", amount: "₹420",   amountNote: "add to bill",  payment: "add_to_bill",   status: "pending"          },
   { id: "#ORD-92918", initials: "SM", avatarBg: "#ffca98", avatarFg: "#7a532a", customer: "Sunita Modi",   clientId: "CLT-0788", orderType: "subscription", product: "Cow Ghee A2",              qty: "250 g",      frequency: "Weekly",          orderDate: "10 Mar 2026", deliveryDate: "5 June 2026", amount: "₹1,300", amountNote: "/month",       payment: "monthly_bill",  status: "pending"          },
   /* ── out for delivery ── */
-  { id: "#ORD-92880", initials: "PD", avatarBg: "#c1ecd4", avatarFg: "#002114", customer: "Priya Desai",   clientId: "CLT-0318", orderType: "subscription", product: "A2 Cow Ghee",              qty: "500 g",      frequency: "Weekly",          orderDate: "15 Apr 2026", deliveryDate: "5 June 2026", amount: "₹2,600", amountNote: "/month",       payment: "monthly_bill",  status: "out_for_delivery" },
-  { id: "#ORD-92915", initials: "DK", avatarBg: "#a5d0b9", avatarFg: "#002114", customer: "Dev Kapadia",   clientId: "CLT-0621", orderType: "subscription", product: "A2 Gir Cow Milk",          qty: "3 L",        frequency: "Daily",           orderDate: "1 Feb 2026",  deliveryDate: "5 June 2026", amount: "₹6,120", amountNote: "/month",       payment: "monthly_bill",  status: "out_for_delivery" },
+  { id: "#ORD-92880", initials: "PD", avatarBg: "#F5DFC8", avatarFg: "#2C1500", customer: "Priya Desai",   clientId: "CLT-0318", orderType: "subscription", product: "A2 Cow Ghee",              qty: "500 g",      frequency: "Weekly",          orderDate: "15 Apr 2026", deliveryDate: "5 June 2026", amount: "₹2,600", amountNote: "/month",       payment: "monthly_bill",  status: "out_for_delivery" },
+  { id: "#ORD-92915", initials: "DK", avatarBg: "#D9C5B2", avatarFg: "#2C1500", customer: "Dev Kapadia",   clientId: "CLT-0621", orderType: "subscription", product: "A2 Gir Cow Milk",          qty: "3 L",        frequency: "Daily",           orderDate: "1 Feb 2026",  deliveryDate: "5 June 2026", amount: "₹6,120", amountNote: "/month",       payment: "monthly_bill",  status: "out_for_delivery" },
   { id: "#ORD-92930", initials: "RV", avatarBg: "#ffdcc4", avatarFg: "#2f1400", customer: "Ravi Varma",    clientId: "CLT-0891", orderType: "individual",   product: "Organic Curd",             qty: "1 kg × 2",   frequency: "One time",        orderDate: "4 June 2026", deliveryDate: "5 June 2026", amount: "₹720",   amountNote: "paid",         payment: "paid_upi",      status: "out_for_delivery" },
   { id: "#ORD-92938", initials: "PM", avatarBg: "#ffdcbd", avatarFg: "#7a532a", customer: "Pooja Mehta",   clientId: "CLT-0944", orderType: "extra",        product: "Fresh Paneer",             qty: "500 g",      frequency: "One time add-on", orderDate: "5 June 2026", deliveryDate: "5 June 2026", amount: "₹420",   amountNote: "add to bill",  payment: "add_to_bill",   status: "out_for_delivery" },
   /* ── delivered ── */
   { id: "#ORD-92831", initials: "AS", avatarBg: "#ffdcc4", avatarFg: "#2f1400", customer: "Aditi Sharma",  clientId: "CLT-0010", orderType: "subscription", product: "A2 Gir Milk 2L",           qty: "2 L",        frequency: "Daily",           orderDate: "24 May 2026", deliveryDate: "5 June 2026", amount: "₹1,450", amountNote: "/month",       payment: "monthly_bill",  status: "delivered"        },
-  { id: "#ORD-92840", initials: "RJ", avatarBg: "#c1ecd4", avatarFg: "#002114", customer: "Rajesh Jain",   clientId: "CLT-0045", orderType: "individual",   product: "Raw Honey 250g",           qty: "1 unit",     frequency: "One time",        orderDate: "25 May 2026", deliveryDate: "4 June 2026", amount: "₹650",   amountNote: "paid",         payment: "paid_upi",      status: "delivered"        },
+  { id: "#ORD-92840", initials: "RJ", avatarBg: "#F5DFC8", avatarFg: "#2C1500", customer: "Rajesh Jain",   clientId: "CLT-0045", orderType: "individual",   product: "Raw Honey 250g",           qty: "1 unit",     frequency: "One time",        orderDate: "25 May 2026", deliveryDate: "4 June 2026", amount: "₹650",   amountNote: "paid",         payment: "paid_upi",      status: "delivered"        },
   /* ── paused ── */
   { id: "#ORD-92860", initials: "VM", avatarBg: "#ffdcbd", avatarFg: "#7a532a", customer: "Vikram Mehta",  clientId: "CLT-0156", orderType: "subscription", product: "A2 Gir Milk + Buttermilk", qty: "1L + 500ml", frequency: "Daily",           orderDate: "3 Jan 2026",  deliveryDate: "—",           amount: "₹2,480", amountNote: "/month",       payment: "monthly_bill",  status: "paused"           },
   { id: "#ORD-92944", initials: "SM", avatarBg: "#bfdbfe", avatarFg: "#1e40af", customer: "Sunita Modi",   clientId: "CLT-0788", orderType: "subscription", product: "Fresh Paneer",             qty: "500 g",      frequency: "Weekly",          orderDate: "5 Mar 2026",  deliveryDate: "—",           amount: "₹1,200", amountNote: "/month",       payment: "monthly_bill",  status: "paused"           },
-  { id: "#ORD-92967", initials: "KS", avatarBg: "#bbf7d0", avatarFg: "#15803d", customer: "Kiran Shah",    clientId: "CLT-0901", orderType: "subscription", product: "A2 Gir Cow Milk",          qty: "1.5 L",      frequency: "Daily",           orderDate: "12 Jan 2025", deliveryDate: "—",           amount: "₹3,060", amountNote: "/month",       payment: "monthly_bill",  status: "paused"           },
+  { id: "#ORD-92967", initials: "KS", avatarBg: "#bbf7d0", avatarFg: "#7B5233", customer: "Kiran Shah",    clientId: "CLT-0901", orderType: "subscription", product: "A2 Gir Cow Milk",          qty: "1.5 L",      frequency: "Daily",           orderDate: "12 Jan 2025", deliveryDate: "—",           amount: "₹3,060", amountNote: "/month",       payment: "monthly_bill",  status: "paused"           },
   { id: "#ORD-92981", initials: "MR", avatarBg: "#fecaca", avatarFg: "#dc2626", customer: "Mohan Reddy",   clientId: "CLT-1105", orderType: "subscription", product: "Buffalo Milk",             qty: "2 L",        frequency: "Alternate days",  orderDate: "8 Apr 2026",  deliveryDate: "—",           amount: "₹1,600", amountNote: "/month",       payment: "monthly_bill",  status: "paused"           },
   /* ── cancelled ── */
   { id: "#ORD-92891", initials: "NK", avatarBg: "#fef3c7", avatarFg: "#d97706", customer: "Neha Kulkarni", clientId: "CLT-0445", orderType: "individual",   product: "Fresh Paneer",             qty: "250 g × 2",  frequency: "One time",        orderDate: "4 June 2026", deliveryDate: "—",           amount: "₹350",   amountNote: "refunded",     payment: "refunded",      status: "cancelled"        },
   { id: "#ORD-92962", initials: "RV", avatarBg: "#dbeafe", avatarFg: "#1d4ed8", customer: "Ravi Varma",    clientId: "CLT-0891", orderType: "subscription", product: "Buffalo Milk",             qty: "2 L",        frequency: "Daily",           orderDate: "1 Jan 2025",  deliveryDate: "—",           amount: "₹3,200", amountNote: "pending refund",payment: "pending_refund", status: "cancelled"        },
   { id: "#ORD-92975", initials: "AS", avatarBg: "#fecaca", avatarFg: "#991b1b", customer: "Amit Sharma",   clientId: "CLT-1041", orderType: "individual",   product: "Organic Curd",             qty: "500 g × 3",  frequency: "One time",        orderDate: "3 June 2026", deliveryDate: "—",           amount: "₹540",   amountNote: "refunded",     payment: "refunded",      status: "cancelled"        },
-  { id: "#ORD-92988", initials: "PK", avatarBg: "#dcfce7", avatarFg: "#15803d", customer: "Priti Kumar",   clientId: "CLT-1188", orderType: "subscription", product: "A2 Gir Cow Milk",          qty: "1 L",        frequency: "Daily",           orderDate: "15 Feb 2026", deliveryDate: "—",           amount: "₹2,040", amountNote: "no refund",    payment: "monthly_bill",  status: "cancelled"        },
+  { id: "#ORD-92988", initials: "PK", avatarBg: "#dcfce7", avatarFg: "#7B5233", customer: "Priti Kumar",   clientId: "CLT-1188", orderType: "subscription", product: "A2 Gir Cow Milk",          qty: "1 L",        frequency: "Daily",           orderDate: "15 Feb 2026", deliveryDate: "—",           amount: "₹2,040", amountNote: "no refund",    payment: "monthly_bill",  status: "cancelled"        },
   { id: "#ORD-92870", initials: "VB", avatarBg: "#ffdad6", avatarFg: "#991b1b", customer: "Vinod Bhat",    clientId: "CLT-0301", orderType: "subscription", product: "Gir Milk 1L",              qty: "1 L",        frequency: "Daily",           orderDate: "26 May 2026", deliveryDate: "—",           amount: "₹320",   amountNote: "/month",       payment: "monthly_bill",  status: "cancelled"        },
 ];
 
 const PAGE_SIZE = 5;
 
 function AdminOrders() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("cancelled");
   const [page, setPage] = useState(1);
 
@@ -124,7 +126,7 @@ function AdminOrders() {
           </div>
         </div>
         <div className="om-title-actions">
-          <button type="button" className="om-add-btn">
+          <button type="button" className="om-add-btn" onClick={() => navigate("/admin/orders/new")}>
             <span className="material-symbols-outlined">add</span>
             Add new order
           </button>
@@ -285,11 +287,11 @@ function AdminOrders() {
 
                     <td className="om-td">
                       <div className="om-row-actions">
-                        <button type="button" className="om-action-btn">
+                        <button type="button" className="om-action-btn" onClick={() => navigate(`/admin/orders/${o.id.replace('#', '')}`)}>
                           <span className="material-symbols-outlined om-action-icon">visibility</span>
                           View
                         </button>
-                        <button type="button" className="om-action-btn">
+                        <button type="button" className="om-action-btn" onClick={() => navigate(`/admin/orders/${o.id.replace('#', '')}/edit`)}>
                           <span className="material-symbols-outlined om-action-icon">edit</span>
                           Edit
                         </button>
