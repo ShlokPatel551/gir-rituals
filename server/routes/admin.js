@@ -272,4 +272,31 @@ router.delete('/team/:id', requireAdmin, requireAdminRole('owner'), (req, res) =
   res.json({ success: true });
 });
 
+// ── App Settings (owner only) ─────────────────────────────────────
+const SETTING_KEYS = new Set([
+  'twilio_account_sid', 'twilio_auth_token', 'twilio_whatsapp_from',
+  'twilio_sms_from', 'gst_cgst', 'gst_sgst', 'gst_igst', 'holidays',
+]);
+
+router.get('/settings', requireAdminRole('owner'), (req, res) => {
+  const rows = db.prepare('SELECT key, value FROM app_settings').all();
+  const out  = {};
+  rows.forEach(r => { out[r.key] = r.value; });
+  if (out.twilio_auth_token) out.twilio_auth_token = '••••••••';
+  res.json(out);
+});
+
+router.put('/settings', requireAdminRole('owner'), (req, res) => {
+  const upsert = db.prepare(`
+    INSERT INTO app_settings (key, value, updated_at) VALUES (?, ?, datetime('now'))
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+  `);
+  for (const [k, v] of Object.entries(req.body)) {
+    if (!SETTING_KEYS.has(k)) continue;
+    if (v === '••••••••') continue; // masked placeholder — skip
+    upsert.run(k, String(v));
+  }
+  res.json({ success: true });
+});
+
 export default router;
