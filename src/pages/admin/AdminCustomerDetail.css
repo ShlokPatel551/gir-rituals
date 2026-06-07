@@ -1009,3 +1009,17 @@
 .cd-history-table {
   min-width: 760px;
 }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .cd-topbar      { flex-direction: column; align-items: flex-start; }
+  .cd-actions     { width: 100%; }
+  .cd-actions > * { flex: 1; justify-content: center; }
+  .cd-tabs-row    { gap: 0; }
+  .cd-tab         { font-size: 0.8rem; padding: 0.5rem 0.625rem; }
+  .cd-info-grid   { grid-template-columns: repeat(2, 1fr); }
+  .cd-schedule-grid { grid-template-columns: 1fr; }
+  .cd-ms-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .cd-sub-meta-grid { grid-template-columns: repeat(2, 1fr); }
+  .cd-crumb-title { font-size: 1.125rem; }
+}

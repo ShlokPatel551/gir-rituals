@@ -507,3 +507,14 @@
   background: rgba(255, 255, 255, 0.22);
 }
 
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .adm-greeting-title   { font-size: 1.5rem; }
+  .adm-greeting-row     { flex-direction: column; align-items: flex-start; }
+  .adm-metrics-grid-6   { grid-template-columns: repeat(2, 1fr); }
+  .adm-alerts-grid      { grid-template-columns: 1fr; }
+  .adm-product-grid     { grid-template-columns: repeat(2, 1fr); }
+  .adm-table-header     { flex-direction: column; align-items: flex-start; }
+  .adm-insights-grid    { grid-template-columns: 1fr; }
+}

@@ -756,35 +756,153 @@
 .admin-badge-failed { background: var(--admin-error-container); color: var(--admin-on-error-container); }
 .admin-badge-expired { background: var(--admin-surface-container-high); color: var(--admin-on-surface-variant); }
 
+/* ── Hamburger (mobile only) ── */
+.admin-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 9999px;
+  cursor: pointer;
+  color: var(--admin-on-surface-variant);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.admin-hamburger:hover { background: var(--admin-surface-container-low); }
+.admin-hamburger .material-symbols-outlined { font-size: 24px; }
+
+/* ── Mobile drawer overlay ── */
+.admin-drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 16, 8, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 200;
+}
+
+.admin-drawer {
+  position: relative;
+  width: 280px;
+  max-width: 85vw;
+  height: 100vh;
+  background: var(--admin-primary);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  overflow-y: auto;
+  box-shadow: 8px 0 32px rgba(28, 16, 8, 0.25);
+  animation: drawer-slide-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes drawer-slide-in {
+  from { transform: translateX(-100%); opacity: 0.6; }
+  to   { transform: translateX(0);     opacity: 1;   }
+}
+
+.admin-drawer-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  cursor: pointer;
+  color: var(--admin-primary-fixed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  z-index: 1;
+}
+.admin-drawer-close:hover { background: rgba(255, 255, 255, 0.2); }
+.admin-drawer-close .material-symbols-outlined { font-size: 20px; }
+
+/* ── Mobile search expand ── */
+.admin-search-icon-btn { display: none; }
+
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-  .admin-sidebar {
-    width: 240px;
-  }
+  .admin-sidebar  { width: 240px; }
+  .admin-topbar   { left: 240px; }
+  .admin-main     { margin-left: 240px; }
 
-  .admin-topbar {
-    left: 240px;
-  }
-
-  .admin-main {
-    margin-left: 240px;
-  }
+  .admin-search-wrap { max-width: 280px; }
+  .admin-console-title { font-size: 18px; }
 }
 
 @media (max-width: 768px) {
-  .admin-sidebar {
-    display: none;
-  }
+  /* Show hamburger, hide fixed sidebar */
+  .admin-hamburger      { display: flex; }
+  .admin-sidebar        { display: none; }
+  .admin-drawer-overlay { display: block; }
 
   .admin-topbar {
     left: 0;
+    padding: 0 12px;
+    height: 64px;
+    gap: 8px;
   }
+
+  .admin-topbar-left { gap: 6px; }
+
+  /* Hide search bar by default on mobile; show only when expanded */
+  .admin-search-wrap {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    max-width: 100%;
+    background: var(--admin-surface);
+    border-bottom: 1px solid var(--admin-outline-variant);
+    border-radius: 0;
+    padding: 10px 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    z-index: 50;
+  }
+  .admin-search-wrap.admin-search-expanded { display: flex; }
+
+  .admin-search-input { background: var(--admin-surface-container-low); border-radius: 8px; }
+
+  /* Show search icon button instead */
+  .admin-search-icon-btn { display: flex; }
+
+  .admin-console-title { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+  .admin-topbar-user-info { display: none; }
+  .admin-help-btn { display: none; }
 
   .admin-main {
     margin-left: 0;
+    padding-top: 64px;
   }
 
-  .admin-topbar-user-info {
-    display: none;
+  .admin-content-inner { padding: 16px; }
+
+  /* Notification dropdown full-width on mobile */
+  .admin-notif-dropdown {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    border-radius: 0 0 18px 18px;
   }
+
+  /* User dropdown aligned right but capped */
+  .admin-user-dropdown {
+    right: 0;
+    width: min(300px, calc(100vw - 24px));
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-console-title { display: none; }
+  .admin-topbar-avatar { width: 34px; height: 34px; font-size: 12px; }
+  .admin-content-inner { padding: 12px; }
 }

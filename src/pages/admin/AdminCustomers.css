@@ -474,3 +474,13 @@
   color: var(--admin-on-surface-variant);
   margin: 0;
 }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .cust-page-title      { font-size: 1.5rem; }
+  .cust-header-row      { gap: 0.5rem; }
+  .cust-btn-filled      { width: 100%; justify-content: center; }
+  .cust-search-wrap     { min-width: 100%; max-width: 100%; }
+  .cust-tabs-row        { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .cust-pagination      { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+}

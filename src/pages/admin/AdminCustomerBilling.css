@@ -488,3 +488,12 @@
 .cb-not-found-title { font-family: var(--admin-font-display); font-size: 1.25rem; font-weight: 600; color: var(--admin-on-surface); margin: 0; }
 .cb-back-link       { font-size: 0.875rem; font-weight: 600; color: var(--admin-primary); text-decoration: none; }
 .cb-back-link:hover { text-decoration: underline; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .cb-topbar        { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .cb-btn-whatsapp  { width: 100%; justify-content: center; }
+  .cb-tabs-row      { gap: 1rem; }
+  .cb-section-header { flex-direction: column; align-items: flex-start; }
+  .cb-fab-wrap      { bottom: 1.25rem; right: 1.25rem; }
+}
