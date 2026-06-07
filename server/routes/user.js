@@ -42,7 +42,9 @@ router.get('/wallet', requireAuth, (req, res) => {
 });
 
 router.post('/wallet/add', requireAuth, (req, res) => {
-  const { amount } = req.body;
+  const amount = Number(req.body.amount);
+  if (!amount || amount <= 0 || !isFinite(amount))
+    return res.status(400).json({ error: 'Amount must be a positive number' });
   db.prepare('UPDATE users SET wallet_balance=wallet_balance+? WHERE id=?').run(amount, req.user.id);
   const u = db.prepare('SELECT wallet_balance FROM users WHERE id=?').get(req.user.id);
   res.json({ balance: u.wallet_balance });

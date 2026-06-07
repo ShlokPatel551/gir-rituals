@@ -10,25 +10,49 @@ import { JWT_SECRET as SECRET } from '../lib/secret.js';
 const router = Router();
 
 const REFRESH_COOKIE = 'gir_refresh_token';
-const REFRESH_COOKIE_OPTS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
-  maxAge: 30 * 24 * 60 * 60 * 1000,
-  path: '/api/auth',
-};
 
+function refreshCookieOpts(maxAge) {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge,
+    path: '/api/auth',
+  };
+}
+
+const TTL_SHORT  = 1  * 24 * 60 * 60 * 1000; // 1 day  — no remember me
+const TTL_LONG   = 30 * 24 * 60 * 60 * 1000; // 30 days — remember me
+
+const OTP_MAX_ATTEMPTS = 5;
+
+// ── Password strength ──────────────────────────────────────────────
+function validatePassword(password) {
+  if (!password || password.length < 8) return 'Password must be at least 8 characters';
+  if (!/[A-Z]/.test(password))          return 'Password must contain at least one uppercase letter';
+  if (!/[0-9]/.test(password))          return 'Password must contain at least one number';
+  return null;
+}
+
+// ── Token helpers ──────────────────────────────────────────────────
 function makeAccessToken(payload) {
   return jwt.sign(payload, SECRET, { expiresIn: '15m' });
 }
 
-function issueRefreshToken(userId, isAdmin = false) {
+function issueRefreshToken(userId, isAdmin = false, ttlMs = TTL_LONG, req = null) {
   const token = randomBytes(32).toString('hex');
   const hash  = createHash('sha256').update(token).digest('hex');
-  const exp   = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-  db.prepare('INSERT INTO refresh_tokens (user_id, token_hash, is_admin, expires_at) VALUES (?,?,?,?)')
-    .run(userId, hash, isAdmin ? 1 : 0, exp);
+  const exp   = new Date(Date.now() + ttlMs).toISOString();
+  const ua    = req?.headers?.['user-agent']?.slice(0, 255) || null;
+  const ip    = req?.ip || null;
+  db.prepare(
+    'INSERT INTO refresh_tokens (user_id, token_hash, is_admin, expires_at, user_agent, ip_address) VALUES (?,?,?,?,?,?)'
+  ).run(userId, hash, isAdmin ? 1 : 0, exp, ua, ip);
   return token;
+}
+
+function revokeAllUserTokens(userId) {
+  db.prepare('UPDATE refresh_tokens SET revoked=1 WHERE user_id=? AND revoked=0').run(userId);
 }
 
 function buildUserPayload(user, addresses = []) {
@@ -51,17 +75,18 @@ function buildUserPayload(user, addresses = []) {
 
 // POST /api/auth/login
 router.post('/login', (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, rememberMe = false } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
   if (!user || !bcrypt.compareSync(password, user.password_hash))
     return res.status(401).json({ error: 'Incorrect email or password' });
 
+  const ttl      = rememberMe ? TTL_LONG : TTL_SHORT;
   const addresses = db.prepare('SELECT * FROM addresses WHERE user_id = ?').all(user.id);
   const payload   = buildUserPayload(user, addresses);
-  const refresh   = issueRefreshToken(user.id, false);
-  res.cookie(REFRESH_COOKIE, refresh, REFRESH_COOKIE_OPTS);
+  const refresh   = issueRefreshToken(user.id, false, ttl, req);
+  res.cookie(REFRESH_COOKIE, refresh, refreshCookieOpts(ttl));
   res.json({ token: makeAccessToken(payload), user: payload });
 });
 
@@ -69,6 +94,9 @@ router.post('/login', (req, res) => {
 router.post('/register', (req, res) => {
   const { firstName, lastName, email, phone, password, billingAddress, deliveryAddress } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+
+  const pwErr = validatePassword(password);
+  if (pwErr) return res.status(400).json({ error: pwErr });
 
   if (db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase()))
     return res.status(409).json({ error: 'Email already registered' });
@@ -88,9 +116,9 @@ router.post('/register', (req, res) => {
   const newUser   = db.prepare('SELECT * FROM users WHERE id = ?').get(uid);
   const addresses = db.prepare('SELECT * FROM addresses WHERE user_id = ?').all(uid);
   const payload   = buildUserPayload(newUser, addresses);
-  const refresh   = issueRefreshToken(uid, false);
+  const refresh   = issueRefreshToken(uid, false, TTL_LONG, req);
   notify(uid, 'Welcome to Gir Rituals!', `Hello ${firstName}, your ritual sanctuary is ready. Explore our pure A2 dairy products and start your daily ritual.`, '/home');
-  res.cookie(REFRESH_COOKIE, refresh, REFRESH_COOKIE_OPTS);
+  res.cookie(REFRESH_COOKIE, refresh, refreshCookieOpts(TTL_LONG));
   res.status(201).json({ token: makeAccessToken(payload), user: payload });
 });
 
@@ -100,9 +128,17 @@ router.post('/refresh', (req, res) => {
   if (!rawToken) return res.status(401).json({ error: 'No refresh token' });
 
   const hash   = createHash('sha256').update(rawToken).digest('hex');
-  const stored = db.prepare('SELECT * FROM refresh_tokens WHERE token_hash=? AND revoked=0').get(hash);
+  const stored = db.prepare('SELECT * FROM refresh_tokens WHERE token_hash=?').get(hash);
 
-  if (!stored) return res.status(401).json({ error: 'Invalid or revoked refresh token' });
+  if (!stored) return res.status(401).json({ error: 'Invalid refresh token' });
+
+  // Token reuse detection: if already revoked, someone may have stolen it — invalidate all sessions
+  if (stored.revoked) {
+    revokeAllUserTokens(stored.user_id);
+    res.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
+    return res.status(401).json({ error: 'Token reuse detected. All sessions have been revoked.' });
+  }
+
   if (new Date(stored.expires_at) < new Date()) {
     db.prepare('UPDATE refresh_tokens SET revoked=1 WHERE id=?').run(stored.id);
     return res.status(401).json({ error: 'Refresh token expired' });
@@ -111,14 +147,18 @@ router.post('/refresh', (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id=?').get(stored.user_id);
   if (!user) return res.status(401).json({ error: 'User not found' });
 
-  // Token rotation: revoke old, issue new refresh token
+  // Token rotation: revoke old, issue new with same TTL
   db.prepare('UPDATE refresh_tokens SET revoked=1 WHERE id=?').run(stored.id);
+  const originalTtl = new Date(stored.expires_at) - new Date(stored.created_at);
   const newRaw  = randomBytes(32).toString('hex');
   const newHash = createHash('sha256').update(newRaw).digest('hex');
-  const exp     = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-  db.prepare('INSERT INTO refresh_tokens (user_id, token_hash, is_admin, expires_at) VALUES (?,?,?,?)').run(stored.user_id, newHash, stored.is_admin, exp);
-
-  res.cookie(REFRESH_COOKIE, newRaw, REFRESH_COOKIE_OPTS);
+  const exp     = new Date(Date.now() + originalTtl).toISOString();
+  const ua      = req.headers?.['user-agent']?.slice(0, 255) || null;
+  const ip      = req.ip || null;
+  db.prepare(
+    'INSERT INTO refresh_tokens (user_id, token_hash, is_admin, expires_at, user_agent, ip_address) VALUES (?,?,?,?,?,?)'
+  ).run(stored.user_id, newHash, stored.is_admin, exp, ua, ip);
+  res.cookie(REFRESH_COOKIE, newRaw, refreshCookieOpts(originalTtl));
 
   let payload;
   if (stored.is_admin) {
@@ -145,6 +185,7 @@ router.post('/logout', (req, res) => {
 // POST /api/auth/otp/send
 router.post('/otp/send', (req, res) => {
   const { identifier } = req.body;
+  if (!identifier) return res.status(400).json({ error: 'Identifier required' });
   const code      = String(Math.floor(100000 + Math.random() * 900000));
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
   db.prepare('DELETE FROM otps WHERE identifier = ?').run(identifier);
@@ -159,34 +200,54 @@ router.post('/otp/send', (req, res) => {
 router.post('/otp/verify', (req, res) => {
   const { identifier, code } = req.body;
   const otp = db.prepare('SELECT * FROM otps WHERE identifier=? AND used=0 ORDER BY created_at DESC LIMIT 1').get(identifier);
-  if (!otp)                               return res.status(400).json({ error: 'No OTP found' });
+  if (!otp)                                  return res.status(400).json({ error: 'No OTP found' });
+  if (otp.attempts >= OTP_MAX_ATTEMPTS)      return res.status(429).json({ error: 'Too many attempts. Request a new OTP.' });
   if (new Date(otp.expires_at) < new Date()) return res.status(400).json({ error: 'OTP expired' });
   if (otp.code !== String(code)) {
     db.prepare('UPDATE otps SET attempts=attempts+1 WHERE id=?').run(otp.id);
-    return res.status(400).json({ error: 'Invalid OTP' });
+    const remaining = OTP_MAX_ATTEMPTS - (otp.attempts + 1);
+    return res.status(400).json({ error: `Invalid OTP. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.` });
   }
   db.prepare('UPDATE otps SET used=1 WHERE id=?').run(otp.id);
   res.json({ success: true });
 });
 
-// POST /api/auth/google
-router.post('/google', (req, res) => {
-  const { email, firstName, lastName } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email required' });
+// POST /api/auth/google  — verifies access token with Google, never trusts client-supplied email
+router.post('/google', async (req, res) => {
+  const { accessToken } = req.body;
+  if (!accessToken) return res.status(400).json({ error: 'Access token required' });
 
-  let user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
+  let info;
+  try {
+    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!r.ok) return res.status(401).json({ error: 'Invalid Google access token' });
+    info = await r.json();
+  } catch {
+    return res.status(502).json({ error: 'Could not reach Google to verify token' });
+  }
+
+  const email = info.email?.toLowerCase().trim();
+  if (!email)            return res.status(400).json({ error: 'Email not provided by Google' });
+  if (!info.email_verified) return res.status(401).json({ error: 'Google email not verified' });
+
+  const firstName = info.given_name  || info.name?.split(' ')[0] || 'User';
+  const lastName  = info.family_name || info.name?.split(' ').slice(1).join(' ') || '';
+
+  let user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
   if (!user) {
     const chars    = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const clientId = 'GR' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
     const { lastInsertRowid: uid } = db.prepare(
       'INSERT INTO users (client_id,first_name,last_name,email,phone,password_hash) VALUES (?,?,?,?,?,?)'
-    ).run(clientId, firstName || 'User', lastName || '', email.toLowerCase().trim(), '', '');
+    ).run(clientId, firstName, lastName, email, '', '');
     user = db.prepare('SELECT * FROM users WHERE id = ?').get(uid);
   }
   const addresses = db.prepare('SELECT * FROM addresses WHERE user_id = ?').all(user.id);
   const payload   = buildUserPayload(user, addresses);
-  const refresh   = issueRefreshToken(user.id, false);
-  res.cookie(REFRESH_COOKIE, refresh, REFRESH_COOKIE_OPTS);
+  const refresh   = issueRefreshToken(user.id, false, TTL_LONG, req);
+  res.cookie(REFRESH_COOKIE, refresh, refreshCookieOpts(TTL_LONG));
   res.json({ token: makeAccessToken(payload), user: payload });
 });
 
@@ -206,23 +267,23 @@ router.post('/apple', async (req, res) => {
     const publicKey = createPublicKey({ key: jwk, format: 'jwk' });
     const pem       = publicKey.export({ type: 'spki', format: 'pem' });
     const decoded   = jwt.verify(identityToken, pem, { algorithms: ['RS256'] });
-    const email     = decoded.email || appleEmail;
+    const email     = (decoded.email || appleEmail)?.toLowerCase().trim();
     if (!email) return res.status(400).json({ error: 'Email not provided by Apple' });
 
-    let user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
+    let user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     if (!user) {
       const chars    = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       const clientId = 'GR' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
       const { lastInsertRowid: uid } = db.prepare(
         'INSERT INTO users (client_id,first_name,last_name,email,phone,password_hash) VALUES (?,?,?,?,?,?)'
-      ).run(clientId, firstName || 'User', lastName || '', email.toLowerCase().trim(), '', '');
+      ).run(clientId, firstName || 'User', lastName || '', email, '', '');
       user = db.prepare('SELECT * FROM users WHERE id = ?').get(uid);
     }
 
     const addresses = db.prepare('SELECT * FROM addresses WHERE user_id = ?').all(user.id);
     const payload   = buildUserPayload(user, addresses);
-    const refresh   = issueRefreshToken(user.id, false);
-    res.cookie(REFRESH_COOKIE, refresh, REFRESH_COOKIE_OPTS);
+    const refresh   = issueRefreshToken(user.id, false, TTL_LONG, req);
+    res.cookie(REFRESH_COOKIE, refresh, refreshCookieOpts(TTL_LONG));
     res.json({ token: makeAccessToken(payload), user: payload });
   } catch (err) {
     console.error('Apple auth error:', err.message);
@@ -254,9 +315,13 @@ router.post('/reset-password', (req, res) => {
   const { email, code, newPassword } = req.body;
   if (!email || !code || !newPassword) return res.status(400).json({ error: 'Email, code, and new password required' });
 
+  const pwErr = validatePassword(newPassword);
+  if (pwErr) return res.status(400).json({ error: pwErr });
+
   const key = email.toLowerCase().trim();
   const otp = db.prepare('SELECT * FROM otps WHERE identifier=? AND used=0 ORDER BY created_at DESC LIMIT 1').get(key);
-  if (!otp) return res.status(400).json({ error: 'No OTP found. Request a new one.' });
+  if (!otp)                                  return res.status(400).json({ error: 'No OTP found. Request a new one.' });
+  if (otp.attempts >= OTP_MAX_ATTEMPTS)      return res.status(429).json({ error: 'Too many attempts. Request a new OTP.' });
   if (new Date(otp.expires_at) < new Date()) return res.status(400).json({ error: 'OTP expired' });
   if (otp.code !== String(code)) {
     db.prepare('UPDATE otps SET attempts=attempts+1 WHERE id=?').run(otp.id);
@@ -271,6 +336,9 @@ router.post('/reset-password', (req, res) => {
 router.post('/change-password', requireAuth, (req, res) => {
   const { currentPassword, newPassword } = req.body;
   if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Current and new password required' });
+
+  const pwErr = validatePassword(newPassword);
+  if (pwErr) return res.status(400).json({ error: pwErr });
 
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
   if (!user || !user.password_hash || !bcrypt.compareSync(currentPassword, user.password_hash))

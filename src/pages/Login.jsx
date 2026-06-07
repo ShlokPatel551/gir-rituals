@@ -50,11 +50,7 @@ function GoogleLoginBtn({ onError, onStart, onFinish, disabled }) {
     onSuccess: async (tokenResponse) => {
       onStart();
       try {
-        const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        });
-        const info = await res.json();
-        const { token, user } = await handleGoogleUser(info);
+        const { token, user } = await handleGoogleUser(tokenResponse);
         login(user, token);
         navigate("/home");
       } catch {
@@ -148,6 +144,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -174,7 +171,7 @@ function Login() {
     setError("");
     setLoading(true);
     try {
-      const { token, user } = await api.login(email.trim(), password);
+      const { token, user } = await api.login(email.trim(), password, rememberMe);
       login(user, token);
       navigate("/home");
     } catch (err) {
@@ -286,7 +283,11 @@ function Login() {
 
             <div className="lr-form-row">
               <label className="lr-remember">
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={e => setRememberMe(e.target.checked)}
+                />
                 <span>Remember Me</span>
               </label>
               <Link to="/forgot-password" className="lr-forgot">Forgot Password?</Link>

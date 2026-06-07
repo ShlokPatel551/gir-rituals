@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
 import { createRequire } from 'module';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -38,7 +39,19 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 // ── Security headers ───────────────────────────────────────────────
 app.use(helmet({
-  contentSecurityPolicy: false,      // React + Google Fonts needs custom CSP — configure separately
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:  ["'self'"],
+      scriptSrc:   ["'self'", "'unsafe-inline'"],   // React SPA inlines scripts in dev
+      styleSrc:    ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:     ["'self'", "https://fonts.gstatic.com", "data:"],
+      imgSrc:      ["'self'", "data:", "https:", "blob:"],
+      connectSrc:  ["'self'", "https://accounts.google.com", "https://www.googleapis.com", "https://appleid.apple.com"],
+      frameSrc:    ["'none'"],
+      objectSrc:   ["'none'"],
+      upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
+    },
+  },
   crossOriginEmbedderPolicy: false,  // Allow embedded resources (images, fonts)
 }));
 
@@ -56,7 +69,35 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
+// ── Rate limiters ──────────────────────────────────────────────────
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+});
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many OTP requests. Please wait 15 minutes.' },
+});
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many registration attempts. Please try again later.' },
+});
+
 // ── API routes ─────────────────────────────────────────────────────
+app.post('/api/auth/login',            loginLimiter);
+app.post('/api/admin/login',           loginLimiter);
+app.post('/api/auth/register',         registerLimiter);
+app.post('/api/auth/otp/send',         otpLimiter);
+app.post('/api/auth/forgot-password',  otpLimiter);
 app.use('/api/auth',          authRoutes);
 app.use('/api/products',      productRoutes);
 app.use('/api/bills',         billRoutes);

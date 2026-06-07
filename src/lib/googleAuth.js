@@ -3,10 +3,10 @@ import { api } from "./api";
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || null;
 const googleEnabled = !!GOOGLE_CLIENT_ID;
 
-async function handleGoogleUser(info) {
-  const firstName = info.given_name || info.name?.split(" ")[0] || "User";
-  const lastName = info.family_name || info.name?.split(" ").slice(1).join(" ") || "";
-  return api.googleAuth(info.email, firstName, lastName);
+// tokenResponse is the object from useGoogleLogin onSuccess — contains access_token
+// Backend verifies the token with Google directly; we never trust client-supplied email
+async function handleGoogleUser(tokenResponse) {
+  return api.googleAuth(tokenResponse.access_token);
 }
 
 export { GOOGLE_CLIENT_ID, googleEnabled, handleGoogleUser };

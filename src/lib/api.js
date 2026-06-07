@@ -72,12 +72,12 @@ async function request(path, options = {}, _isRetry = false) {
 
 export const api = {
   // Auth
-  login:           (email, password)              => request('/auth/login',           { method: 'POST', body: { email, password } }),
+  login:           (email, password, rememberMe)  => request('/auth/login',           { method: 'POST', body: { email, password, rememberMe: !!rememberMe } }),
   register:        (data)                         => request('/auth/register',         { method: 'POST', body: data }),
   logout:          ()                             => request('/auth/logout',           { method: 'POST' }),
   sendOtp:         (identifier)                   => request('/auth/otp/send',         { method: 'POST', body: { identifier } }),
   verifyOtp:       (identifier, code)             => request('/auth/otp/verify',       { method: 'POST', body: { identifier, code } }),
-  googleAuth:      (email, firstName, lastName)   => request('/auth/google',           { method: 'POST', body: { email, firstName, lastName } }),
+  googleAuth:      (accessToken)                  => request('/auth/google',           { method: 'POST', body: { accessToken } }),
   appleAuth:       (identityToken, firstName, lastName, email) => request('/auth/apple', { method: 'POST', body: { identityToken, firstName, lastName, email } }),
   forgotPassword:  (email)                        => request('/auth/forgot-password',  { method: 'POST', body: { email } }),
   resetPassword:   (email, code, newPassword)     => request('/auth/reset-password',   { method: 'POST', body: { email, code, newPassword } }),
