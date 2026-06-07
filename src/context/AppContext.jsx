@@ -82,7 +82,8 @@ function AppProvider({ children }) {
   const login = useCallback((u, token) => persist(u, token), [persist]);
   const register = useCallback((u, token) => persist(u, token), [persist]);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try { await api.logout(); } catch {}
     localStorage.removeItem("gir_session");
     localStorage.removeItem("gir_user");
     localStorage.removeItem("gir_token");

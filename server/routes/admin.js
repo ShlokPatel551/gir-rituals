@@ -1,11 +1,21 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { randomBytes, createHash } from 'crypto';
 import db from '../db.js';
 import { requireAdmin } from '../middleware/auth.js';
 import { JWT_SECRET as SECRET } from '../lib/secret.js';
 
 const router = Router();
+
+const REFRESH_COOKIE = 'gir_refresh_token';
+const REFRESH_COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+  path: '/api/auth',
+};
 
 function paginate(req) {
   const limit  = Math.min(parseInt(req.query.limit)  || 50, 100);
@@ -20,7 +30,15 @@ router.post('/login', (req, res) => {
   const u = db.prepare('SELECT * FROM users WHERE email=? AND is_admin=1').get(email?.toLowerCase());
   if (!u || !bcrypt.compareSync(password, u.password_hash))
     return res.status(401).json({ error: 'Invalid credentials' });
-  const token = jwt.sign({ id: u.id, email: u.email, name: `${u.first_name} ${u.last_name}`, isAdmin: true }, SECRET, { expiresIn: '1d' });
+
+  const token = jwt.sign({ id: u.id, email: u.email, name: `${u.first_name} ${u.last_name}`, isAdmin: true, role: 'admin' }, SECRET, { expiresIn: '15m' });
+
+  const raw  = randomBytes(32).toString('hex');
+  const hash = createHash('sha256').update(raw).digest('hex');
+  const exp  = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  db.prepare('INSERT INTO refresh_tokens (user_id, token_hash, is_admin, expires_at) VALUES (?,?,1,?)').run(u.id, hash, exp);
+
+  res.cookie(REFRESH_COOKIE, raw, REFRESH_COOKIE_OPTS);
   res.json({ token, name: `${u.first_name} ${u.last_name}` });
 });
 

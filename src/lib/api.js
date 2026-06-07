@@ -4,10 +4,47 @@ function getToken() {
   return localStorage.getItem('gir_admin_token') || localStorage.getItem('gir_token');
 }
 
-async function request(path, { method = 'GET', body, headers = {} } = {}) {
+function setStoredToken(token) {
+  if (localStorage.getItem('gir_admin_token')) {
+    localStorage.setItem('gir_admin_token', token);
+  } else {
+    localStorage.setItem('gir_token', token);
+  }
+}
+
+function clearStoredTokens() {
+  const wasAdmin = !!localStorage.getItem('gir_admin_token');
+  localStorage.removeItem('gir_token');
+  localStorage.removeItem('gir_user');
+  localStorage.removeItem('gir_admin_token');
+  return wasAdmin;
+}
+
+let _refreshPromise = null;
+
+async function doRefresh() {
+  if (_refreshPromise) return _refreshPromise;
+  _refreshPromise = fetch(`${BASE}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.token) throw new Error('Refresh failed');
+      setStoredToken(data.token);
+      return data.token;
+    })
+    .finally(() => { _refreshPromise = null; });
+  return _refreshPromise;
+}
+
+async function request(path, options = {}, _isRetry = false) {
+  const { method = 'GET', body, headers = {} } = options;
   const token = getToken();
   const res = await fetch(`${BASE}${path}`, {
     method,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -15,6 +52,19 @@ async function request(path, { method = 'GET', body, headers = {} } = {}) {
     },
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
+
+  // Auto-refresh on 401, but not if this is already a retry or the refresh endpoint itself
+  if (res.status === 401 && !_isRetry && path !== '/auth/refresh') {
+    try {
+      await doRefresh();
+      return request(path, options, true);
+    } catch {
+      clearStoredTokens();
+      window.location.href = '/';
+      throw new Error('Session expired. Please log in again.');
+    }
+  }
+
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
@@ -24,6 +74,7 @@ export const api = {
   // Auth
   login:           (email, password)              => request('/auth/login',           { method: 'POST', body: { email, password } }),
   register:        (data)                         => request('/auth/register',         { method: 'POST', body: data }),
+  logout:          ()                             => request('/auth/logout',           { method: 'POST' }),
   sendOtp:         (identifier)                   => request('/auth/otp/send',         { method: 'POST', body: { identifier } }),
   verifyOtp:       (identifier, code)             => request('/auth/otp/verify',       { method: 'POST', body: { identifier, code } }),
   googleAuth:      (email, firstName, lastName)   => request('/auth/google',           { method: 'POST', body: { email, firstName, lastName } }),

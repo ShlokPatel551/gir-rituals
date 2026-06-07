@@ -1,0 +1,15 @@
+CREATE INDEX IF NOT EXISTS idx_addresses_user_id        ON addresses(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id    ON subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_deliveries_sub_id        ON deliveries(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_deliveries_date          ON deliveries(date);
+CREATE INDEX IF NOT EXISTS idx_orders_user_id           ON orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_created_at        ON orders(created_at);
+CREATE INDEX IF NOT EXISTS idx_bills_user_id            ON bills(user_id);
+CREATE INDEX IF NOT EXISTS idx_bills_status             ON bills(status);
+CREATE INDEX IF NOT EXISTS idx_bill_items_bill_id       ON bill_items(bill_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id    ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_user_id  ON payment_methods(user_id);
+CREATE INDEX IF NOT EXISTS idx_stmt_entries_user_id     ON statement_entries(user_id);
+CREATE INDEX IF NOT EXISTS idx_stmt_entries_month       ON statement_entries(month);
+CREATE INDEX IF NOT EXISTS idx_otps_identifier          ON otps(identifier);

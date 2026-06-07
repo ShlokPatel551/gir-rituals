@@ -1,3 +1,5 @@
+import { api } from './api';
+
 const ADMIN_TOKEN_KEY = "gir_admin_token";
 
 function getAdminToken() {
@@ -13,7 +15,8 @@ function isAdminLoggedIn() {
   if (!token) return false;
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
-    return !!payload.isAdmin && payload.exp * 1000 > Date.now();
+    // Don't check expiry here — auto-refresh in api.js handles token renewal
+    return !!payload.isAdmin;
   } catch {
     return false;
   }
@@ -30,7 +33,8 @@ function getAdminSession() {
   }
 }
 
-function logoutAdmin() {
+async function logoutAdmin() {
+  try { await api.logout(); } catch {}
   localStorage.removeItem(ADMIN_TOKEN_KEY);
 }
 

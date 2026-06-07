@@ -1,10 +1,12 @@
 import 'dotenv/config';
 import express from 'express';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { createRequire } from 'module';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import db from './db.js';
+import { runMigrations } from './lib/migrate.js';
 import cors from 'cors';
 import authRoutes         from './routes/auth.js';
 import productRoutes      from './routes/products.js';
@@ -20,6 +22,14 @@ import adminRoutes        from './routes/admin.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app       = express();
 const PORT      = process.env.PORT || 3001;
+
+// Run schema migrations before anything else
+runMigrations();
+
+// Clean up expired refresh tokens (lazy housekeeping)
+try {
+  db.exec("DELETE FROM refresh_tokens WHERE expires_at < datetime('now', '-7 days')");
+} catch {}
 
 // ── CORS ───────────────────────────────────────────────────────────
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -41,7 +51,9 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error('Not allowed by CORS'));
   },
+  credentials: true,
 }));
+app.use(cookieParser());
 app.use(express.json());
 
 // ── API routes ─────────────────────────────────────────────────────

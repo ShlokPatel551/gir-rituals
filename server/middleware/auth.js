@@ -14,7 +14,20 @@ export function requireAuth(req, res, next) {
 
 export function requireAdmin(req, res, next) {
   requireAuth(req, res, () => {
-    if (!req.user.isAdmin) return res.status(403).json({ error: 'Forbidden' });
+    if (req.user.role !== 'admin' && !req.user.isAdmin)
+      return res.status(403).json({ error: 'Forbidden' });
     next();
   });
+}
+
+// Flexible role guard: requireRole('admin', 'staff')
+export function requireRole(...roles) {
+  return (req, res, next) => {
+    requireAuth(req, res, () => {
+      const userRole = req.user.role || (req.user.isAdmin ? 'admin' : 'customer');
+      if (!roles.includes(userRole))
+        return res.status(403).json({ error: 'Forbidden' });
+      next();
+    });
+  };
 }
