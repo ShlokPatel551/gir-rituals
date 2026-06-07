@@ -1,47 +1,56 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { api } from "../lib/api";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { api, setToken, clearToken, refreshSession } from "../lib/api";
 
-const defaultUser = {
-  clientId: "GR7K2M9X",
-  firstName: "Demo",
-  lastName: "Customer",
-  email: "demo@girrituals.com",
-  phone: "9876543210",
-  billingAddress: { street: "12 Farm Lane", city: "Ahmedabad", state: "Gujarat", pinCode: "380001" },
-  deliveryAddress: { street: "12 Farm Lane", city: "Ahmedabad", state: "Gujarat", pinCode: "380001" },
+const EMPTY_USER = {
+  clientId: '', firstName: '', lastName: '', email: '', phone: '',
+  walletBalance: 0, role: 'customer',
+  billingAddress:  { street: '', city: '', state: '', pinCode: '' },
+  deliveryAddress: { street: '', city: '', state: '', pinCode: '' },
 };
 
 const AppContext = createContext(null);
 
 function AppProvider({ children }) {
-  const [session, setSession] = useState(() => !!localStorage.getItem("gir_token"));
-  const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem("gir_user");
-    const token = localStorage.getItem("gir_token");
-    return stored && token ? JSON.parse(stored) : null;
-  });
+  // null = checking, false = logged out, true = logged in
+  const [authReady, setAuthReady] = useState(false);
+  const [session, setSession]     = useState(false);
+  const [user, setUser]           = useState(null);
 
-  const [products, setProducts] = useState([]);
-  const [offers, setOffers] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [rituals, setRituals] = useState([]);
-  const [cart, setCart] = useState([]);
-  const [favourites, setFavourites] = useState(() => {
-    try {
-      const s = localStorage.getItem("gir_favourites");
-      return s ? JSON.parse(s) : [];
-    } catch { return []; }
+  const [products, setProducts]         = useState([]);
+  const [offers, setOffers]             = useState([]);
+  const [orders, setOrders]             = useState([]);
+  const [rituals, setRituals]           = useState([]);
+  const [cart, setCart]                 = useState([]);
+  const [favourites, setFavourites]     = useState(() => {
+    try { return JSON.parse(localStorage.getItem("gir_favourites") || "[]"); } catch { return []; }
   });
-  const [bills, setBills] = useState([]);
+  const [bills, setBills]               = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [statementEntries, setStatementEntries] = useState([]);
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [pausedToday, setPausedToday] = useState({});
+  const [paymentMethods, setPaymentMethods]     = useState([]);
+  const [pausedToday, setPausedToday]           = useState({});
 
-  // Public data — load on mount regardless of auth
+  // Public data — load regardless of auth
   useEffect(() => {
-    api.getProducts().then(setProducts).catch(err => console.error('[App] getProducts:', err.message));
-    api.getOffers().then(setOffers).catch(err => console.error('[App] getOffers:', err.message));
+    api.getProducts().then(setProducts).catch(() => {});
+    api.getOffers().then(setOffers).catch(() => {});
+  }, []);
+
+  // On mount: try to restore session from HttpOnly refresh cookie
+  const bootRef = useRef(false);
+  useEffect(() => {
+    if (bootRef.current) return;
+    bootRef.current = true;
+    refreshSession()
+      .then((token) => {
+        setToken(token);
+        setSession(true);
+      })
+      .catch(() => {
+        // No valid session cookie — user is logged out
+        setSession(false);
+      })
+      .finally(() => setAuthReady(true));
   }, []);
 
   const loadUserData = useCallback(async () => {
@@ -66,27 +75,26 @@ function AppProvider({ children }) {
     }
   }, []);
 
-  // Load user-specific data whenever session becomes active
   useEffect(() => {
     if (session) loadUserData();
   }, [session, loadUserData]);
 
-  const persist = useCallback((u, token) => {
-    if (token) localStorage.setItem("gir_token", token);
-    localStorage.setItem("gir_user", JSON.stringify(u));
-    localStorage.removeItem("gir_session");
+  const login = useCallback((u, token) => {
+    setToken(token);
     setSession(true);
     setUser(u);
   }, []);
 
-  const login = useCallback((u, token) => persist(u, token), [persist]);
-  const register = useCallback((u, token) => persist(u, token), [persist]);
+  const register = useCallback((u, token) => {
+    setToken(token);
+    setSession(true);
+    setUser(u);
+  }, []);
 
   const logout = useCallback(async () => {
     try { await api.logout(); } catch {}
-    localStorage.removeItem("gir_session");
+    clearToken();
     localStorage.removeItem("gir_user");
-    localStorage.removeItem("gir_token");
     setSession(false);
     setUser(null);
     setBills([]);
@@ -102,8 +110,8 @@ function AppProvider({ children }) {
       const ritual = prev.find(r => r.id === ritualId);
       if (!ritual) return prev;
       const isPaused = ritual.status === "Paused";
-      if (isPaused) api.resumeRitual(ritualId).catch(err => console.error('[App] resumeRitual:', err.message));
-      else api.pauseRitual(ritualId).catch(err => console.error('[App] pauseRitual:', err.message));
+      if (isPaused) api.resumeRitual(ritualId).catch(() => {});
+      else          api.pauseRitual(ritualId).catch(() => {});
       setPausedToday(p => ({ ...p, [ritualId]: !isPaused }));
       return prev.map(r => r.id === ritualId ? { ...r, status: isPaused ? "Pending" : "Paused" } : r);
     });
@@ -124,10 +132,7 @@ function AppProvider({ children }) {
   }, []);
 
   const updateCartQty = useCallback((productId, qty) => {
-    if (qty <= 0) {
-      setCart(prev => prev.filter(c => c.productId !== productId));
-      return;
-    }
+    if (qty <= 0) { setCart(prev => prev.filter(c => c.productId !== productId)); return; }
     setCart(prev => prev.map(c => c.productId === productId ? { ...c, quantity: qty } : c));
   }, []);
 
@@ -137,9 +142,7 @@ function AppProvider({ children }) {
 
   const toggleFavourite = useCallback((productId) => {
     setFavourites(prev => {
-      const next = prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId];
+      const next = prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId];
       localStorage.setItem("gir_favourites", JSON.stringify(next));
       return next;
     });
@@ -161,7 +164,7 @@ function AppProvider({ children }) {
       setBills(prev => prev.map(b => b.id === billId ? { ...b, status: "paid", paidDate, method: "UPI" } : b));
     } catch (err) {
       console.error('[App] payBill:', err.message);
-      throw err; // re-throw so payment page can show an error
+      throw err;
     }
   }, []);
 
@@ -212,8 +215,9 @@ function AppProvider({ children }) {
   }, 0);
 
   const value = useMemo(() => ({
+    authReady,
     session,
-    user: user ?? defaultUser,
+    user: user ?? EMPTY_USER,
     walletBalance: user?.walletBalance ?? 0,
     products,
     offers,
@@ -246,7 +250,7 @@ function AppProvider({ children }) {
     cartTotal,
     loadUserData,
   }), [
-    session, user, user?.walletBalance, products, offers, orders, rituals, cart, favourites, bills,
+    authReady, session, user, products, offers, orders, rituals, cart, favourites, bills,
     notifications, pausedToday, statementEntries, paymentMethods,
     login, logout, register, togglePause, addExtra, addToCart, updateCartQty,
     removeFromCart, toggleFavourite, markAllNotificationsRead, markNotificationRead, payBill,

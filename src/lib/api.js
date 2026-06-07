@@ -1,25 +1,15 @@
 const BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
-function getToken() {
-  return localStorage.getItem('gir_admin_token') || localStorage.getItem('gir_token');
-}
+// ── In-memory token store ──────────────────────────────────────────
+// Access tokens are NEVER written to localStorage (XSS risk).
+// The HttpOnly refresh cookie handles persistence across page loads.
+let _token = null;
 
-function setStoredToken(token) {
-  if (localStorage.getItem('gir_admin_token')) {
-    localStorage.setItem('gir_admin_token', token);
-  } else {
-    localStorage.setItem('gir_token', token);
-  }
-}
+export function setToken(token) { _token = token; }
+export function clearToken()    { _token = null; }
+export function getToken()      { return _token; }
 
-function clearStoredTokens() {
-  const wasAdmin = !!localStorage.getItem('gir_admin_token');
-  localStorage.removeItem('gir_token');
-  localStorage.removeItem('gir_user');
-  localStorage.removeItem('gir_admin_token');
-  return wasAdmin;
-}
-
+// ── Singleton refresh promise (prevents concurrent refresh races) ──
 let _refreshPromise = null;
 
 async function doRefresh() {
@@ -32,16 +22,21 @@ async function doRefresh() {
     .then(r => r.json())
     .then(data => {
       if (!data.token) throw new Error('Refresh failed');
-      setStoredToken(data.token);
+      setToken(data.token);
       return data.token;
     })
     .finally(() => { _refreshPromise = null; });
   return _refreshPromise;
 }
 
+// Exported so AppContext can call it on mount to restore session from cookie
+export async function refreshSession() {
+  return doRefresh();
+}
+
 async function request(path, options = {}, _isRetry = false) {
   const { method = 'GET', body, headers = {} } = options;
-  const token = getToken();
+  const token = _token;
   const res = await fetch(`${BASE}${path}`, {
     method,
     credentials: 'include',
@@ -59,7 +54,7 @@ async function request(path, options = {}, _isRetry = false) {
       await doRefresh();
       return request(path, options, true);
     } catch {
-      clearStoredTokens();
+      clearToken();
       window.location.href = '/';
       throw new Error('Session expired. Please log in again.');
     }
@@ -91,13 +86,13 @@ export const api = {
   getProfile:        ()      => request('/user/profile'),
   updateProfile:     (data)  => request('/user/profile',    { method: 'PUT',  body: data }),
   getStatement:      (month) => request(`/user/statement${month ? `?month=${encodeURIComponent(month)}` : ''}`),
-  addPaymentMethod:  (data)  => request('/user/payment-methods',           { method: 'POST',   body: data }),
-  deletePaymentMethod: (id)  => request(`/user/payment-methods/${id}`,     { method: 'DELETE' }),
+  addPaymentMethod:  (data)  => request('/user/payment-methods',              { method: 'POST',   body: data }),
+  deletePaymentMethod: (id)  => request(`/user/payment-methods/${id}`,        { method: 'DELETE' }),
   setDefaultPaymentMethod: (id) => request(`/user/payment-methods/${id}/default`, { method: 'PUT' }),
 
   // Bills
-  getBills: ()             => request('/bills'),
-  payBill:  (id, data)     => request(`/bills/${id}/pay`, { method: 'POST', body: data }),
+  getBills: ()         => request('/bills'),
+  payBill:  (id, data) => request(`/bills/${id}/pay`, { method: 'POST', body: data }),
 
   // Orders
   getOrders:   ()   => request('/orders'),
@@ -119,26 +114,36 @@ export const api = {
   pauseRitual:  (id) => request(`/rituals/${id}/pause`,  { method: 'POST' }),
   resumeRitual: (id) => request(`/rituals/${id}/resume`, { method: 'POST' }),
 
+  // Payments (Razorpay)
+  createPaymentOrder: (amount, billId) => request('/payments/create-order', { method: 'POST', body: { amount, billId } }),
+  verifyPayment:      (data)           => request('/payments/verify',       { method: 'POST', body: data }),
+
   // Admin — auth + dashboard
-  adminLogin:     (email, password)      => request('/admin/login',      { method: 'POST', body: { email, password } }),
-  adminDashboard: ()                     => request('/admin/dashboard'),
+  adminLogin:     (email, password) => request('/admin/login',      { method: 'POST', body: { email, password } }),
+  adminDashboard: ()                => request('/admin/dashboard'),
 
   // Admin — customers
-  adminCustomers: (page, limit)          => request(`/admin/customers?page=${page||1}&limit=${limit||50}`),
-  adminCustomer:  (id)                   => request(`/admin/customers/${id}`),
+  adminCustomers: (page, limit) => request(`/admin/customers?page=${page||1}&limit=${limit||50}`),
+  adminCustomer:  (id)          => request(`/admin/customers/${id}`),
 
   // Admin — orders
-  adminOrders:    (page, limit)          => request(`/admin/orders?page=${page||1}&limit=${limit||50}`),
+  adminOrders: (page, limit) => request(`/admin/orders?page=${page||1}&limit=${limit||50}`),
 
   // Admin — billing
-  adminBilling:   (page, limit)          => request(`/admin/billing?page=${page||1}&limit=${limit||50}`),
+  adminBilling: (page, limit) => request(`/admin/billing?page=${page||1}&limit=${limit||50}`),
 
   // Admin — finance
-  adminFinance:   ()                     => request('/admin/finance'),
+  adminFinance: () => request('/admin/finance'),
 
   // Admin — analytics
-  adminAnalytics: ()                     => request('/admin/analytics'),
+  adminAnalytics: () => request('/admin/analytics'),
 
   // Admin — refunds
-  adminRefunds:   (page, limit)          => request(`/admin/refunds?page=${page||1}&limit=${limit||50}`),
+  adminRefunds: (page, limit) => request(`/admin/refunds?page=${page||1}&limit=${limit||50}`),
+
+  // Admin — team management
+  adminTeam:           ()              => request('/admin/team'),
+  adminTeamCreate:     (data)          => request('/admin/team',           { method: 'POST',   body: data }),
+  adminTeamSetRole:    (id, adminRole) => request(`/admin/team/${id}/role`, { method: 'PATCH',  body: { adminRole } }),
+  adminTeamRemove:     (id)            => request(`/admin/team/${id}`,      { method: 'DELETE' }),
 };

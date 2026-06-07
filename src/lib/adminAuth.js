@@ -1,41 +1,40 @@
-import { api } from './api';
+import { api, setToken, clearToken, refreshSession } from './api';
 
-const ADMIN_TOKEN_KEY = "gir_admin_token";
+// In-memory admin session — never written to localStorage
+let _adminSession = null;
 
-function getAdminToken() {
-  return localStorage.getItem(ADMIN_TOKEN_KEY);
-}
+export function getAdminSession() { return _adminSession; }
+export function isAdminLoggedIn() { return !!_adminSession?.isAdmin; }
 
-function setAdminToken(token) {
-  localStorage.setItem(ADMIN_TOKEN_KEY, token);
-}
-
-function isAdminLoggedIn() {
-  const token = getAdminToken();
-  if (!token) return false;
+export function setAdminSession(token) {
+  if (!token) { _adminSession = null; return; }
   try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    // Don't check expiry here — auto-refresh in api.js handles token renewal
-    return !!payload.isAdmin;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    _adminSession = { name: payload.name, email: payload.email, isAdmin: !!payload.isAdmin, adminRole: payload.adminRole || 'owner' };
+    setToken(token);
+  } catch {
+    _adminSession = null;
+  }
+}
+
+export async function restoreAdminSession() {
+  try {
+    const token = await refreshSession();
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (!payload.isAdmin) throw new Error('Not an admin token');
+    _adminSession = { name: payload.name, email: payload.email, isAdmin: true, adminRole: payload.adminRole || 'owner' };
+    return true;
   } catch {
     return false;
   }
 }
 
-function getAdminSession() {
-  const token = getAdminToken();
-  if (!token) return null;
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return { name: payload.name, email: payload.email };
-  } catch {
-    return null;
-  }
+export function getAdminRole() {
+  return _adminSession?.adminRole || 'owner';
 }
 
-async function logoutAdmin() {
+export async function logoutAdmin() {
   try { await api.logout(); } catch {}
-  localStorage.removeItem(ADMIN_TOKEN_KEY);
+  clearToken();
+  _adminSession = null;
 }
-
-export { getAdminToken, setAdminToken, isAdminLoggedIn, getAdminSession, logoutAdmin };

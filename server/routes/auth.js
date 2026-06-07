@@ -6,6 +6,7 @@ import db from '../db.js';
 import { notify } from '../lib/notify.js';
 import { requireAuth } from '../middleware/auth.js';
 import { JWT_SECRET as SECRET } from '../lib/secret.js';
+import { deliverOtp } from '../lib/otp.js';
 
 const router = Router();
 
@@ -183,16 +184,27 @@ router.post('/logout', (req, res) => {
 });
 
 // POST /api/auth/otp/send
-router.post('/otp/send', (req, res) => {
+router.post('/otp/send', async (req, res) => {
   const { identifier } = req.body;
   if (!identifier) return res.status(400).json({ error: 'Identifier required' });
   const code      = String(Math.floor(100000 + Math.random() * 900000));
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
   db.prepare('DELETE FROM otps WHERE identifier = ?').run(identifier);
   db.prepare('INSERT INTO otps (identifier,code,expires_at) VALUES (?,?,?)').run(identifier, code, expiresAt);
-  console.log(`[OTP] ${identifier} → ${code}`);
+
+  const isEmail = identifier.includes('@');
   const resp = { success: true };
-  if (process.env.NODE_ENV !== 'production') resp.code = code;
+  try {
+    await deliverOtp({ email: isEmail ? identifier : null, phone: isEmail ? null : identifier, code });
+  } catch {
+    // Delivery failed — fall back to logging in dev, hard-fail in production
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(502).json({ error: 'Could not send OTP. Please try again.' });
+    }
+    req.log?.warn(`OTP delivery failed for ${identifier} — showing in response (dev only)`);
+    resp.code = code;
+  }
+  if (process.env.NODE_ENV !== 'production' && !resp.code) resp.code = code;
   res.json(resp);
 });
 
@@ -292,7 +304,7 @@ router.post('/apple', async (req, res) => {
 });
 
 // POST /api/auth/forgot-password
-router.post('/forgot-password', (req, res) => {
+router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
 
@@ -304,9 +316,17 @@ router.post('/forgot-password', (req, res) => {
   const key       = email.toLowerCase().trim();
   db.prepare('DELETE FROM otps WHERE identifier = ?').run(key);
   db.prepare('INSERT INTO otps (identifier,code,expires_at) VALUES (?,?,?)').run(key, code, expiresAt);
-  console.log(`[OTP] forgot-password ${key} → ${code}`);
+
   const resp = { success: true, phone: user.phone || '' };
-  if (process.env.NODE_ENV !== 'production') resp.code = code;
+  try {
+    await deliverOtp({ email: key, phone: user.phone || null, code });
+  } catch {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(502).json({ error: 'Could not send OTP. Please try again.' });
+    }
+    resp.code = code;
+  }
+  if (process.env.NODE_ENV !== 'production' && !resp.code) resp.code = code;
   res.json(resp);
 });
 

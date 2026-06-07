@@ -3,7 +3,10 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const rawDb = new DatabaseSync(join(__dirname, 'gir_rituals.db'));
+// On Render, /data is a persistent disk mount. Locally, db sits next to server/.
+const DB_PATH = process.env.DB_PATH
+  || (process.env.NODE_ENV === 'production' ? '/data/gir_rituals.db' : join(__dirname, 'gir_rituals.db'));
+const rawDb = new DatabaseSync(DB_PATH);
 
 // node:sqlite returns BigInt for integers; normalise everything to Number
 function coerce(row) {

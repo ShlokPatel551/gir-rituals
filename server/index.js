@@ -1,9 +1,12 @@
 import 'dotenv/config';
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import { createRequire } from 'module';
+import compression from 'compression';
+import pino from 'pino';
+import pinoHttp from 'pino-http';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import db from './db.js';
@@ -19,41 +22,52 @@ import ritualRoutes       from './routes/rituals.js';
 import scheduleRoutes     from './routes/schedule.js';
 import userRoutes         from './routes/user.js';
 import adminRoutes        from './routes/admin.js';
+import paymentRoutes      from './routes/payments.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const app       = express();
 const PORT      = process.env.PORT || 3001;
 
-// Run schema migrations before anything else
+// ── Sentry (init before anything else) ─────────────────────────────
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: 0.1,
+  });
+}
+
+// ── Logger ─────────────────────────────────────────────────────────
+export const logger = pino({
+  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
+  ...(process.env.NODE_ENV !== 'production' && {
+    transport: { target: 'pino-pretty', options: { colorize: true } },
+  }),
+});
+
+// ── DB migrations ──────────────────────────────────────────────────
 runMigrations();
 
-// Clean up expired refresh tokens (lazy housekeeping)
+// Lazy cleanup of expired refresh tokens
 try {
   db.exec("DELETE FROM refresh_tokens WHERE expires_at < datetime('now', '-7 days')");
 } catch {}
+
+// ── App setup ──────────────────────────────────────────────────────
+const app = express();
+
+// Pino HTTP request logger
+app.use(pinoHttp({
+  logger,
+  // Don't log health check noise
+  autoLogging: { ignore: (req) => req.url === '/api/health' },
+}));
+
+app.use(compression());
 
 // ── CORS ───────────────────────────────────────────────────────────
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
   : ['http://localhost:5173', 'http://localhost:4173'];
-
-// ── Security headers ───────────────────────────────────────────────
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc:  ["'self'"],
-      scriptSrc:   ["'self'", "'unsafe-inline'"],   // React SPA inlines scripts in dev
-      styleSrc:    ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc:     ["'self'", "https://fonts.gstatic.com", "data:"],
-      imgSrc:      ["'self'", "data:", "https:", "blob:"],
-      connectSrc:  ["'self'", "https://accounts.google.com", "https://www.googleapis.com", "https://appleid.apple.com"],
-      frameSrc:    ["'none'"],
-      objectSrc:   ["'none'"],
-      upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
-    },
-  },
-  crossOriginEmbedderPolicy: false,  // Allow embedded resources (images, fonts)
-}));
 
 const DEV_LOCALHOST = /^http:\/\/localhost:\d+$/;
 
@@ -66,29 +80,42 @@ app.use(cors({
   },
   credentials: true,
 }));
+
+// ── Security headers ───────────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:  ["'self'"],
+      scriptSrc:   ["'self'", "'unsafe-inline'", 'https://checkout.razorpay.com'],
+      styleSrc:    ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc:     ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      imgSrc:      ["'self'", 'data:', 'https:', 'blob:'],
+      connectSrc:  ["'self'", 'https://accounts.google.com', 'https://www.googleapis.com', 'https://appleid.apple.com', 'https://api.razorpay.com', 'https://lumberjack.razorpay.com'],
+      frameSrc:    ["'self'", 'https://api.razorpay.com'],
+      objectSrc:   ["'none'"],
+      upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
 app.use(cookieParser());
 app.use(express.json());
 
 // ── Rate limiters ──────────────────────────────────────────────────
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
+  windowMs: 15 * 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
 });
 const otpLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
+  windowMs: 15 * 60 * 1000, max: 5,
+  standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many OTP requests. Please wait 15 minutes.' },
 });
 const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
+  windowMs: 60 * 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many registration attempts. Please try again later.' },
 });
 
@@ -98,6 +125,7 @@ app.post('/api/admin/login',           loginLimiter);
 app.post('/api/auth/register',         registerLimiter);
 app.post('/api/auth/otp/send',         otpLimiter);
 app.post('/api/auth/forgot-password',  otpLimiter);
+
 app.use('/api/auth',          authRoutes);
 app.use('/api/products',      productRoutes);
 app.use('/api/bills',         billRoutes);
@@ -108,19 +136,14 @@ app.use('/api/rituals',       ritualRoutes);
 app.use('/api/schedule',      scheduleRoutes);
 app.use('/api/user',          userRoutes);
 app.use('/api/admin',         adminRoutes);
+app.use('/api/payments',      paymentRoutes);
 
-app.get('/api/health', (_, res) => res.json({ status: 'ok', app: 'GIR RITUALS API v1' }));
-
-// ── Auto-seed if DB is empty ───────────────────────────────────────
-try {
-  const { c } = db.prepare('SELECT COUNT(*) as c FROM users').get();
-  if (c === 0) {
-    console.log('Empty database — running seed…');
-    const require = createRequire(import.meta.url);
-    const { execSync } = require('child_process');
-    execSync('node server/seed.js', { stdio: 'inherit', cwd: join(__dirname, '..') });
-  }
-} catch {}
+app.get('/api/health', (_, res) => res.json({
+  status: 'ok',
+  app: 'GIR RITUALS API v1',
+  env: process.env.NODE_ENV || 'development',
+  ts: new Date().toISOString(),
+}));
 
 // ── Demo notification enrichment ──────────────────────────────────
 try {
@@ -148,9 +171,10 @@ app.get('*', (_, res) => res.sendFile(join(distDir, 'index.html')));
 // ── Global error handler ───────────────────────────────────────────
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error(`[ERROR] ${req.method} ${req.path} —`, err.message);
+  if (process.env.SENTRY_DSN) Sentry.captureException(err);
+  req.log?.error({ err }, `${req.method} ${req.path}`);
   const status = err.status || err.statusCode || 500;
   res.status(status).json({ error: status === 500 ? 'Internal server error' : err.message });
 });
 
-app.listen(PORT, () => console.log(`🐄 GIR RITUALS API → http://localhost:${PORT}`));
+app.listen(PORT, () => logger.info(`GIR RITUALS API → http://localhost:${PORT}`));

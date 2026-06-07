@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
-import { isAdminLoggedIn, setAdminToken } from "../../lib/adminAuth";
+import { isAdminLoggedIn, setAdminSession } from "../../lib/adminAuth";
 import "../../styles/admin-theme.css";
 import "./AdminLogin.css";
 
@@ -24,7 +24,7 @@ function AdminLogin() {
     setLoading(true);
     try {
       const { token } = await api.adminLogin(email, password);
-      setAdminToken(token);
+      setAdminSession(token);
       navigate("/admin", { replace: true });
     } catch (err) {
       setError(err.message || "Invalid credentials");
