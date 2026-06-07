@@ -61,7 +61,7 @@ function AdminCustomers() {
   const [page,      setPage]      = useState(1);
 
   useEffect(() => {
-    api.adminCustomers().then(setCustomers).catch(() => {});
+    api.adminCustomers().then(data => setCustomers(data.rows ?? [])).catch(() => {});
   }, []);
 
   const allCustomers = useMemo(() => customers.map(toDisplay), [customers]);

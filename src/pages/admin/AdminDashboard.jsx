@@ -91,7 +91,7 @@ function AdminDashboard() {
 
   useEffect(() => {
     api.adminDashboard().then(setStats).catch(() => {});
-    api.adminOrders().then(rows => setRecentOrders(rows.slice(0, 5))).catch(() => {});
+    api.adminOrders().then(data => setRecentOrders((data.rows ?? []).slice(0, 5))).catch(() => {});
   }, []);
 
   const totalCustomers      = stats?.totalCustomers      ?? "—";
