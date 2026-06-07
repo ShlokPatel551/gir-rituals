@@ -31,3 +31,15 @@ export function requireRole(...roles) {
     });
   };
 }
+
+// Guard specific admin sub-roles: 'owner' | 'manager' | 'accountant'
+export function requireAdminRole(...adminRoles) {
+  return (req, res, next) => {
+    requireAdmin(req, res, () => {
+      const role = req.user.adminRole || 'owner';
+      if (!adminRoles.includes(role))
+        return res.status(403).json({ error: 'Forbidden: insufficient admin role' });
+      next();
+    });
+  };
+}

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomBytes, createHash } from 'crypto';
 import db from '../db.js';
-import { requireAdmin } from '../middleware/auth.js';
+import { requireAdmin, requireAdminRole } from '../middleware/auth.js';
 import { JWT_SECRET as SECRET } from '../lib/secret.js';
 
 const router = Router();
@@ -31,7 +31,8 @@ router.post('/login', (req, res) => {
   if (!u || !bcrypt.compareSync(password, u.password_hash))
     return res.status(401).json({ error: 'Invalid credentials' });
 
-  const token = jwt.sign({ id: u.id, email: u.email, name: `${u.first_name} ${u.last_name}`, isAdmin: true, role: 'admin' }, SECRET, { expiresIn: '15m' });
+  const adminRole = u.admin_role || 'owner';
+  const token = jwt.sign({ id: u.id, email: u.email, name: `${u.first_name} ${u.last_name}`, isAdmin: true, role: 'admin', adminRole }, SECRET, { expiresIn: '15m' });
 
   const raw  = randomBytes(32).toString('hex');
   const hash = createHash('sha256').update(raw).digest('hex');
@@ -39,7 +40,7 @@ router.post('/login', (req, res) => {
   db.prepare('INSERT INTO refresh_tokens (user_id, token_hash, is_admin, expires_at) VALUES (?,?,1,?)').run(u.id, hash, exp);
 
   res.cookie(REFRESH_COOKIE, raw, REFRESH_COOKIE_OPTS);
-  res.json({ token, name: `${u.first_name} ${u.last_name}` });
+  res.json({ token, name: `${u.first_name} ${u.last_name}`, adminRole });
 });
 
 // ── Dashboard ─────────────────────────────────────────────────────
@@ -197,6 +198,78 @@ router.get('/refunds', requireAdmin, (req, res) => {
 router.get('/otp-logs', requireAdmin, (req, res) => {
   const rows = db.prepare('SELECT * FROM otps ORDER BY created_at DESC LIMIT 100').all();
   res.json(rows);
+});
+
+// ── Team management (owner only) ─────────────────────────────────
+
+const VALID_ROLES = ['owner', 'manager', 'accountant'];
+
+// GET /api/admin/team — list all admin users
+router.get('/team', requireAdmin, requireAdminRole('owner'), (req, res) => {
+  const rows = db.prepare(`
+    SELECT id, client_id, first_name, last_name, email, phone, admin_role, created_at
+    FROM users WHERE is_admin = 1 ORDER BY created_at ASC
+  `).all();
+  res.json(rows.map(u => ({
+    id:         u.id,
+    clientId:   u.client_id,
+    firstName:  u.first_name,
+    lastName:   u.last_name,
+    email:      u.email,
+    phone:      u.phone || '',
+    adminRole:  u.admin_role || 'owner',
+    createdAt:  u.created_at,
+  })));
+});
+
+// POST /api/admin/team — create a new admin user
+router.post('/team', requireAdmin, requireAdminRole('owner'), (req, res) => {
+  const { firstName, lastName, email, password, adminRole = 'manager' } = req.body;
+  if (!firstName || !email || !password) return res.status(400).json({ error: 'firstName, email, and password are required' });
+  if (!VALID_ROLES.includes(adminRole)) return res.status(400).json({ error: 'Invalid role' });
+
+  const pwErr = password.length < 8 ? 'Password must be at least 8 characters' : null;
+  if (pwErr) return res.status(400).json({ error: pwErr });
+
+  if (db.prepare('SELECT id FROM users WHERE email=?').get(email.toLowerCase()))
+    return res.status(409).json({ error: 'Email already registered' });
+
+  const chars    = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const clientId = 'GR' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  const hash     = bcrypt.hashSync(password, 10);
+
+  const { lastInsertRowid: uid } = db.prepare(
+    'INSERT INTO users (client_id,first_name,last_name,email,phone,password_hash,is_admin,role,admin_role) VALUES (?,?,?,?,?,?,1,?,?)'
+  ).run(clientId, firstName, lastName || '', email.toLowerCase().trim(), '', hash, 'admin', adminRole);
+
+  const u = db.prepare('SELECT * FROM users WHERE id=?').get(uid);
+  res.status(201).json({
+    id: u.id, clientId: u.client_id, firstName: u.first_name, lastName: u.last_name,
+    email: u.email, adminRole: u.admin_role, createdAt: u.created_at,
+  });
+});
+
+// PATCH /api/admin/team/:id/role — update a team member's role
+router.patch('/team/:id/role', requireAdmin, requireAdminRole('owner'), (req, res) => {
+  const { adminRole } = req.body;
+  if (!VALID_ROLES.includes(adminRole)) return res.status(400).json({ error: 'Invalid role' });
+
+  const target = db.prepare('SELECT * FROM users WHERE id=? AND is_admin=1').get(req.params.id);
+  if (!target) return res.status(404).json({ error: 'Admin user not found' });
+  if (target.id === req.user.id) return res.status(400).json({ error: 'Cannot change your own role' });
+
+  db.prepare('UPDATE users SET admin_role=? WHERE id=?').run(adminRole, target.id);
+  res.json({ success: true, adminRole });
+});
+
+// DELETE /api/admin/team/:id — revoke admin access
+router.delete('/team/:id', requireAdmin, requireAdminRole('owner'), (req, res) => {
+  const target = db.prepare('SELECT * FROM users WHERE id=? AND is_admin=1').get(req.params.id);
+  if (!target) return res.status(404).json({ error: 'Admin user not found' });
+  if (target.id === req.user.id) return res.status(400).json({ error: 'Cannot remove yourself' });
+
+  db.prepare('UPDATE users SET is_admin=0, role=?, admin_role=NULL WHERE id=?').run('customer', target.id);
+  res.json({ success: true });
 });
 
 export default router;

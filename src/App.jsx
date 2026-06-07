@@ -41,6 +41,7 @@ import { AdminStockLedger } from "./pages/admin/AdminStockLedger";
 import { AdminLeftoverStock } from "./pages/admin/AdminLeftoverStock";
 import { AdminProductionLog } from "./pages/admin/AdminProductionLog";
 import { AdminSettings } from "./pages/admin/AdminSettings";
+import { AdminTeam } from "./pages/admin/AdminTeam";
 import { Splash } from "./pages/Splash";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
@@ -108,6 +109,7 @@ function AppRoutes() {
         <Route path="campaigns" element={<AdminCampaigns />} />
         <Route path="comms" element={<AdminComms />} />
         <Route path="settings" element={<AdminSettings />} />
+        <Route path="team" element={<AdminTeam />} />
       </Route>
 
       <Route element={<Layout />}>

@@ -1,26 +1,33 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { getAdminSession, logoutAdmin } from "../lib/adminAuth";
+import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { getAdminSession, getAdminRole, logoutAdmin } from "../lib/adminAuth";
 import { ADMIN_NOTIFS } from "../data/adminNotifications";
 import "./AdminLayout.css";
 
-const NAV = [
-  { path: "/admin",            label: "Dashboard",  icon: "dashboard",       end: true },
-  { path: "/admin/customers",  label: "Customers",  icon: "group"                     },
-  { path: "/admin/deliveries", label: "Deliveries", icon: "local_shipping"            },
-  { path: "/admin/orders",     label: "Orders",     icon: "shopping_cart"             },
-  { path: "/admin/products",   label: "Products",   icon: "inventory_2"               },
-  { path: "/admin/production", label: "Production", icon: "agriculture"               },
-  { path: "/admin/finance",    label: "Finance",    icon: "payments"                  },
-  { path: "/admin/analytics",  label: "Analytics",  icon: "analytics"                 },
-  { path: "/admin/billing",    label: "Billing",    icon: "receipt_long"              },
-  { path: "/admin/offers",     label: "Offers",     icon: "local_activity"            },
-  { path: "/admin/campaigns",  label: "Campaigns",  icon: "campaign"                  },
-  { path: "/admin/comms",      label: "Comms",      icon: "chat"                      },
-  { path: "/admin/settings",   label: "Settings",   icon: "settings"                  },
+const ROLE_LABEL = { owner: "Owner", manager: "Manager", accountant: "Accountant" };
+const ROLE_COLOR = { owner: "#b45309", manager: "#0369a1", accountant: "#6d28d9" };
+const ROLE_BG    = { owner: "#fef3c7", manager: "#e0f2fe", accountant: "#ede9fe" };
+
+const ALL_NAV = [
+  { path: "/admin",            label: "Dashboard",  icon: "dashboard",        end: true,  roles: ["owner","manager","accountant"] },
+  { path: "/admin/customers",  label: "Customers",  icon: "group",                        roles: ["owner","manager"] },
+  { path: "/admin/deliveries", label: "Deliveries", icon: "local_shipping",               roles: ["owner","manager"] },
+  { path: "/admin/orders",     label: "Orders",     icon: "shopping_cart",                roles: ["owner","manager"] },
+  { path: "/admin/products",   label: "Products",   icon: "inventory_2",                  roles: ["owner","manager"] },
+  { path: "/admin/production", label: "Production", icon: "agriculture",                  roles: ["owner","manager"] },
+  { path: "/admin/finance",    label: "Finance",    icon: "payments",                     roles: ["owner","accountant"] },
+  { path: "/admin/analytics",  label: "Analytics",  icon: "analytics",                    roles: ["owner","accountant"] },
+  { path: "/admin/billing",    label: "Billing",    icon: "receipt_long",                 roles: ["owner","accountant"] },
+  { path: "/admin/refunds",    label: "Refunds",    icon: "currency_exchange",            roles: ["owner","accountant"] },
+  { path: "/admin/offers",     label: "Offers",     icon: "local_activity",               roles: ["owner","manager"] },
+  { path: "/admin/campaigns",  label: "Campaigns",  icon: "campaign",                     roles: ["owner","manager"] },
+  { path: "/admin/comms",      label: "Comms",      icon: "chat",                         roles: ["owner","manager"] },
+  { path: "/admin/settings",   label: "Settings",   icon: "settings",                     roles: ["owner"] },
+  { path: "/admin/team",       label: "Team",       icon: "manage_accounts",              roles: ["owner"] },
 ];
 
-function SidebarContent({ onNavClick, onLogout }) {
+function SidebarContent({ onNavClick, onLogout, adminRole }) {
+  const nav = ALL_NAV.filter(item => item.roles.includes(adminRole));
   return (
     <>
       <div className="admin-brand">
@@ -36,7 +43,7 @@ function SidebarContent({ onNavClick, onLogout }) {
       </div>
 
       <nav className="admin-nav">
-        {NAV.map(item => (
+        {nav.map(item => (
           <NavLink
             key={item.path}
             to={item.path}
@@ -62,7 +69,9 @@ function SidebarContent({ onNavClick, onLogout }) {
 
 function AdminLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [admin]         = useState(() => getAdminSession());
+  const adminRole       = getAdminRole();
   const [searchQuery,    setSearchQuery]    = useState("");
   const [notifOpen,      setNotifOpen]      = useState(false);
   const [userMenuOpen,   setUserMenuOpen]   = useState(false);
@@ -76,6 +85,11 @@ function AdminLayout() {
   const adminName     = admin?.name  ?? "Admin";
   const adminEmail    = admin?.email ?? "";
   const adminInitials = adminName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+
+  // Check if current route is accessible to this role
+  const allowedPaths = ALL_NAV.filter(n => n.roles.includes(adminRole)).map(n => n.path);
+  const currentBase  = "/" + location.pathname.split("/").slice(1, 3).join("/");
+  const routeAllowed = allowedPaths.some(p => p === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(p));
 
   const [readIds, setReadIds] = useState(
     () => new Set(ADMIN_NOTIFS.filter(n => n.read).map(n => n.id))
@@ -135,7 +149,7 @@ function AdminLayout() {
 
       {/* ── Fixed desktop sidebar ── */}
       <aside className="admin-sidebar">
-        <SidebarContent onNavClick={() => {}} onLogout={handleLogout} />
+        <SidebarContent onNavClick={() => {}} onLogout={handleLogout} adminRole={adminRole} />
       </aside>
 
       {/* ── Mobile drawer overlay ── */}
@@ -153,6 +167,7 @@ function AdminLayout() {
             <SidebarContent
               onNavClick={() => setDrawerOpen(false)}
               onLogout={handleLogout}
+              adminRole={adminRole}
             />
           </aside>
         </div>
@@ -273,7 +288,11 @@ function AdminLayout() {
             >
               <div className="admin-topbar-user-info">
                 <p className="admin-topbar-name">{admin?.name ?? "Admin"}</p>
-                <p className="admin-topbar-org">Gir Rituals HQ</p>
+                <p className="admin-topbar-org" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <span style={{ display:"inline-block", padding:"1px 8px", borderRadius:12, fontSize:"0.65rem", fontWeight:700, background: ROLE_BG[adminRole], color: ROLE_COLOR[adminRole], letterSpacing:"0.03em" }}>
+                    {ROLE_LABEL[adminRole] || adminRole}
+                  </span>
+                </p>
               </div>
               <div className="admin-topbar-avatar" style={{ background: "#7B5233" }}>
                 {adminInitials}
@@ -289,7 +308,9 @@ function AdminLayout() {
                   <div className="admin-user-dd-info">
                     <p className="admin-user-dd-name">{adminName}</p>
                     <p className="admin-user-dd-email">{adminEmail}</p>
-                    <span className="admin-user-dd-role-badge">Admin</span>
+                    <span className="admin-user-dd-role-badge" style={{ background: ROLE_BG[adminRole], color: ROLE_COLOR[adminRole], border: "none" }}>
+                      {ROLE_LABEL[adminRole] || "Admin"}
+                    </span>
                   </div>
                 </div>
                 <div className="admin-user-dd-divider" />
@@ -331,7 +352,19 @@ function AdminLayout() {
       {/* ── Scrollable main content ── */}
       <main className="admin-main">
         <div className="admin-content-inner">
-          <Outlet />
+          {routeAllowed ? <Outlet /> : (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 320, textAlign: "center", color: "#6b7280" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 56, color: "#d1d5db", marginBottom: "1rem" }}>lock</span>
+              <h2 style={{ margin: "0 0 0.5rem", color: "#374151" }}>Access Restricted</h2>
+              <p style={{ margin: "0 0 1.5rem", maxWidth: 360, lineHeight: 1.6 }}>
+                Your role <strong style={{ color: ROLE_COLOR[adminRole] }}>{ROLE_LABEL[adminRole]}</strong> does not have permission to view this page.
+              </p>
+              <button type="button" onClick={() => navigate("/admin")}
+                style={{ padding: "0.5rem 1.25rem", borderRadius: 8, border: "none", background: "#4a7c59", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                Go to Dashboard
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>
