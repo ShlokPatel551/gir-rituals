@@ -32,9 +32,13 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,  // Allow embedded resources (images, fonts)
 }));
 
+const DEV_LOCALHOST = /^http:\/\/localhost:\d+$/;
+
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    if (!origin) return cb(null, true);
+    if (process.env.NODE_ENV !== 'production' && DEV_LOCALHOST.test(origin)) return cb(null, true);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error('Not allowed by CORS'));
   },
 }));
