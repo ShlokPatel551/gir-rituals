@@ -3,84 +3,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../../lib/api";
 import "./AdminCustomerDetail.css";
 
-/* ── Mock data ── */
-const MOCK_MAP = {
-  GR00124: { clientId: "GR00124", name: "Priya Shah",    phone: "9876543210", email: "priya.shah@gmail.com",      joined: "12 Jan 2025", deliveryAddress: "Plot 42, Navrangpura, Ahmedabad 380009", status: "active" },
-  GR00089: { clientId: "GR00089", name: "Rahul Mehta",   phone: "9876502002", email: "rahul.mehta@yahoo.com",     joined: "05 Feb 2026", deliveryAddress: "B-12, Satellite, Ahmedabad 380015",        status: "active" },
-  GR00201: { clientId: "GR00201", name: "Anjali Kapoor", phone: "9876503003", email: "anjali.k@hotmail.com",      joined: "20 Feb 2026", deliveryAddress: "17/A, Bopal, Ahmedabad 380058",            status: "active" },
-  GR00057: { clientId: "GR00057", name: "Meena Patel",   phone: "9876504004", email: "meena.patel@gmail.com",     joined: "08 Nov 2025", deliveryAddress: "—",                                        status: "paused" },
-  GR00312: { clientId: "GR00312", name: "Suresh Joshi",  phone: "9876505005", email: "suresh.j@gmail.com",        joined: "15 Mar 2026", deliveryAddress: "Vastrapur Lake Road, Ahmedabad 380054",    status: "active" },
-  GR00098: { clientId: "GR00098", name: "Kavita Rao",    phone: "9876506006", email: "kavita.rao@rediffmail.com", joined: "03 Dec 2025", deliveryAddress: "—",                                        status: "active" },
-  GR00143: { clientId: "GR00143", name: "Deepak Nair",   phone: "9876507007", email: "deepak.nair@gmail.com",     joined: "28 Mar 2026", deliveryAddress: "—",                                        status: "new"    },
-  GR00178: { clientId: "GR00178", name: "Sunita Verma",  phone: "9876508008", email: "sunita.v@gmail.com",        joined: "14 Apr 2026", deliveryAddress: "—",                                        status: "active" },
-  GR00234: { clientId: "GR00234", name: "Arjun Desai",   phone: "9876509009", email: "arjun.desai@outlook.com",   joined: "01 May 2026", deliveryAddress: "—",                                        status: "new"    },
-  GR00267: { clientId: "GR00267", name: "Pooja Sharma",  phone: "9876510010", email: "pooja.s@gmail.com",         joined: "10 May 2026", deliveryAddress: "—",                                        status: "paused" },
-};
-
-const MOCK_HISTORY = [
-  { date: "28 May", dayNum: 28, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "",       dayNum: 28, type: "Extra",         product: "A2 Desi Cow Milk",     qty: "+1 L",  rate: "₹70",  amount: "₹70",  deliveryStatus: "delivered", amtStatus: "paid-upi" },
-  { date: "27 May", dayNum: 27, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "pending",   amtStatus: "mobill"   },
-  { date: "26 May", dayNum: 26, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "25 May", dayNum: 25, type: "Individual",   product: "Organic Gir Cow Ghee", qty: "250g",  rate: "₹650", amount: "₹162", deliveryStatus: "delivered", amtStatus: "paid-upi" },
-  { date: "24 May", dayNum: 24, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "23 May", dayNum: 23, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "22 May", dayNum: 22, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "21 May", dayNum: 21, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "20 May", dayNum: 20, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "19 May", dayNum: 19, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "18 May", dayNum: 18, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "17 May", dayNum: 17, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "16 May", dayNum: 16, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "15 May", dayNum: 15, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "2 L",   rate: "₹70",  amount: "₹140", deliveryStatus: "delivered", amtStatus: "mobill"   },
-  { date: "14 May", dayNum: 14, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "—",     rate: "₹70",  amount: "₹0",   deliveryStatus: "paused",    amtStatus: null       },
-  { date: "13 May", dayNum: 13, type: "Subscription", product: "A2 Desi Cow Milk",     qty: "—",     rate: "₹70",  amount: "₹0",   deliveryStatus: "paused",    amtStatus: null       },
-];
-
-const MONTHLY_SUMMARY = {
-  month:           "May 2025",
-  cycle:           "1st – 31st May",
-  totalDeliveries: 24,
-  totalPaid:       "₹1,240",
-  totalUnpaid:     "₹650",
-  billTotal:       "₹2,140",
-  products: [
-    { icon: "water_drop", name: "A2 Desi Cow Milk",     qty: "48 L"  },
-    { icon: "egg_alt",    name: "Organic Gir Cow Ghee", qty: "750g"  },
-  ],
-};
-
-const MOCK_BILLS = [
-  { id: "B-0041", period: "May 2026", amount: "₹2,100", paid: true  },
-  { id: "B-0038", period: "Apr 2026", amount: "₹2,100", paid: true  },
-  { id: "B-0035", period: "Mar 2026", amount: "₹1,960", paid: false },
-];
-
-const MOCK_ORDERS = [
-  { id: "ORD-1041", product: "Gir Milk",    qty: "2 L",  amount: "₹140", date: "27 May" },
-  { id: "ORD-1038", product: "Bilona Ghee", qty: "500g", amount: "₹600", date: "25 May" },
-  { id: "ORD-1031", product: "Gir Milk",    qty: "1 L",  amount: "₹70",  date: "20 May" },
-];
-
-const MOCK_TXNS = [
-  { id: "TXN-8821", desc: "May subscription payment", date: "27 May", amount: "+₹2,100", credit: true  },
-  { id: "TXN-8811", desc: "Extra ghee order",          date: "25 May", amount: "+₹162",   credit: true  },
-  { id: "TXN-8790", desc: "Wallet top-up",             date: "20 May", amount: "+₹500",   credit: true  },
-  { id: "TXN-8780", desc: "Refund processed",          date: "10 May", amount: "-₹140",   credit: false },
-];
-
-const MOCK_NOTES_INIT = [
-  { author: "Meera Desai", text: "Customer requested delivery time moved to 6:30 AM instead of 7:30 AM starting from next week.", time: "2 hours ago" },
-];
-
-const MOCK_SUBSCRIPTION = {
-  plan: "A2 Gir Cow Milk", variant: "2 L / day", frequency: "Daily",
-  startDate: "12 Jan 2025", nextRenewal: "01 Jun 2026", monthlyAmt: "₹2,100", status: "active",
-  addOns: [
-    { name: "Bilona Ghee 250g",     freq: "Weekly",    price: "₹325" },
-    { name: "Organic Paneer 200g",  freq: "Bi-weekly", price: "₹120" },
-  ],
-};
+function fmt(amount) {
+  return amount != null ? `₹${Number(amount).toLocaleString("en-IN")}` : "—";
+}
+function fmtDate(d, opts = { day: "2-digit", month: "short" }) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-IN", opts);
+}
 
 /* ── Delivery status helpers ── */
 const DS_CONFIG = {
@@ -120,35 +49,92 @@ function getFirstDayOffset(y, m) { const d = new Date(y, m, 1).getDay(); return 
 
 /* ══ Component ══ */
 function AdminCustomerDetail() {
-  const { id }     = useParams();
-  const navigate   = useNavigate();
-  const [apiCustomer, setApiCustomer] = useState(null);
+  const { id }   = useParams();
+  const navigate = useNavigate();
+  const [data,   setData]   = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.adminCustomer(id).then(c => {
-      setApiCustomer({
-        clientId:        c.clientId,
-        name:            `${c.firstName} ${c.lastName}`,
-        phone:           c.phone || "—",
-        email:           c.email,
-        joined:          c.createdAt
-          ? new Date(c.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
-          : "—",
-        deliveryAddress: [c.deliveryAddress?.line1, c.deliveryAddress?.city, c.deliveryAddress?.pincode]
-          .filter(Boolean).join(", ") || "—",
-        status: "active",
-      });
-    }).catch(() => {});
+    api.adminCustomer(id).then(setData).catch(() => {}).finally(() => setLoading(false));
   }, [id]);
 
-  const customer = apiCustomer || (id ? MOCK_MAP[id] : undefined);
+  const customer = data ? {
+    clientId:        data.clientId,
+    name:            `${data.firstName} ${data.lastName}`.trim(),
+    phone:           data.phone || "—",
+    email:           data.email,
+    joined:          fmtDate(data.createdAt, { day: "2-digit", month: "short", year: "numeric" }),
+    deliveryAddress: [data.street, data.city, data.state, data.pinCode].filter(Boolean).join(", ") || "—",
+    status:          data.status || "active",
+  } : null;
+
+  // ── Real data derived from API ──
+  const deliveries = data?.deliveries ?? [];
+  const bills      = (data?.bills ?? []).map(b => ({
+    id: b.id, period: b.period,
+    amount: fmt(b.amount), paid: b.status === "paid",
+  }));
+  const orders = (data?.orders ?? []).map(o => ({
+    id: o.id, product: o.product_name,
+    qty: o.qty != null ? String(o.qty) : "—",
+    amount: fmt(o.total),
+    date: fmtDate(o.created_at),
+    status: o.status,
+  }));
+  const txns = (data?.statement ?? []).map(s => ({
+    id: s.id, desc: s.description,
+    date: fmtDate(s.date),
+    amount: `${s.credit ? "+" : "-"}${fmt(Math.abs(s.amount))}`,
+    credit: !!s.credit,
+  }));
+  const activeSub = (data?.subscriptions ?? []).find(s => s.status === "active");
+
+  // ── Monthly summary for current month ──
+  const now        = new Date();
+  const thisYM     = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const monthDels  = deliveries.filter(d => d.date && d.date.startsWith(thisYM));
+  const monthBills = (data?.bills ?? []).filter(b => b.period && b.period.includes(
+    now.toLocaleDateString("en-IN", { month: "long", year: "numeric" })
+  ));
+  const totalPaid   = monthBills.filter(b => b.status === "paid").reduce((s, b) => s + b.amount, 0);
+  const totalUnpaid = monthBills.filter(b => b.status !== "paid").reduce((s, b) => s + b.amount, 0);
+  const monthlySummary = {
+    month:           now.toLocaleDateString("en-IN", { month: "long", year: "numeric" }),
+    totalDeliveries: monthDels.length,
+    totalPaid:       fmt(totalPaid),
+    totalUnpaid:     fmt(totalUnpaid),
+  };
+
+  // ── Calendar dot map from real deliveries ──
+  const dotMap = {};
+  deliveries.forEach(d => {
+    if (!d.date) return;
+    const [y, m, day] = d.date.split("-").map(Number);
+    if (y === calYear && m - 1 === calMonth && !dotMap[day]) {
+      dotMap[day] = (d.status || "pending").toLowerCase();
+    }
+  });
+
+  // ── History rows for schedule tab ──
+  const historyRows = deliveries.map(d => {
+    const dateObj = d.date ? new Date(d.date) : null;
+    return {
+      date:           dateObj ? fmtDate(d.date) : "—",
+      type:           "Subscription",
+      product:        d.product_name || "—",
+      qty:            d.quantity != null ? `${d.quantity} ${d.product_unit || ""}`.trim() : "—",
+      rate:           d.product_price != null ? fmt(d.product_price) : "—",
+      amount:         d.quantity != null && d.product_price != null ? fmt(d.quantity * d.product_price) : "—",
+      deliveryStatus: (d.status || "Pending").toLowerCase(),
+      amtStatus:      null,
+    };
+  });
 
   const [activeTab, setActiveTab] = useState("schedule");
   const [showAll,   setShowAll]   = useState(false);
   const [noteText,  setNoteText]  = useState("");
-  const [notes,     setNotes]     = useState(MOCK_NOTES_INIT);
+  const [notes,     setNotes]     = useState([]);
 
-  const now = new Date();
   const [calYear,  setCalYear]  = useState(now.getFullYear());
   const [calMonth, setCalMonth] = useState(now.getMonth());
 
@@ -159,10 +145,8 @@ function AdminCustomerDetail() {
   const firstDayOffset = getFirstDayOffset(calYear, calMonth);
   const today          = now.getDate();
   const isCurrentMonth = calYear === now.getFullYear() && calMonth === now.getMonth();
-  const dotMap         = {};
-  MOCK_HISTORY.forEach(r => { if (r.dayNum && !dotMap[r.dayNum]) dotMap[r.dayNum] = r.deliveryStatus; });
 
-  const visibleHistory = showAll ? MOCK_HISTORY : MOCK_HISTORY.slice(0, 5);
+  const visibleHistory = showAll ? historyRows : historyRows.slice(0, 5);
 
   function addNote() {
     if (!noteText.trim()) return;
@@ -170,6 +154,9 @@ function AdminCustomerDetail() {
     setNoteText("");
   }
 
+  if (loading) {
+    return <div className="cd-not-found"><p className="cd-not-found-title">Loading…</p></div>;
+  }
   if (!customer) {
     return (
       <div className="cd-not-found">
@@ -252,43 +239,21 @@ function AdminCustomerDetail() {
         {/* Monthly Summary */}
         <div className="cd-monthly-summary">
           <div className="cd-ms-header">
-            <h3 className="cd-ms-title">Monthly Summary — {MONTHLY_SUMMARY.month}</h3>
-            <div className="cd-ms-cycle-badge">
-              <span>Cycle: {MONTHLY_SUMMARY.cycle}</span>
-            </div>
+            <h3 className="cd-ms-title">Monthly Summary — {monthlySummary.month}</h3>
           </div>
 
           <div className="cd-ms-stats-grid">
             <div className="cd-ms-stat">
               <p className="cd-ms-stat-label">Total Deliveries</p>
-              <p className="cd-ms-stat-value">{MONTHLY_SUMMARY.totalDeliveries}</p>
+              <p className="cd-ms-stat-value">{monthlySummary.totalDeliveries || "—"}</p>
             </div>
             <div className="cd-ms-stat">
               <p className="cd-ms-stat-label">Total Paid</p>
-              <p className="cd-ms-stat-value cd-ms-paid">{MONTHLY_SUMMARY.totalPaid}</p>
+              <p className="cd-ms-stat-value cd-ms-paid">{monthlySummary.totalPaid}</p>
             </div>
             <div className="cd-ms-stat">
               <p className="cd-ms-stat-label">Total Unpaid</p>
-              <p className="cd-ms-stat-value cd-ms-unpaid">{MONTHLY_SUMMARY.totalUnpaid}</p>
-            </div>
-            <div className="cd-ms-stat cd-ms-stat-total">
-              <p className="cd-ms-stat-label cd-ms-total-label">Month Bill Total</p>
-              <p className="cd-ms-stat-value">{MONTHLY_SUMMARY.billTotal}</p>
-            </div>
-          </div>
-
-          <div className="cd-ms-products-section">
-            <p className="cd-ms-products-label">Total Products Delivered</p>
-            <div className="cd-ms-products-row">
-              {MONTHLY_SUMMARY.products.map(p => (
-                <div key={p.name} className="cd-ms-product-chip">
-                  <span className="material-symbols-outlined cd-ms-product-icon">{p.icon}</span>
-                  <div>
-                    <p className="cd-ms-product-name">{p.name}</p>
-                    <p className="cd-ms-product-qty">{p.qty}</p>
-                  </div>
-                </div>
-              ))}
+              <p className="cd-ms-stat-value cd-ms-unpaid">{monthlySummary.totalUnpaid}</p>
             </div>
           </div>
         </div>
@@ -410,73 +375,56 @@ function AdminCustomerDetail() {
       {/* ══ Subscription tab ══ */}
       {activeTab === "subscription" && (
         <div className="cd-sub-page">
-          <div className="cd-card cd-sub-plan-card">
-            <div className="cd-sub-plan-top">
-              <div className="cd-sub-plan-icon"><span className="material-symbols-outlined">water_drop</span></div>
-              <div className="cd-sub-plan-info">
-                <div className="cd-sub-plan-name-row">
-                  <h3 className="cd-sub-plan-name">{MOCK_SUBSCRIPTION.plan}</h3>
-                  <span className="cd-badge cd-badge-delivered cd-sub-status-badge">
-                    <span className="cd-sub-status-dot" />Active
-                  </span>
-                </div>
-                <p className="cd-sub-plan-variant">{MOCK_SUBSCRIPTION.variant} · {MOCK_SUBSCRIPTION.frequency}</p>
-              </div>
-              <div className="cd-sub-plan-actions">
-                <button type="button" className="cd-sub-btn-pause"><span className="material-symbols-outlined">pause_circle</span>Pause</button>
-                <button type="button" className="cd-btn-primary" onClick={() => navigate(`/admin/customers/${id}/active-orders`)}><span className="material-symbols-outlined">edit</span>Edit Plan</button>
-              </div>
+          {!activeSub ? (
+            <div className="cd-card cd-tab-panel" style={{ textAlign: "center", padding: "3rem", opacity: 0.5 }}>
+              No active subscription
             </div>
-            <div className="cd-sub-meta-grid">
-              <div className="cd-sub-meta-item"><p className="cd-sub-meta-label">Started</p><p className="cd-sub-meta-val">{MOCK_SUBSCRIPTION.startDate}</p></div>
-              <div className="cd-sub-meta-item"><p className="cd-sub-meta-label">Next Renewal</p><p className="cd-sub-meta-val">{MOCK_SUBSCRIPTION.nextRenewal}</p></div>
-              <div className="cd-sub-meta-item"><p className="cd-sub-meta-label">Monthly Amount</p><p className="cd-sub-meta-val cd-sub-meta-amount">{MOCK_SUBSCRIPTION.monthlyAmt}</p></div>
-              <div className="cd-sub-meta-item"><p className="cd-sub-meta-label">Frequency</p><p className="cd-sub-meta-val">{MOCK_SUBSCRIPTION.frequency}</p></div>
-            </div>
-          </div>
-
-          <div className="cd-card cd-sub-addons-card">
-            <div className="cd-sub-section-header">
-              <h4 className="cd-sub-section-title">Add-ons</h4>
-              <button type="button" className="cd-sub-btn-add" onClick={() => navigate("/admin/orders/new")}><span className="material-symbols-outlined">add</span>Add product</button>
-            </div>
-            <div className="cd-sub-addons-list">
-              {MOCK_SUBSCRIPTION.addOns.map((a, i) => (
-                <div key={i} className="cd-sub-addon-row">
-                  <div className="cd-sub-addon-icon"><span className="material-symbols-outlined">grocery</span></div>
-                  <div className="cd-sub-addon-info">
-                    <p className="cd-sub-addon-name">{a.name}</p>
-                    <p className="cd-sub-addon-freq">{a.freq}</p>
+          ) : (
+            <div className="cd-card cd-sub-plan-card">
+              <div className="cd-sub-plan-top">
+                <div className="cd-sub-plan-icon"><span className="material-symbols-outlined">water_drop</span></div>
+                <div className="cd-sub-plan-info">
+                  <div className="cd-sub-plan-name-row">
+                    <h3 className="cd-sub-plan-name">{activeSub.product_name || activeSub.product_id}</h3>
+                    <span className="cd-badge cd-badge-delivered cd-sub-status-badge">
+                      <span className="cd-sub-status-dot" />{activeSub.status}
+                    </span>
                   </div>
-                  <span className="cd-sub-addon-price">{a.price}</span>
-                  <button type="button" className="cd-sub-addon-remove"><span className="material-symbols-outlined">remove_circle_outline</span></button>
+                  <p className="cd-sub-plan-variant">{activeSub.quantity} {activeSub.product_unit || ""} · {activeSub.frequency}</p>
                 </div>
-              ))}
+                <div className="cd-sub-plan-actions">
+                  <button type="button" className="cd-btn-primary" onClick={() => navigate(`/admin/customers/${id}/active-orders`)}>
+                    <span className="material-symbols-outlined">edit</span>Edit Plan
+                  </button>
+                </div>
+              </div>
+              <div className="cd-sub-meta-grid">
+                <div className="cd-sub-meta-item"><p className="cd-sub-meta-label">Started</p><p className="cd-sub-meta-val">{fmtDate(activeSub.start_date, { day: "2-digit", month: "short", year: "numeric" })}</p></div>
+                <div className="cd-sub-meta-item"><p className="cd-sub-meta-label">Frequency</p><p className="cd-sub-meta-val">{activeSub.frequency}</p></div>
+                <div className="cd-sub-meta-item"><p className="cd-sub-meta-label">Unit Price</p><p className="cd-sub-meta-val cd-sub-meta-amount">{fmt(activeSub.product_price)}</p></div>
+                <div className="cd-sub-meta-item"><p className="cd-sub-meta-label">Quantity</p><p className="cd-sub-meta-val">{activeSub.quantity} {activeSub.product_unit || ""}</p></div>
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="cd-card cd-sub-timeline-card">
-            <h4 className="cd-sub-section-title" style={{ marginBottom: "1rem" }}>Renewal History</h4>
-            <div className="cd-sub-timeline">
-              {[
-                { date: "01 May 2026", amount: "₹2,100", paid: true  },
-                { date: "01 Apr 2026", amount: "₹2,100", paid: true  },
-                { date: "01 Mar 2026", amount: "₹1,960", paid: true  },
-                { date: "01 Feb 2026", amount: "₹1,960", paid: true  },
-                { date: "01 Jan 2026", amount: "₹1,960", paid: true  },
-              ].map((r, i) => (
-                <div key={i} className="cd-sub-tl-row">
-                  <div className="cd-sub-tl-dot" />
-                  <div className="cd-sub-tl-line" />
-                  <div className="cd-sub-tl-content">
-                    <p className="cd-sub-tl-date">{r.date}</p>
-                    <p className="cd-sub-tl-desc">Monthly renewal — {r.amount}</p>
+          {(data?.subscriptions ?? []).length > 1 && (
+            <div className="cd-card cd-sub-timeline-card">
+              <h4 className="cd-sub-section-title" style={{ marginBottom: "1rem" }}>All Subscriptions</h4>
+              <div className="cd-sub-timeline">
+                {(data.subscriptions).map((s, i) => (
+                  <div key={i} className="cd-sub-tl-row">
+                    <div className="cd-sub-tl-dot" />
+                    <div className="cd-sub-tl-line" />
+                    <div className="cd-sub-tl-content">
+                      <p className="cd-sub-tl-date">{fmtDate(s.start_date, { day: "2-digit", month: "short", year: "numeric" })}</p>
+                      <p className="cd-sub-tl-desc">{s.product_name || s.product_id} — {s.quantity} {s.product_unit || ""} / {s.frequency}</p>
+                    </div>
+                    <span className={`cd-badge ${s.status === "active" ? "cd-badge-delivered" : "cd-badge-paused"}`}>{s.status}</span>
                   </div>
-                  <span className={`cd-badge ${r.paid ? "cd-badge-delivered" : "cd-badge-paused"}`}>{r.paid ? "Paid" : "Pending"}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -487,7 +435,10 @@ function AdminCustomerDetail() {
             <table className="cd-table">
               <thead><tr><th>Bill #</th><th>Period</th><th>Amount</th><th>Status</th><th style={{ textAlign: "right" }}>Action</th></tr></thead>
               <tbody>
-                {MOCK_BILLS.map(b => (
+                {bills.length === 0 && (
+                  <tr><td colSpan={5} style={{ textAlign: "center", padding: "2rem", opacity: 0.5 }}>No bills yet</td></tr>
+                )}
+                {bills.map(b => (
                   <tr key={b.id}>
                     <td className="cd-td-bold cd-td-muted">{b.id}</td>
                     <td>{b.period}</td>
@@ -509,14 +460,17 @@ function AdminCustomerDetail() {
             <table className="cd-table">
               <thead><tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
               <tbody>
-                {MOCK_ORDERS.map(o => (
+                {orders.length === 0 && (
+                  <tr><td colSpan={6} style={{ textAlign: "center", padding: "2rem", opacity: 0.5 }}>No orders yet</td></tr>
+                )}
+                {orders.map(o => (
                   <tr key={o.id}>
                     <td className="cd-td-bold cd-td-muted">{o.id}</td>
                     <td>{o.product}</td>
                     <td className="cd-td-muted">{o.qty}</td>
                     <td className="cd-td-bold">{o.amount}</td>
                     <td className="cd-td-muted">{o.date}</td>
-                    <td><span className="cd-badge cd-badge-delivered">Delivered</span></td>
+                    <td><span className={`cd-badge ${o.status === "active" ? "cd-badge-delivered" : "cd-badge-paused"}`}>{o.status || "—"}</span></td>
                   </tr>
                 ))}
               </tbody>
@@ -537,7 +491,10 @@ function AdminCustomerDetail() {
             <table className="cd-table">
               <thead><tr><th>Txn ID</th><th>Description</th><th>Date</th><th style={{ textAlign: "right" }}>Amount</th></tr></thead>
               <tbody>
-                {MOCK_TXNS.map(t => (
+                {txns.length === 0 && (
+                  <tr><td colSpan={4} style={{ textAlign: "center", padding: "2rem", opacity: 0.5 }}>No transactions yet</td></tr>
+                )}
+                {txns.map(t => (
                   <tr key={t.id}>
                     <td className="cd-td-bold cd-td-muted">{t.id}</td>
                     <td>{t.desc}</td>

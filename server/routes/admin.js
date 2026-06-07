@@ -89,19 +89,47 @@ router.get('/customers/:id', requireAdmin, (req, res) => {
   const c = db.prepare('SELECT * FROM users WHERE client_id=? AND is_admin=0').get(req.params.id)
          || db.prepare('SELECT * FROM users WHERE id=? AND is_admin=0').get(req.params.id);
   if (!c) return res.status(404).json({ error: 'Not found' });
-  const addr = db.prepare("SELECT * FROM addresses WHERE user_id=?").all(c.id);
+
+  const addr     = db.prepare('SELECT * FROM addresses WHERE user_id=?').all(c.id);
   const delivery = addr.find(a => a.type === 'delivery') || {};
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+
+  const subscriptions = db.prepare(`
+    SELECT s.*, p.name as product_name, p.price as product_price, p.unit as product_unit
+    FROM subscriptions s
+    LEFT JOIN products p ON p.id = s.product_id
+    WHERE s.user_id = ?
+    ORDER BY s.start_date DESC
+  `).all(c.id);
+
+  const deliveries = db.prepare(`
+    SELECT d.*, p.name as product_name, p.price as product_price, p.unit as product_unit
+    FROM deliveries d
+    JOIN subscriptions s ON s.id = d.subscription_id
+    LEFT JOIN products p ON p.id = s.product_id
+    WHERE s.user_id = ?
+    ORDER BY d.date DESC
+    LIMIT 60
+  `).all(c.id);
+
+  const statement = db.prepare(
+    'SELECT * FROM statement_entries WHERE user_id=? ORDER BY date DESC LIMIT 50'
+  ).all(c.id);
+
   res.json({
     id: c.id, clientId: c.client_id, firstName: c.first_name, lastName: c.last_name,
     email: c.email, phone: c.phone || '', walletBalance: c.wallet_balance,
     createdAt: c.created_at,
-    city:  delivery.city  || '',
-    state: delivery.state || '',
+    street:  delivery.street   || '',
+    city:    delivery.city     || '',
+    state:   delivery.state    || '',
+    pinCode: delivery.pin_code || '',
     status: c.created_at >= thirtyDaysAgo ? 'new' : 'active',
-    subscriptions: db.prepare('SELECT * FROM subscriptions WHERE user_id=?').all(c.id),
-    bills:         db.prepare('SELECT * FROM bills         WHERE user_id=?').all(c.id),
-    orders:        db.prepare('SELECT * FROM orders        WHERE user_id=?').all(c.id),
+    subscriptions,
+    bills:    db.prepare('SELECT * FROM bills  WHERE user_id=? ORDER BY due_date DESC').all(c.id),
+    orders:   db.prepare('SELECT * FROM orders WHERE user_id=? ORDER BY created_at DESC').all(c.id),
+    deliveries,
+    statement,
   });
 });
 
