@@ -56,13 +56,30 @@ router.get('/dashboard', requireAdmin, (req, res) => {
 // ── Customers ─────────────────────────────────────────────────────
 router.get('/customers', requireAdmin, (req, res) => {
   const { limit, offset } = paginate(req);
-  const rows  = db.prepare('SELECT id,client_id,first_name,last_name,email,phone,wallet_balance,created_at FROM users WHERE is_admin=0 ORDER BY created_at DESC LIMIT ? OFFSET ?').all(limit, offset);
-  const total = db.prepare('SELECT COUNT(*) as c FROM users WHERE is_admin=0').get().c;
+  const rows  = db.prepare(`
+    SELECT u.id, u.client_id, u.first_name, u.last_name, u.email, u.phone,
+           u.wallet_balance, u.created_at,
+           a.city, a.state,
+           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_subscription
+    FROM users u
+    LEFT JOIN addresses a ON a.user_id = u.id AND a.type = 'delivery'
+    LEFT JOIN subscriptions s ON s.user_id = u.id AND s.status = 'active'
+    WHERE u.is_admin = 0
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
+    LIMIT ? OFFSET ?
+  `).all(limit, offset);
+  const total    = db.prepare('SELECT COUNT(*) as c FROM users WHERE is_admin=0').get().c;
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
   res.json({
     rows: rows.map(c => ({
       id: c.id, clientId: c.client_id, firstName: c.first_name, lastName: c.last_name,
       email: c.email, phone: c.phone || '', walletBalance: c.wallet_balance,
-      createdAt: c.created_at, status: 'active',
+      createdAt: c.created_at,
+      city:  c.city  || '',
+      state: c.state || '',
+      hasSubscription: !!c.has_subscription,
+      status: c.created_at >= thirtyDaysAgo ? 'new' : 'active',
     })),
     total,
   });
@@ -72,10 +89,16 @@ router.get('/customers/:id', requireAdmin, (req, res) => {
   const c = db.prepare('SELECT * FROM users WHERE client_id=? AND is_admin=0').get(req.params.id)
          || db.prepare('SELECT * FROM users WHERE id=? AND is_admin=0').get(req.params.id);
   if (!c) return res.status(404).json({ error: 'Not found' });
+  const addr = db.prepare("SELECT * FROM addresses WHERE user_id=?").all(c.id);
+  const delivery = addr.find(a => a.type === 'delivery') || {};
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
   res.json({
     id: c.id, clientId: c.client_id, firstName: c.first_name, lastName: c.last_name,
     email: c.email, phone: c.phone || '', walletBalance: c.wallet_balance,
-    createdAt: c.created_at, status: 'active',
+    createdAt: c.created_at,
+    city:  delivery.city  || '',
+    state: delivery.state || '',
+    status: c.created_at >= thirtyDaysAgo ? 'new' : 'active',
     subscriptions: db.prepare('SELECT * FROM subscriptions WHERE user_id=?').all(c.id),
     bills:         db.prepare('SELECT * FROM bills         WHERE user_id=?').all(c.id),
     orders:        db.prepare('SELECT * FROM orders        WHERE user_id=?').all(c.id),

@@ -35,14 +35,14 @@ function toDisplay(c, i) {
     initials,
     email:   c.email,
     phone:   c.phone  || "—",
-    state:   c.deliveryAddress?.state || c.state || "—",
-    city:    c.deliveryAddress?.city  || c.city  || "—",
+    state:   c.state || "—",
+    city:    c.city  || "—",
     joined:  c.createdAt
       ? new Date(c.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
       : "—",
-    type:    c.subscriptionPlan || c.type === "subscription" ? "Subscription" : "Non-subscription",
+    type:    c.hasSubscription ? "Subscription" : "Non-subscription",
     status,
-    isSubscription: status === "active" || c.type === "subscription",
+    isSubscription: !!c.hasSubscription,
     avatarBg: AVATAR_COLORS[i % AVATAR_COLORS.length],
   };
 }
