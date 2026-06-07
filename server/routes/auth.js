@@ -6,8 +6,9 @@ import db from '../db.js';
 import { notify } from '../lib/notify.js';
 import { requireAuth } from '../middleware/auth.js';
 
+import { JWT_SECRET as SECRET } from '../lib/secret.js';
+
 const router = Router();
-const SECRET = process.env.JWT_SECRET || 'gir-rituals-jwt-secret';
 
 function makeToken(payload) {
   return jwt.sign(payload, SECRET, { expiresIn: '7d' });
@@ -78,8 +79,11 @@ router.post('/otp/send', (req, res) => {
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
   db.prepare('DELETE FROM otps WHERE identifier = ?').run(identifier);
   db.prepare('INSERT INTO otps (identifier,code,expires_at) VALUES (?,?,?)').run(identifier, code, expiresAt);
-  // In production replace with real SMS. For demo, return code in response.
-  res.json({ success: true, code });
+  // TODO: send via real SMS in production
+  console.log(`[OTP] ${identifier} → ${code}`);
+  const resp = { success: true };
+  if (process.env.NODE_ENV !== 'production') resp.code = code;
+  res.json(resp);
 });
 
 // POST /api/auth/otp/verify
@@ -172,7 +176,10 @@ router.post('/forgot-password', (req, res) => {
   const key = email.toLowerCase().trim();
   db.prepare('DELETE FROM otps WHERE identifier = ?').run(key);
   db.prepare('INSERT INTO otps (identifier,code,expires_at) VALUES (?,?,?)').run(key, code, expiresAt);
-  res.json({ success: true, phone: user.phone || '', code });
+  console.log(`[OTP] forgot-password ${key} → ${code}`);
+  const resp = { success: true, phone: user.phone || '' };
+  if (process.env.NODE_ENV !== 'production') resp.code = code;
+  res.json(resp);
 });
 
 // POST /api/auth/reset-password

@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
-
-const SECRET = process.env.JWT_SECRET || 'gir-rituals-jwt-secret';
+import { JWT_SECRET as SECRET } from '../lib/secret.js';
 
 export function requireAuth(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];

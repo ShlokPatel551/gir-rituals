@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import helmet from 'helmet';
 import { createRequire } from 'module';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -24,6 +25,12 @@ const PORT      = process.env.PORT || 3001;
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
   : ['http://localhost:5173', 'http://localhost:4173'];
+
+// ── Security headers ───────────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: false,      // React + Google Fonts needs custom CSP — configure separately
+  crossOriginEmbedderPolicy: false,  // Allow embedded resources (images, fonts)
+}));
 
 app.use(cors({
   origin: (origin, cb) => {
@@ -80,5 +87,13 @@ try {
 const distDir = join(__dirname, '..', 'dist');
 app.use(express.static(distDir));
 app.get('*', (_, res) => res.sendFile(join(distDir, 'index.html')));
+
+// ── Global error handler ───────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(`[ERROR] ${req.method} ${req.path} —`, err.message);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({ error: status === 500 ? 'Internal server error' : err.message });
+});
 
 app.listen(PORT, () => console.log(`🐄 GIR RITUALS API → http://localhost:${PORT}`));

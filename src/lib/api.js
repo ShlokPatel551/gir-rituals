@@ -68,10 +68,26 @@ export const api = {
   pauseRitual:  (id) => request(`/rituals/${id}/pause`,  { method: 'POST' }),
   resumeRitual: (id) => request(`/rituals/${id}/resume`, { method: 'POST' }),
 
-  // Admin
-  adminLogin:     (email, password) => request('/admin/login',           { method: 'POST', body: { email, password } }),
-  adminDashboard: ()                => request('/admin/dashboard'),
-  adminCustomers: ()                => request('/admin/customers'),
-  adminCustomer:  (id)              => request(`/admin/customers/${id}`),
-  adminOrders:    ()                => request('/admin/orders'),
+  // Admin — auth + dashboard
+  adminLogin:     (email, password)      => request('/admin/login',      { method: 'POST', body: { email, password } }),
+  adminDashboard: ()                     => request('/admin/dashboard'),
+
+  // Admin — customers
+  adminCustomers: (page, limit)          => request(`/admin/customers?page=${page||1}&limit=${limit||50}`),
+  adminCustomer:  (id)                   => request(`/admin/customers/${id}`),
+
+  // Admin — orders
+  adminOrders:    (page, limit)          => request(`/admin/orders?page=${page||1}&limit=${limit||50}`),
+
+  // Admin — billing
+  adminBilling:   (page, limit)          => request(`/admin/billing?page=${page||1}&limit=${limit||50}`),
+
+  // Admin — finance
+  adminFinance:   ()                     => request('/admin/finance'),
+
+  // Admin — analytics
+  adminAnalytics: ()                     => request('/admin/analytics'),
+
+  // Admin — refunds
+  adminRefunds:   (page, limit)          => request(`/admin/refunds?page=${page||1}&limit=${limit||50}`),
 };

@@ -4,6 +4,7 @@ import db from '../db.js';
 const router = Router();
 
 router.get('/', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
   const rows = db.prepare('SELECT * FROM offers WHERE is_active=1').all();
   res.json(rows.map(o => ({
     id: o.id, title: o.title, description: o.description,

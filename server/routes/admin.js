@@ -3,10 +3,18 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../db.js';
 import { requireAdmin } from '../middleware/auth.js';
+import { JWT_SECRET as SECRET } from '../lib/secret.js';
 
 const router = Router();
-const SECRET = process.env.JWT_SECRET || 'gir-rituals-jwt-secret';
 
+function paginate(req) {
+  const limit  = Math.min(parseInt(req.query.limit)  || 50, 100);
+  const page   = Math.max(parseInt(req.query.page)   || 1,  1);
+  const offset = (page - 1) * limit;
+  return { limit, offset, page };
+}
+
+// ── Auth ──────────────────────────────────────────────────────────
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
   const u = db.prepare('SELECT * FROM users WHERE email=? AND is_admin=1').get(email?.toLowerCase());
@@ -16,6 +24,7 @@ router.post('/login', (req, res) => {
   res.json({ token, name: `${u.first_name} ${u.last_name}` });
 });
 
+// ── Dashboard ─────────────────────────────────────────────────────
 router.get('/dashboard', requireAdmin, (req, res) => {
   res.json({
     totalCustomers:      db.prepare("SELECT COUNT(*) as c FROM users WHERE is_admin=0").get().c,
@@ -26,19 +35,19 @@ router.get('/dashboard', requireAdmin, (req, res) => {
   });
 });
 
+// ── Customers ─────────────────────────────────────────────────────
 router.get('/customers', requireAdmin, (req, res) => {
-  const rows = db.prepare('SELECT id,client_id,first_name,last_name,email,phone,wallet_balance,created_at FROM users WHERE is_admin=0').all();
-  res.json(rows.map(c => ({
-    id: c.id,
-    clientId: c.client_id,
-    firstName: c.first_name,
-    lastName: c.last_name,
-    email: c.email,
-    phone: c.phone || '',
-    walletBalance: c.wallet_balance,
-    createdAt: c.created_at,
-    status: 'active',
-  })));
+  const { limit, offset } = paginate(req);
+  const rows  = db.prepare('SELECT id,client_id,first_name,last_name,email,phone,wallet_balance,created_at FROM users WHERE is_admin=0 ORDER BY created_at DESC LIMIT ? OFFSET ?').all(limit, offset);
+  const total = db.prepare('SELECT COUNT(*) as c FROM users WHERE is_admin=0').get().c;
+  res.json({
+    rows: rows.map(c => ({
+      id: c.id, clientId: c.client_id, firstName: c.first_name, lastName: c.last_name,
+      email: c.email, phone: c.phone || '', walletBalance: c.wallet_balance,
+      createdAt: c.created_at, status: 'active',
+    })),
+    total,
+  });
 });
 
 router.get('/customers/:id', requireAdmin, (req, res) => {
@@ -46,28 +55,76 @@ router.get('/customers/:id', requireAdmin, (req, res) => {
          || db.prepare('SELECT * FROM users WHERE id=? AND is_admin=0').get(req.params.id);
   if (!c) return res.status(404).json({ error: 'Not found' });
   res.json({
-    id: c.id,
-    clientId: c.client_id,
-    firstName: c.first_name,
-    lastName: c.last_name,
-    email: c.email,
-    phone: c.phone || '',
-    walletBalance: c.wallet_balance,
-    createdAt: c.created_at,
-    status: 'active',
+    id: c.id, clientId: c.client_id, firstName: c.first_name, lastName: c.last_name,
+    email: c.email, phone: c.phone || '', walletBalance: c.wallet_balance,
+    createdAt: c.created_at, status: 'active',
     subscriptions: db.prepare('SELECT * FROM subscriptions WHERE user_id=?').all(c.id),
-    bills:         db.prepare('SELECT * FROM bills WHERE user_id=?').all(c.id),
-    orders:        db.prepare('SELECT * FROM orders WHERE user_id=?').all(c.id),
+    bills:         db.prepare('SELECT * FROM bills         WHERE user_id=?').all(c.id),
+    orders:        db.prepare('SELECT * FROM orders        WHERE user_id=?').all(c.id),
   });
 });
 
+// ── Orders ────────────────────────────────────────────────────────
 router.get('/orders', requireAdmin, (req, res) => {
-  const rows = db.prepare(
-    'SELECT o.*,u.email,u.first_name,u.last_name FROM orders o JOIN users u ON o.user_id=u.id ORDER BY o.created_at DESC'
-  ).all();
-  res.json(rows);
+  const { limit, offset } = paginate(req);
+  const rows  = db.prepare(
+    'SELECT o.*,u.email,u.first_name,u.last_name FROM orders o JOIN users u ON o.user_id=u.id ORDER BY o.created_at DESC LIMIT ? OFFSET ?'
+  ).all(limit, offset);
+  const total = db.prepare('SELECT COUNT(*) as c FROM orders').get().c;
+  res.json({ rows, total });
 });
 
+// ── Billing ───────────────────────────────────────────────────────
+router.get('/billing', requireAdmin, (req, res) => {
+  const { limit, offset } = paginate(req);
+  const rows  = db.prepare(
+    'SELECT b.*,u.first_name,u.last_name,u.email,u.client_id FROM bills b JOIN users u ON b.user_id=u.id ORDER BY b.due_date DESC LIMIT ? OFFSET ?'
+  ).all(limit, offset);
+  const total   = db.prepare('SELECT COUNT(*) as c FROM bills').get().c;
+  const unpaid  = db.prepare("SELECT COUNT(*) as c FROM bills WHERE status='unpaid'").get().c;
+  const revenue = db.prepare("SELECT COALESCE(SUM(amount),0) as r FROM bills WHERE status='paid'").get().r;
+  res.json({ rows, total, unpaid, revenue });
+});
+
+// ── Finance ───────────────────────────────────────────────────────
+router.get('/finance', requireAdmin, (req, res) => {
+  const totalRevenue = db.prepare("SELECT COALESCE(SUM(amount),0) as r FROM bills WHERE status='paid'").get().r;
+  const monthRevenue = db.prepare(
+    "SELECT COALESCE(SUM(amount),0) as r FROM bills WHERE status='paid' AND strftime('%Y-%m',paid_date)=strftime('%Y-%m','now')"
+  ).get().r;
+  const pendingRevenue = db.prepare("SELECT COALESCE(SUM(amount),0) as r FROM bills WHERE status='unpaid'").get().r;
+  const recentTransactions = db.prepare(
+    "SELECT b.*,u.first_name,u.last_name,u.client_id FROM bills b JOIN users u ON b.user_id=u.id WHERE b.status='paid' ORDER BY b.paid_date DESC LIMIT 10"
+  ).all();
+  res.json({ totalRevenue, monthRevenue, pendingRevenue, recentTransactions });
+});
+
+// ── Analytics ─────────────────────────────────────────────────────
+router.get('/analytics', requireAdmin, (req, res) => {
+  const newThisMonth = db.prepare(
+    "SELECT COUNT(*) as c FROM users WHERE is_admin=0 AND strftime('%Y-%m',created_at)=strftime('%Y-%m','now')"
+  ).get().c;
+  const totalCustomers    = db.prepare("SELECT COUNT(*) as c FROM users WHERE is_admin=0").get().c;
+  const activeSubscriptions = db.prepare("SELECT COUNT(*) as c FROM subscriptions WHERE status='active'").get().c;
+  const totalOrders       = db.prepare("SELECT COUNT(*) as c FROM orders").get().c;
+  const totalRevenue      = db.prepare("SELECT COALESCE(SUM(amount),0) as r FROM bills WHERE status='paid'").get().r;
+  const topProducts       = db.prepare(
+    "SELECT product_name, COUNT(*) as count FROM orders GROUP BY product_name ORDER BY count DESC LIMIT 5"
+  ).all();
+  res.json({ newThisMonth, totalCustomers, activeSubscriptions, totalOrders, totalRevenue, topProducts });
+});
+
+// ── Refunds ───────────────────────────────────────────────────────
+router.get('/refunds', requireAdmin, (req, res) => {
+  const { limit, offset } = paginate(req);
+  const rows  = db.prepare(
+    "SELECT o.*,u.first_name,u.last_name,u.email,u.client_id FROM orders o JOIN users u ON o.user_id=u.id WHERE o.status='cancelled' ORDER BY o.created_at DESC LIMIT ? OFFSET ?"
+  ).all(limit, offset);
+  const total = db.prepare("SELECT COUNT(*) as c FROM orders WHERE status='cancelled'").get().c;
+  res.json({ rows, total });
+});
+
+// ── OTP logs (internal debug) ─────────────────────────────────────
 router.get('/otp-logs', requireAdmin, (req, res) => {
   const rows = db.prepare('SELECT * FROM otps ORDER BY created_at DESC LIMIT 100').all();
   res.json(rows);

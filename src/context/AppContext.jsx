@@ -40,8 +40,8 @@ function AppProvider({ children }) {
 
   // Public data — load on mount regardless of auth
   useEffect(() => {
-    api.getProducts().then(setProducts).catch(() => {});
-    api.getOffers().then(setOffers).catch(() => {});
+    api.getProducts().then(setProducts).catch(err => console.error('[App] getProducts:', err.message));
+    api.getOffers().then(setOffers).catch(err => console.error('[App] getOffers:', err.message));
   }, []);
 
   const loadUserData = useCallback(async () => {
@@ -61,8 +61,8 @@ function AppProvider({ children }) {
       setRituals(ritualsData);
       setStatementEntries(stmtData);
       setOrders(ordersData);
-    } catch {
-      // network error or not logged in — silently ignore
+    } catch (err) {
+      console.error('[App] loadUserData:', err.message);
     }
   }, []);
 
@@ -101,8 +101,8 @@ function AppProvider({ children }) {
       const ritual = prev.find(r => r.id === ritualId);
       if (!ritual) return prev;
       const isPaused = ritual.status === "Paused";
-      if (isPaused) api.resumeRitual(ritualId).catch(() => {});
-      else api.pauseRitual(ritualId).catch(() => {});
+      if (isPaused) api.resumeRitual(ritualId).catch(err => console.error('[App] resumeRitual:', err.message));
+      else api.pauseRitual(ritualId).catch(err => console.error('[App] pauseRitual:', err.message));
       setPausedToday(p => ({ ...p, [ritualId]: !isPaused }));
       return prev.map(r => r.id === ritualId ? { ...r, status: isPaused ? "Pending" : "Paused" } : r);
     });
@@ -158,8 +158,9 @@ function AppProvider({ children }) {
     try {
       const { paidDate } = await api.payBill(billId, { method: "UPI" });
       setBills(prev => prev.map(b => b.id === billId ? { ...b, status: "paid", paidDate, method: "UPI" } : b));
-    } catch {
-      // silently ignore — payment page handles errors
+    } catch (err) {
+      console.error('[App] payBill:', err.message);
+      throw err; // re-throw so payment page can show an error
     }
   }, []);
 
@@ -167,28 +168,40 @@ function AppProvider({ children }) {
     try {
       await api.cancelOrder(orderId);
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: "cancelled" } : o));
-    } catch {}
+    } catch (err) {
+      console.error('[App] cancelOrder:', err.message);
+      throw err;
+    }
   }, []);
 
   const addPaymentMethod = useCallback(async (method) => {
     try {
       const pm = await api.addPaymentMethod(method);
       setPaymentMethods(prev => [...prev, pm]);
-    } catch {}
+    } catch (err) {
+      console.error('[App] addPaymentMethod:', err.message);
+      throw err;
+    }
   }, []);
 
   const removePaymentMethod = useCallback(async (id) => {
     try {
       await api.deletePaymentMethod(id);
       setPaymentMethods(prev => prev.filter(m => m.id !== id));
-    } catch {}
+    } catch (err) {
+      console.error('[App] removePaymentMethod:', err.message);
+      throw err;
+    }
   }, []);
 
   const setDefaultPaymentMethod = useCallback(async (id) => {
     try {
       await api.setDefaultPaymentMethod(id);
       setPaymentMethods(prev => prev.map(m => ({ ...m, isDefault: m.id === id })));
-    } catch {}
+    } catch (err) {
+      console.error('[App] setDefaultPaymentMethod:', err.message);
+      throw err;
+    }
   }, []);
 
   const cartCount = cart.reduce((sum, c) => sum + c.quantity, 0);
