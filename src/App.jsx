@@ -9,8 +9,10 @@ import { ProtectedAdminRoute } from "./components/ProtectedAdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminBilling } from "./pages/admin/AdminBilling";
 import { AdminCampaigns } from "./pages/admin/AdminCampaigns";
+import { AdminCreateBanner } from "./pages/admin/AdminCreateBanner";
 import { AdminComms } from "./pages/admin/AdminComms";
 import { AdminOffers } from "./pages/admin/AdminOffers";
+import { AdminCreateOffer } from "./pages/admin/AdminCreateOffer";
 import { AdminCustomerDetail } from "./pages/admin/AdminCustomerDetail";
 import { AdminCustomerBilling } from "./pages/admin/AdminCustomerBilling";
 import { AdminCustomerOrders } from "./pages/admin/AdminCustomerOrders";
@@ -106,7 +108,9 @@ function AppRoutes() {
         <Route path="analytics" element={<AdminAnalytics />} />
         <Route path="refunds" element={<AdminRefunds />} />
         <Route path="offers" element={<AdminOffers />} />
+        <Route path="offers/create" element={<AdminCreateOffer />} />
         <Route path="campaigns" element={<AdminCampaigns />} />
+        <Route path="campaigns/create" element={<AdminCreateBanner />} />
         <Route path="comms" element={<AdminComms />} />
         <Route path="settings" element={<AdminSettings />} />
         <Route path="team" element={<AdminTeam />} />

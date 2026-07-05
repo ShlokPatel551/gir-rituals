@@ -147,6 +147,10 @@ export const api = {
   adminTeamSetRole:    (id, adminRole) => request(`/admin/team/${id}/role`, { method: 'PATCH',  body: { adminRole } }),
   adminTeamRemove:     (id)            => request(`/admin/team/${id}`,      { method: 'DELETE' }),
 
+  // Admin — deliveries
+  adminDeliveries:     (date) => request(`/admin/deliveries?date=${date}`),
+  adminDeliveryStatus: (data) => request('/admin/deliveries/status', { method: 'PUT', body: data }),
+
   // Admin — app settings
   adminSettings:       ()     => request('/admin/settings'),
   adminSaveSettings:   (data) => request('/admin/settings', { method: 'PUT', body: data }),

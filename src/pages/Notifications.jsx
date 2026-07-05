@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { useToast } from "../context/ToastContext";
+import { PROMO_NOTIFICATIONS } from "../lib/promoData";
 import "./Notifications.css";
 
 /* ── Type config ─────────────────────────────────────────────── */
@@ -21,6 +22,8 @@ const TABS = [
 
 /* ── Mock data ───────────────────────────────────────────────── */
 const MOCK_NOTIFS = [
+  // Active offer/banner notifications injected from admin promo data
+  ...PROMO_NOTIFICATIONS,
   {
     id: "mn1", type: "delivery", group: "today", read: false,
     title: "Fresh A2 Milk Out for Delivery",

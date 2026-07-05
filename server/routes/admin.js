@@ -272,6 +272,114 @@ router.delete('/team/:id', requireAdmin, requireAdminRole('owner'), (req, res) =
   res.json({ success: true });
 });
 
+// ── Deliveries ────────────────────────────────────────────────────
+router.get('/deliveries', requireAdmin, (req, res) => {
+  const date = req.query.date || new Date().toISOString().slice(0, 10);
+
+  // All active/paused subscriptions with customer + product + address
+  const subs = db.prepare(`
+    SELECT
+      s.id       AS sub_id,
+      s.quantity,
+      s.status   AS sub_status,
+      p.name     AS product_name,
+      p.price,
+      p.unit,
+      u.client_id,
+      u.first_name,
+      u.last_name,
+      u.phone,
+      a.street,
+      a.city,
+      a.pin_code
+    FROM subscriptions s
+    JOIN users u    ON u.id  = s.user_id     AND u.is_admin = 0
+    JOIN products p ON p.id  = s.product_id
+    LEFT JOIN addresses a ON a.user_id = u.id AND a.type = 'delivery'
+    WHERE s.status IN ('active', 'paused')
+    ORDER BY u.client_id, s.id
+  `).all();
+
+  // Existing delivery records for this date, keyed by subscription_id
+  const existing = db.prepare('SELECT * FROM deliveries WHERE date = ?').all(date);
+  const deliveryMap = {};
+  for (const d of existing) deliveryMap[d.subscription_id] = d;
+
+  // Group by customer
+  const customerMap = {};
+  for (const s of subs) {
+    if (!customerMap[s.client_id]) {
+      customerMap[s.client_id] = {
+        clientId:    s.client_id,
+        displayName: `${s.first_name} ${s.last_name}`,
+        phone:       s.phone || '',
+        address:     [s.street, s.city, s.pin_code].filter(Boolean).join(', '),
+        items:       [],
+      };
+    }
+
+    const d        = deliveryMap[s.sub_id];
+    const isPaused = s.sub_status === 'paused';
+    const status   = (d?.status || (isPaused ? 'paused' : 'pending')).toLowerCase();
+    const qty      = d?.quantity ?? s.quantity;
+
+    customerMap[s.client_id].items.push({
+      deliveryId:     d?.id ?? null,
+      subscriptionId: s.sub_id,
+      orderId:        d ? `DEL-${d.id}` : `SUB-${s.sub_id}`,
+      product:        s.product_name,
+      qty:            `${qty} ${s.unit}`,
+      type:           'subscription',
+      amount:         Math.round(s.price * qty),
+      amountStatus:   isPaused ? 'not_charged' : 'monthly_bill',
+      paymentMethod:  isPaused ? '—' : 'Monthly',
+      status,
+    });
+  }
+
+  const groups   = Object.values(customerMap);
+  const allItems = groups.flatMap(g => g.items);
+
+  res.json({
+    date,
+    counts: {
+      total:     allItems.length,
+      delivered: allItems.filter(i => i.status === 'delivered').length,
+      pending:   allItems.filter(i => i.status === 'pending').length,
+      paused:    allItems.filter(i => i.status === 'paused').length,
+    },
+    groups,
+  });
+});
+
+router.put('/deliveries/status', requireAdmin, (req, res) => {
+  const { subscriptionId, date, status } = req.body;
+  if (!subscriptionId || !date || !status)
+    return res.status(400).json({ error: 'subscriptionId, date, and status are required' });
+
+  const VALID_STATUSES = ['pending', 'delivered', 'paused'];
+  if (!VALID_STATUSES.includes(status))
+    return res.status(400).json({ error: `status must be one of: ${VALID_STATUSES.join(', ')}` });
+
+  const sub = db.prepare('SELECT * FROM subscriptions WHERE id = ?').get(subscriptionId);
+  if (!sub) return res.status(404).json({ error: 'Subscription not found' });
+
+  const existing = db.prepare('SELECT * FROM deliveries WHERE subscription_id = ? AND date = ?').get(subscriptionId, date);
+
+  let deliveryId;
+  if (existing) {
+    db.prepare('UPDATE deliveries SET status = ? WHERE id = ?').run(status, existing.id);
+    deliveryId = existing.id;
+  } else {
+    const r = db.prepare(
+      'INSERT INTO deliveries (subscription_id, date, quantity, status) VALUES (?, ?, ?, ?)'
+    ).run(subscriptionId, date, sub.quantity, status);
+    deliveryId = r.lastInsertRowid;
+  }
+
+  res.json({ success: true, deliveryId, orderId: `DEL-${deliveryId}`, status });
+});
+
 // ── App Settings (owner only) ─────────────────────────────────────
 const SETTING_KEYS = new Set([
   'twilio_account_sid', 'twilio_auth_token', 'twilio_whatsapp_from',

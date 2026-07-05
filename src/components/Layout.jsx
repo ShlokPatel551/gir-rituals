@@ -4,6 +4,7 @@ import { useApp } from "../context/AppContext";
 import { BottomNav } from "./BottomNav";
 import { Footer } from "./Footer";
 import { Sidebar, DesktopSidebar } from "./Sidebar";
+import { PROMO_NOTIFICATIONS } from "../lib/promoData";
 import "./Layout.css";
 
 const NOTIF_TYPE_CFG = {
@@ -14,10 +15,12 @@ const NOTIF_TYPE_CFG = {
 };
 
 const MOCK_HEADER_NOTIFS = [
+  // Live offer/banner notifications from admin (always at top, unread)
+  { id: PROMO_NOTIFICATIONS[0].id, type: "offer", read: false, title: PROMO_NOTIFICATIONS[0].title, message: PROMO_NOTIFICATIONS[0].message, time: "Today" },
+  { id: PROMO_NOTIFICATIONS[1].id, type: "offer", read: false, title: PROMO_NOTIFICATIONS[1].title, message: PROMO_NOTIFICATIONS[1].message, time: "Today" },
   { id: "h1", type: "delivery", read: false, title: "Fresh A2 Milk Out for Delivery", message: "Your 2L daily subscription is with our delivery partner.", time: "06:45 AM" },
   { id: "h2", type: "payment",  read: true,  title: "Wallet Recharged Successfully",  message: "₹5,000 added. Bonus ₹250 as Loyalty Ritual reward.",    time: "Yesterday" },
   { id: "h3", type: "offer",    read: false, title: "Vedic Ghee Early Access",         message: "20% off Hand-Churned Bilona Ghee for members.",         time: "Oct 24"    },
-  { id: "h4", type: "info",     read: true,  title: "Scheduled Maintenance",           message: "App maintenance Sunday Oct 27, 2 AM – 4 AM.",           time: "Oct 23"    },
 ];
 
 const AUTH_PATHS = ["/", "/login", "/register", "/otp", "/forgot-password"];
@@ -37,7 +40,9 @@ function Layout() {
   const isAdmin = location.pathname.startsWith("/admin");
   const isAuth = AUTH_PATHS.includes(location.pathname) || location.pathname.startsWith("/otp");
   const hideNav = NO_NAV_PATHS.some((p) => location.pathname.startsWith(p));
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.length > 0
+    ? notifications.filter((n) => !n.read).length
+    : MOCK_HEADER_NOTIFS.filter((n) => !n.read).length;
   const searchResults = searchQuery.trim().length > 0 ? products.filter(
     (p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase())
   ) : [];

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { useToast } from "../context/ToastContext";
+import { ACTIVE_OFFERS } from "../lib/promoData";
 import "./Home.css";
 
 /* ── Lifestyle images (AIDA-generated, same palette as reference design) ── */
@@ -64,6 +65,9 @@ function Home() {
   const { showToast } = useToast();
 
   const [bannerIdx, setBannerIdx] = useState(0);
+  const [promoBarDismissed, setPromoBarDismissed] = useState(
+    () => sessionStorage.getItem("promoBarDismissed") === "1"
+  );
   const [extraModal, setExtraModal] = useState(false);
   const [extraProduct, setExtraProduct] = useState("");
   const [extraQty, setExtraQty] = useState(1);
@@ -96,8 +100,30 @@ function Home() {
   const activeRitual = rituals.find(r => r.status !== "Paused" && r.status !== "Cancelled");
   const activeProduct = activeRitual ? products.find(p => p.id === activeRitual.productId) : null;
 
+  const dismissPromoBar = () => {
+    sessionStorage.setItem("promoBarDismissed", "1");
+    setPromoBarDismissed(true);
+  };
+
   return (
     <div className="home-page">
+
+      {/* ══ PROMO ANNOUNCEMENT BAR ══ */}
+      {!promoBarDismissed && ACTIVE_OFFERS.length > 0 && (
+        <div className="h-promo-bar">
+          <span className="h-promo-bar-icon">🎉</span>
+          <p className="h-promo-bar-text">
+            <strong>{ACTIVE_OFFERS.length} new offers</strong> are live right now — don't miss out!
+          </p>
+          <Link to="/offers" className="h-promo-bar-link">
+            View all
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>arrow_forward</span>
+          </Link>
+          <button type="button" className="h-promo-bar-close" onClick={dismissPromoBar} aria-label="Dismiss">
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+          </button>
+        </div>
+      )}
 
       {/* ══ HERO ══ */}
       <section className="h-hero">
@@ -204,6 +230,34 @@ function Home() {
           ))}
         </div>
       </section>
+
+      {/* ══ LIVE OFFERS STRIP ══ */}
+      {ACTIVE_OFFERS.length > 0 && (
+        <section className="h-offers-section">
+          <div className="h-offers-hdr">
+            <h2 className="h-offers-title">
+              <span className="h-offers-live-dot" />
+              Live Offers
+            </h2>
+            <Link to="/offers" className="h-offers-link">View all →</Link>
+          </div>
+          <div className="h-offers-scroll">
+            {ACTIVE_OFFERS.map(offer => (
+              <Link key={offer.id} to="/offers" className="h-offer-chip">
+                <div className="h-offer-chip-hdr" style={{ background: offer.color }}>
+                  <span className="h-offer-chip-deal">{offer.deal}</span>
+                  <span className="h-offer-chip-emoji">{offer.emoji}</span>
+                </div>
+                <div className="h-offer-chip-body">
+                  <span className="h-offer-chip-badge" style={{ background: offer.color }}>{offer.badge}</span>
+                  <span className="h-offer-chip-title">{offer.title}</span>
+                  <span className="h-offer-chip-expires">{offer.expiresLabel}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ══ DAILY RITUALS ══ */}
       <section className="h-section">
