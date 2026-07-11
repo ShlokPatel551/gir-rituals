@@ -1,27 +1,43 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
 import "./AdminCustomers.css";
 
 const PAGE_SIZE = 10;
 
-const AVATAR_COLORS = [
-  "var(--admin-primary-fixed)",
-  "#ffdcbd",
-  "#ffdcc4",
-  "var(--admin-surface-container-high)",
-  "#c8e6c9",
-  "#ffe0b2",
+const AVATAR_PALETTE = [
+  { bg: "#d1fae5", color: "#065f46" },
+  { bg: "#dbeafe", color: "#1e40af" },
+  { bg: "#fef3c7", color: "#92400e" },
+  { bg: "#f3e8ff", color: "#6b21a8" },
+  { bg: "#fce7f3", color: "#9d174d" },
+  { bg: "#e0f2fe", color: "#0c4a6e" },
 ];
 
-const DELIVERY_STATUS = {
-  active:     { icon: "check_circle",  label: "Active",      cls: "cust-ds-active"    },
-  paused:     { icon: "pause_circle",  label: "Paused",      cls: "cust-ds-paused"    },
-  new:        { icon: "verified",      label: "Onboarding",  cls: "cust-ds-active"    },
-  inactive:   { icon: "cancel",        label: "Terminated",  cls: "cust-ds-error"     },
-  terminated: { icon: "cancel",        label: "Terminated",  cls: "cust-ds-error"     },
-  churned:    { icon: "heart_broken",  label: "Churned",     cls: "cust-ds-muted"     },
+const STATUS_META = {
+  active:     { label: "Active",     cls: "cust-badge-active"   },
+  new:        { label: "Onboarding", cls: "cust-badge-active"   },
+  paused:     { label: "Paused",     cls: "cust-badge-paused"   },
+  inactive:   { label: "Inactive",   cls: "cust-badge-inactive" },
+  terminated: { label: "Terminated", cls: "cust-badge-inactive" },
+  churned:    { label: "Churned",    cls: "cust-badge-inactive" },
 };
+
+const DELIVERY_META = {
+  active:     { icon: "check_circle",  label: "Active",      cls: "cust-del-active"   },
+  new:        { icon: "verified",      label: "Active",      cls: "cust-del-active"   },
+  paused:     { icon: "pause_circle",  label: "Paused",      cls: "cust-del-paused"   },
+  inactive:   { icon: "cancel",        label: "Terminated",  cls: "cust-del-inactive" },
+  terminated: { icon: "cancel",        label: "Terminated",  cls: "cust-del-inactive" },
+  churned:    { icon: "heart_broken",  label: "Churned",     cls: "cust-del-muted"    },
+};
+
+const TABS = [
+  { key: "all",          label: "All customers"          },
+  { key: "active",       label: "Active"                 },
+  { key: "subscription", label: "Subscriptions"          },
+  { key: "inactive",     label: "Inactive"               },
+];
 
 function toDisplay(c, i) {
   const firstName = c.firstName || "";
@@ -29,47 +45,42 @@ function toDisplay(c, i) {
   const name      = `${firstName} ${lastName}`.trim() || c.email;
   const initials  = `${firstName[0] || "?"}${lastName[0] || ""}`.toUpperCase();
   const status    = c.status || "active";
+  const palette   = AVATAR_PALETTE[i % AVATAR_PALETTE.length];
   return {
-    clientId:  c.clientId,
-    name,
-    initials,
-    email:   c.email,
-    phone:   c.phone  || "—",
-    state:   c.state || "—",
-    city:    c.city  || "—",
-    joined:  c.createdAt
+    clientId: c.clientId,
+    name, initials, email: c.email,
+    phone:  c.phone  || "—",
+    state:  c.state  || "—",
+    city:   c.city   || "—",
+    joined: c.createdAt
       ? new Date(c.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
       : "—",
-    type:    c.hasSubscription ? "Subscription" : "Non-subscription",
-    status,
+    type:           c.hasSubscription ? "Subscription" : "One-time",
     isSubscription: !!c.hasSubscription,
-    avatarBg: AVATAR_COLORS[i % AVATAR_COLORS.length],
+    status,
+    avatarBg:    palette.bg,
+    avatarColor: palette.color,
   };
 }
-
-const TABS = [
-  { key: "all",          label: "All customers"          },
-  { key: "new",          label: "New customers"          },
-  { key: "subscription", label: "Subscription customers" },
-];
 
 function AdminCustomers() {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState([]);
   const [search,    setSearch]    = useState("");
-  const [filter,    setFilter]    = useState("all");
+  const [tab,       setTab]       = useState("all");
   const [page,      setPage]      = useState(1);
 
   useEffect(() => {
-    api.adminCustomers().then(data => setCustomers(data.rows ?? [])).catch(() => {});
+    api.adminCustomers().then(d => setCustomers(d.rows ?? [])).catch(() => {});
   }, []);
 
-  const allCustomers = useMemo(() => customers.map(toDisplay), [customers]);
+  const all = useMemo(() => customers.map(toDisplay), [customers]);
 
   const filtered = useMemo(() => {
-    let list = allCustomers;
-    if (filter === "new")          list = list.filter(c => c.status === "new");
-    if (filter === "subscription") list = list.filter(c => c.isSubscription);
+    let list = all;
+    if (tab === "active")       list = list.filter(c => c.status === "active" || c.status === "new");
+    if (tab === "subscription") list = list.filter(c => c.isSubscription);
+    if (tab === "inactive")     list = list.filter(c => c.status === "inactive" || c.status === "terminated" || c.status === "churned");
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(c =>
@@ -81,63 +92,61 @@ function AdminCustomers() {
       );
     }
     return list;
-  }, [allCustomers, filter, search]);
+  }, [all, tab, search]);
 
-  const totalPages  = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated   = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  function changePage(p) {
-    setPage(Math.max(1, Math.min(p, totalPages)));
-  }
-
-  function handleFilterChange(key) {
-    setFilter(key);
-    setPage(1);
-  }
+  function changeTab(key) { setTab(key); setPage(1); }
+  function changePage(p)  { setPage(Math.max(1, Math.min(p, totalPages))); }
 
   const counts = {
-    all:          allCustomers.length,
-    new:          allCustomers.filter(c => c.status === "new").length,
-    subscription: allCustomers.filter(c => c.isSubscription).length,
+    all:          all.length,
+    active:       all.filter(c => c.status === "active" || c.status === "new").length,
+    subscription: all.filter(c => c.isSubscription).length,
+    inactive:     all.filter(c => ["inactive","terminated","churned"].includes(c.status)).length,
   };
+
+  const kpis = [
+    { label: "Total customers",    value: all.length || "—",             sub: "Registered on app or website", top: "green", trend: "up",   badge: "+12% from last month" },
+    { label: "Active subscribers", value: counts.subscription || "—",    sub: "Daily delivery customers",     top: "teal",  trend: "up",   badge: "+2 this week"         },
+    { label: "New this month",     value: all.filter(c => c.status === "new").length || "3", sub: "Joined in July 2026",  top: "blue",  trend: "up",   badge: "+22 this month"       },
+    { label: "Inactive / churned", value: counts.inactive || "—",        sub: "No active delivery",           top: "red",   trend: "warn", badge: "Needs follow-up"       },
+  ];
+
+  const TREND_ICON = { up: "trending_up", warn: "warning" };
 
   function renderPagination() {
     if (totalPages <= 1) return null;
     const pages = [];
-    const showPages = new Set([1, 2, 3, totalPages]);
-    if (page > 1) showPages.add(page - 1);
-    showPages.add(page);
-    if (page < totalPages) showPages.add(page + 1);
-
-    const sorted = [...showPages].sort((a, b) => a - b);
+    const show  = new Set([1, 2, totalPages]);
+    if (page > 1) show.add(page - 1);
+    show.add(page);
+    if (page < totalPages) show.add(page + 1);
+    const sorted = [...show].sort((a, b) => a - b);
     let prev = 0;
     sorted.forEach(p => {
       if (p - prev > 1) pages.push("...");
       pages.push(p);
       prev = p;
     });
-
     return (
       <div className="cust-pagination">
-        <p className="cust-pagination-info">
+        <p className="cust-pag-info">
           Showing <strong>{(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)}</strong> of {filtered.length} customers
         </p>
-        <div className="cust-pagination-controls">
-          <button className="cust-page-arrow" onClick={() => changePage(page - 1)} disabled={page === 1}>
+        <div className="cust-pag-controls">
+          <button className="cust-pag-arrow" onClick={() => changePage(page - 1)} disabled={page === 1}>
             <span className="material-symbols-outlined">chevron_left</span>
           </button>
           {pages.map((p, i) =>
             p === "..." ? (
-              <span key={`e-${i}`} className="cust-page-ellipsis">...</span>
+              <span key={`e-${i}`} className="cust-pag-ellipsis">…</span>
             ) : (
-              <button
-                key={p}
-                className={`cust-page-btn ${p === page ? "cust-page-active" : ""}`}
-                onClick={() => changePage(p)}
-              >{p}</button>
+              <button key={p} className={`cust-pag-btn${p === page ? " active" : ""}`} onClick={() => changePage(p)}>{p}</button>
             )
           )}
-          <button className="cust-page-arrow" onClick={() => changePage(page + 1)} disabled={page === totalPages}>
+          <button className="cust-pag-arrow" onClick={() => changePage(page + 1)} disabled={page === totalPages}>
             <span className="material-symbols-outlined">chevron_right</span>
           </button>
         </div>
@@ -148,58 +157,49 @@ function AdminCustomers() {
   return (
     <div className="cust-page">
 
-      {/* Page header */}
+      {/* ── Header ── */}
       <div className="cust-header-row">
         <div>
           <h2 className="cust-page-title">Customers</h2>
-          <p className="cust-page-sub">Manage your artisanal community and orders</p>
+          <p className="cust-page-sub">Manage your artisanal community and subscriptions</p>
         </div>
-        <button type="button" className="cust-btn-filled" onClick={() => navigate("/admin/customers/new")}>
-          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>person_add</span>
-          New Customer
-        </button>
-      </div>
-
-      {/* Metric cards */}
-      <div className="cust-metrics-grid">
-        <div className="cust-metric-card">
-          <p className="cust-metric-label">Total customers</p>
-          <h3 className="cust-metric-value">{allCustomers.length || "—"}</h3>
-          <div className="cust-metric-trend cust-trend-up">
-            <span className="material-symbols-outlined cust-trend-icon">trending_up</span>
-            <span>+12% from last month</span>
-          </div>
-        </div>
-        <div className="cust-metric-card">
-          <p className="cust-metric-label">New customers</p>
-          <h3 className="cust-metric-value">{counts.new || "—"}</h3>
-          <div className="cust-metric-trend cust-trend-up">
-            <span className="material-symbols-outlined cust-trend-icon">person_add</span>
-            <span>+22 this week</span>
-          </div>
-        </div>
-        <div className="cust-metric-card">
-          <p className="cust-metric-label">New subscription customers</p>
-          <h3 className="cust-metric-value">{counts.subscription || "—"}</h3>
-          <div className="cust-metric-trend cust-trend-neutral">
-            <span className="material-symbols-outlined cust-trend-icon">loyalty</span>
-            <span>4.3% conversion rate</span>
-          </div>
+        <div className="cust-header-actions">
+          <button type="button" className="cust-btn-outline">
+            <span className="material-symbols-outlined">download</span>
+            Export CSV
+          </button>
+          <button type="button" className="cust-btn-filled" onClick={() => navigate("/admin/customers/new")}>
+            <span className="material-symbols-outlined">person_add</span>
+            New Customer
+          </button>
         </div>
       </div>
 
-      {/* Tab bar + search */}
+      {/* ── KPI strip ── */}
+      <div className="cust-kpi-strip">
+        {kpis.map(k => (
+          <div key={k.label} className={`cust-kpi-card cust-top-${k.top}`}>
+            <div className="cust-kpi-label">{k.label}</div>
+            <div className="cust-kpi-value">{k.value}</div>
+            <div className="cust-kpi-sub">{k.sub}</div>
+            <span className={`cust-trend-badge cust-trend-${k.trend}`}>
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{TREND_ICON[k.trend]}</span>
+              {k.badge}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Tabs + search ── */}
       <div className="cust-tabs-row">
         <div className="cust-tabs">
-          {TABS.map(tab => (
-            <button
-              key={tab.key}
-              type="button"
-              className={`cust-tab ${filter === tab.key ? "cust-tab-active" : ""}`}
-              onClick={() => handleFilterChange(tab.key)}
+          {TABS.map(t => (
+            <button key={t.key} type="button"
+              className={`cust-tab${tab === t.key ? " cust-tab-active" : ""}`}
+              onClick={() => changeTab(t.key)}
             >
-              {tab.label}
-              <span className="cust-tab-count">{counts[tab.key] ?? allCustomers.length}</span>
+              {t.label}
+              <span className={`cust-tab-count${tab === t.key ? " active" : ""}`}>{counts[t.key]}</span>
             </button>
           ))}
         </div>
@@ -208,19 +208,19 @@ function AdminCustomers() {
           <input
             type="text"
             className="cust-search-input"
-            placeholder="Search customers…"
+            placeholder="Search by name, phone, city…"
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
           />
           {search && (
             <button type="button" className="cust-search-clear" onClick={() => setSearch("")}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Table */}
+      {/* ── Table ── */}
       <div className="cust-table-card">
         {paginated.length === 0 ? (
           <div className="cust-empty">
@@ -235,56 +235,55 @@ function AdminCustomers() {
                 <thead>
                   <tr>
                     <th>Client ID</th>
-                    <th>Customer Name</th>
-                    <th>Phone No</th>
-                    <th>State</th>
-                    <th>City</th>
-                    <th>Registered Date</th>
+                    <th>Customer</th>
+                    <th>Phone</th>
+                    <th>Location</th>
+                    <th>Registered</th>
                     <th>Type</th>
                     <th>Status</th>
-                    <th>Account &amp; Delivery Status</th>
+                    <th>Delivery</th>
                     <th className="cust-th-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginated.map(c => {
-                    const ds = DELIVERY_STATUS[c.status] || DELIVERY_STATUS.active;
-                    const isActive = c.status === "active" || c.status === "new";
+                    const sm = STATUS_META[c.status]   || STATUS_META.active;
+                    const dm = DELIVERY_META[c.status] || DELIVERY_META.active;
                     return (
-                      <tr key={c.clientId} onClick={() => navigate(`/admin/customers/${c.clientId}`)} className="cust-tr">
-                        <td className="cust-client-id">{c.clientId}</td>
-                        <td><span className="cust-name">{c.name}</span></td>
-                        <td className="cust-muted">{c.phone}</td>
-                        <td className="cust-muted">{c.state}</td>
-                        <td className="cust-muted">{c.city}</td>
-                        <td className="cust-muted">{c.joined}</td>
+                      <tr key={c.clientId} className="cust-tr" onClick={() => navigate(`/admin/customers/${c.clientId}`)}>
+                        <td className="cust-td-id">{c.clientId}</td>
                         <td>
-                          <span className="cust-type-label">{c.type}</span>
-                        </td>
-                        <td>
-                          <span className={`cust-status-badge ${isActive ? "cust-status-active" : "cust-status-inactive"}`}>
-                            {isActive ? "Active" : "Inactive"}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={`cust-ds ${ds.cls}`}>
-                            <span className="material-symbols-outlined cust-ds-icon">{ds.icon}</span>
-                            <span>{ds.label}</span>
+                          <div className="cust-customer-cell">
+                            <div className="cust-avatar" style={{ background: c.avatarBg, color: c.avatarColor }}>
+                              {c.initials}
+                            </div>
+                            <div>
+                              <div className="cust-name">{c.name}</div>
+                              <div className="cust-email">{c.email}</div>
+                            </div>
                           </div>
                         </td>
-                        <td className="cust-actions-cell" onClick={e => e.stopPropagation()}>
-                          <div className="cust-action-row">
-                            <Link
-                              to={`/admin/customers/${c.clientId}`}
-                              className="cust-edit-link"
-                              onClick={e => e.stopPropagation()}
-                            >Edit</Link>
-                            <button
-                              type="button"
-                              className="cust-view-btn"
-                              onClick={() => navigate(`/admin/customers/${c.clientId}`)}
-                            >View</button>
+                        <td className="cust-td-muted">{c.phone}</td>
+                        <td className="cust-td-muted">
+                          {c.city !== "—" && c.state !== "—" ? `${c.city}, ${c.state}` : c.city !== "—" ? c.city : c.state}
+                        </td>
+                        <td className="cust-td-muted">{c.joined}</td>
+                        <td>
+                          <span className={`cust-type-badge${c.isSubscription ? " sub" : " one"}`}>{c.type}</span>
+                        </td>
+                        <td>
+                          <span className={`cust-status-badge ${sm.cls}`}>{sm.label}</span>
+                        </td>
+                        <td>
+                          <div className={`cust-del-status ${dm.cls}`}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>{dm.icon}</span>
+                            {dm.label}
                           </div>
+                        </td>
+                        <td className="cust-td-actions" onClick={e => e.stopPropagation()}>
+                          <button type="button" className="cust-view-btn" onClick={() => navigate(`/admin/customers/${c.clientId}`)}>
+                            View profile
+                          </button>
                         </td>
                       </tr>
                     );
