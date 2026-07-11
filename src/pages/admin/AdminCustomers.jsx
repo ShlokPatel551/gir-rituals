@@ -154,7 +154,7 @@ function AdminCustomers() {
           <h2 className="cust-page-title">Customers</h2>
           <p className="cust-page-sub">Manage your artisanal community and orders</p>
         </div>
-        <button type="button" className="cust-btn-filled" onClick={() => navigate("/admin/orders/new")}>
+        <button type="button" className="cust-btn-filled" onClick={() => navigate("/admin/customers/new")}>
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>person_add</span>
           New Customer
         </button>

@@ -6,7 +6,7 @@ const TODAY_DATE = new Date().toISOString().split("T")[0];
 
 const PRODUCTS = [
   {
-    id:           "cow_milk",
+    id:           "cow-milk",
     name:         "Cow Milk",
     unit:         "litre",
     icon:         "water_drop",
@@ -18,7 +18,7 @@ const PRODUCTS = [
     leftoverNote: "Stored in refrigerator for tomorrow",
   },
   {
-    id:           "buffalo_milk",
+    id:           "buffalo-milk",
     name:         "Buffalo Milk",
     unit:         "litre",
     icon:         "opacity",
@@ -42,7 +42,7 @@ const PRODUCTS = [
     leftoverNote: "Packed and stored for next day",
   },
   {
-    id:           "cow_ghee",
+    id:           "cow-ghee",
     name:         "Cow Ghee",
     unit:         "kg",
     icon:         "oil_barrel",
@@ -56,11 +56,11 @@ const PRODUCTS = [
 ];
 
 const CATS = [
-  { key: "all",          label: "All Products"  },
-  { key: "cow_milk",     label: "Cow Milk"       },
-  { key: "buffalo_milk", label: "Buffalo Milk"   },
-  { key: "cow_ghee",     label: "Cow Ghee"       },
-  { key: "paneer",       label: "Paneer"         },
+  { key: "all",          label: "All Products" },
+  { key: "cow-milk",     label: "Cow Milk"     },
+  { key: "buffalo-milk", label: "Buffalo Milk" },
+  { key: "cow-ghee",     label: "Cow Ghee"     },
+  { key: "paneer",       label: "Paneer"       },
 ];
 
 function fmt(n) {
@@ -136,7 +136,7 @@ function AdminProduction() {
             </div>
           </div>
           <button type="button" className="pd-btn-solid"
-            onClick={() => navigate("/admin/production/new/edit")}>
+            onClick={() => navigate("/admin/production/cow-milk/edit")}>
             <span className="material-symbols-outlined">add_circle</span>
             Add new entry
           </button>
@@ -262,7 +262,7 @@ function AdminProduction() {
         </h3>
         <div className="pd-cards-grid">
           {filtered.map(entry =>
-            entry.id === "cow_milk" && cat === "all" ? (
+            entry.id === "cow-milk" && cat === "all" ? (
               /* Highlight card — dark green */
               <div key={entry.id} className="pd-card-hl" style={{ cursor: "pointer" }} onClick={() => navigate(`/admin/production/${entry.id}`)}>
                 <span className="material-symbols-outlined pd-card-hl-bg">{entry.icon}</span>

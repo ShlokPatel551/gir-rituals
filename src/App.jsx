@@ -27,6 +27,7 @@ import { AdminEditOrder } from "./pages/admin/AdminEditOrder";
 import { AdminAddProduct } from "./pages/admin/AdminAddProduct";
 import { AdminEditProduct } from "./pages/admin/AdminEditProduct";
 import { AdminViewProduct } from "./pages/admin/AdminViewProduct";
+import { AdminAddCustomer } from "./pages/admin/AdminAddCustomer";
 import { AdminCustomers } from "./pages/admin/AdminCustomers";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminDeliveries } from "./pages/admin/AdminDeliveries";
@@ -81,6 +82,7 @@ function AppRoutes() {
   >
         <Route index element={<AdminDashboard />} />
         <Route path="customers" element={<AdminCustomers />} />
+        <Route path="customers/new" element={<AdminAddCustomer />} />
         <Route path="customers/:id" element={<AdminCustomerDetail />} />
         <Route path="customers/:id/billing" element={<AdminCustomerBilling />} />
         <Route path="customers/:id/orders" element={<AdminCustomerOrders />} />
