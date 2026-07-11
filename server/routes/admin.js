@@ -463,6 +463,16 @@ router.post('/offers', requireAdmin, (req, res) => {
   );
 
   const created = db.prepare('SELECT * FROM admin_offers WHERE id=?').get(r.lastInsertRowid);
+
+  // Auto-push notification to all customers when an offer goes active
+  if (computedStatus === 'active') {
+    const users = db.prepare('SELECT id FROM users WHERE is_admin=0').all();
+    const ins   = db.prepare("INSERT OR IGNORE INTO notifications (id, user_id, title, message, link) VALUES (?,?,?,?,?)");
+    for (const u of users) {
+      ins.run(`offer-${created.id}-${u.id}`, u.id, title, description || title, '/offers');
+    }
+  }
+
   res.status(201).json(offerRow(created));
 });
 
@@ -564,6 +574,18 @@ router.post('/banners', requireAdmin, (req, res) => {
   );
 
   const created = db.prepare('SELECT * FROM admin_banners WHERE id=?').get(r.lastInsertRowid);
+
+  // Auto-push notification to all customers when a banner goes active
+  if (computedStatus === 'active') {
+    const notifTitle = headline || title;
+    const notifMsg   = tagline || `New promotion: ${notifTitle}`;
+    const users = db.prepare('SELECT id FROM users WHERE is_admin=0').all();
+    const ins   = db.prepare("INSERT OR IGNORE INTO notifications (id, user_id, title, message, link) VALUES (?,?,?,?,?)");
+    for (const u of users) {
+      ins.run(`banner-${created.id}-${u.id}`, u.id, notifTitle, notifMsg, linkTo || '/offers');
+    }
+  }
+
   res.status(201).json(bannerRow(created));
 });
 

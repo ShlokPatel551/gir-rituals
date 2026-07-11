@@ -15,7 +15,7 @@ function Profile() {
       <h1 className="page-title">Profile</h1>
       <div className="card" style={{ textAlign: "center", marginBottom: "1.5rem" }}>
         <div style={{ width: 72, height: 72, borderRadius: "50%", background: "var(--green-600)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", fontWeight: 700, margin: "0 auto 0.75rem" }}>
-          {user.firstName[0]}{user.lastName[0]}
+          {user?.firstName?.[0] ?? "?"}{user?.lastName?.[0] ?? ""}
         </div>
         <strong>{user.firstName} {user.lastName}</strong>
         <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Client ID: {user.clientId}</p>

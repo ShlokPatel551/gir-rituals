@@ -18,7 +18,7 @@ function BottomNav() {
         {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
       </NavLink>
       <NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>
-        <span className="nav-icon profile-icon">{user.firstName[0]}</span>
+        <span className="nav-icon profile-icon">{user?.firstName?.[0] ?? "?"}</span>
         <span>Profile</span>
       </NavLink>
     </nav>;

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { useToast } from "../context/ToastContext";
-import { ACTIVE_OFFERS } from "../lib/promoData";
 import "./Home.css";
 
 /* ── Lifestyle images (AIDA-generated, same palette as reference design) ── */
@@ -61,7 +60,7 @@ function ProductThumb({ productId, emoji, className }) {
 
 function Home() {
   const navigate = useNavigate();
-  const { rituals, togglePause, addExtra, products, user } = useApp();
+  const { rituals, togglePause, addExtra, products, offers, banners, user } = useApp();
   const { showToast } = useToast();
 
   const [bannerIdx, setBannerIdx] = useState(0);
@@ -109,11 +108,11 @@ function Home() {
     <div className="home-page">
 
       {/* ══ PROMO ANNOUNCEMENT BAR ══ */}
-      {!promoBarDismissed && ACTIVE_OFFERS.length > 0 && (
+      {!promoBarDismissed && offers.length > 0 && (
         <div className="h-promo-bar">
           <span className="h-promo-bar-icon">🎉</span>
           <p className="h-promo-bar-text">
-            <strong>{ACTIVE_OFFERS.length} new offers</strong> are live right now — don't miss out!
+            <strong>{offers.length} new offer{offers.length !== 1 ? "s" : ""}</strong> are live right now — don't miss out!
           </p>
           <Link to="/offers" className="h-promo-bar-link">
             View all
@@ -232,7 +231,7 @@ function Home() {
       </section>
 
       {/* ══ LIVE OFFERS STRIP ══ */}
-      {ACTIVE_OFFERS.length > 0 && (
+      {offers.length > 0 && (
         <section className="h-offers-section">
           <div className="h-offers-hdr">
             <h2 className="h-offers-title">
@@ -242,20 +241,61 @@ function Home() {
             <Link to="/offers" className="h-offers-link">View all →</Link>
           </div>
           <div className="h-offers-scroll">
-            {ACTIVE_OFFERS.map(offer => (
-              <Link key={offer.id} to="/offers" className="h-offer-chip">
-                <div className="h-offer-chip-hdr" style={{ background: offer.color }}>
-                  <span className="h-offer-chip-deal">{offer.deal}</span>
-                  <span className="h-offer-chip-emoji">{offer.emoji}</span>
-                </div>
-                <div className="h-offer-chip-body">
-                  <span className="h-offer-chip-badge" style={{ background: offer.color }}>{offer.badge}</span>
-                  <span className="h-offer-chip-title">{offer.title}</span>
-                  <span className="h-offer-chip-expires">{offer.expiresLabel}</span>
-                </div>
-              </Link>
-            ))}
+            {offers.map(offer => {
+              const color = offer.headerColor || '#2d6a4f';
+              const deal  = offer.offerPrice  ? `₹${offer.offerPrice}` : 'Special';
+              const badge = offer.origPrice && offer.offerPrice
+                ? `Save ₹${Math.round(offer.origPrice - offer.offerPrice)}`
+                : 'OFFER';
+              const end   = offer.validUntil ? new Date(offer.validUntil) : null;
+              const diff  = end ? end - Date.now() : null;
+              const expiresLabel = offer.upcoming ? 'Coming Soon'
+                : diff === null ? 'Limited time'
+                : diff <= 0    ? 'Expired'
+                : diff < 86_400_000 ? 'Ends today'
+                : `Ends in ${Math.floor(diff / 86_400_000)}d`;
+              return (
+                <Link key={offer.id} to="/offers" className="h-offer-chip">
+                  <div className="h-offer-chip-hdr" style={{ background: color }}>
+                    <span className="h-offer-chip-deal">{deal}</span>
+                    <span className="material-symbols-outlined h-offer-chip-emoji" style={{ fontSize: 18 }}>{offer.icon || 'local_activity'}</span>
+                  </div>
+                  <div className="h-offer-chip-body">
+                    <span className="h-offer-chip-badge" style={{ background: color }}>{badge}</span>
+                    <span className="h-offer-chip-title">{offer.title}</span>
+                    <span className="h-offer-chip-expires">{expiresLabel}</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
+        </section>
+      )}
+
+      {/* ══ PROMOTIONAL BANNERS (from admin) ══ */}
+      {banners.length > 0 && (
+        <section className="h-banners-section">
+          {banners.map(b => (
+            <Link
+              key={b.id}
+              to={b.linkTo || "/products"}
+              className="h-promo-banner-card"
+              style={{ background: b.bgGradient }}
+            >
+              <div className="h-promo-banner-body">
+                {b.category && <span className="h-promo-banner-cat">{b.category}</span>}
+                <p className="h-promo-banner-headline">{b.headline}</p>
+                {b.tagline && <p className="h-promo-banner-tagline">{b.tagline}</p>}
+                {b.ctaLabel && (
+                  <span className="h-promo-banner-cta" style={{ color: b.ctaColor }}>
+                    {b.ctaLabel}
+                    <span className="material-symbols-outlined" style={{ fontSize: 15 }}>arrow_forward</span>
+                  </span>
+                )}
+              </div>
+              <span className="h-promo-banner-emoji">{b.emoji}</span>
+            </Link>
+          ))}
         </section>
       )}
 

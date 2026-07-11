@@ -18,6 +18,7 @@ function AppProvider({ children }) {
 
   const [products, setProducts]         = useState([]);
   const [offers, setOffers]             = useState([]);
+  const [banners, setBanners]           = useState([]);
   const [orders, setOrders]             = useState([]);
   const [rituals, setRituals]           = useState([]);
   const [cart, setCart]                 = useState([]);
@@ -34,6 +35,7 @@ function AppProvider({ children }) {
   useEffect(() => {
     api.getProducts().then(setProducts).catch(() => {});
     api.getOffers().then(setOffers).catch(() => {});
+    api.getBanners().then(setBanners).catch(() => {});
   }, []);
 
   // On mount: try to restore session from HttpOnly refresh cookie
@@ -221,6 +223,7 @@ function AppProvider({ children }) {
     walletBalance: user?.walletBalance ?? 0,
     products,
     offers,
+    banners,
     orders,
     rituals,
     cart,
@@ -250,7 +253,7 @@ function AppProvider({ children }) {
     cartTotal,
     loadUserData,
   }), [
-    authReady, session, user, products, offers, orders, rituals, cart, favourites, bills,
+    authReady, session, user, products, offers, banners, orders, rituals, cart, favourites, bills,
     notifications, pausedToday, statementEntries, paymentMethods,
     login, logout, register, togglePause, addExtra, addToCart, updateCartQty,
     removeFromCart, toggleFavourite, markAllNotificationsRead, markNotificationRead, payBill,

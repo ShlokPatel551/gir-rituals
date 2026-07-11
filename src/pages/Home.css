@@ -190,6 +190,78 @@
   margin-top: auto;
   padding-top: 0.25rem;
 }
+/* ═══════════════════════════════════════════
+   PROMO BANNERS (admin-driven)
+═══════════════════════════════════════════ */
+
+.h-banners-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.h-promo-banner-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px;
+  padding: 1.125rem 1.25rem;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.h-promo-banner-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+}
+
+.h-promo-banner-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.h-promo-banner-cat {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+}
+
+.h-promo-banner-headline {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.h-promo-banner-tagline {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+}
+
+.h-promo-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+.h-promo-banner-emoji {
+  font-size: 2.25rem;
+  flex-shrink: 0;
+  margin-left: 0.75rem;
+}
+
 :root {
   --h-primary:      #7B5233;
   --h-primary-mid:  #1a4a3a;

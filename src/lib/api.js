@@ -82,6 +82,9 @@ export const api = {
   getProducts: ()   => request('/products'),
   getProduct:  (id) => request(`/products/${id}`),
 
+  // Banners
+  getBanners: () => request('/banners'),
+
   // User
   getProfile:        ()      => request('/user/profile'),
   updateProfile:     (data)  => request('/user/profile',    { method: 'PUT',  body: data }),
