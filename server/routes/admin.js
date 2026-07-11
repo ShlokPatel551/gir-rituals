@@ -606,5 +606,79 @@ router.delete('/banners/:id', requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// ── Comms: Conversations ─────────────────────────────────────────
+router.get('/comms/conversations', requireAdmin, (req, res) => {
+  const rows = db.prepare(`
+    SELECT c.*, u.first_name, u.last_name, u.email
+    FROM comms_conversations c
+    LEFT JOIN users u ON u.client_id = c.client_id
+    ORDER BY COALESCE(c.last_at, c.created_at) DESC
+    LIMIT 50
+  `).all();
+  res.json({ rows });
+});
+
+router.get('/comms/conversations/:id', requireAdmin, (req, res) => {
+  const conv = db.prepare('SELECT * FROM comms_conversations WHERE id=?').get(req.params.id);
+  if (!conv) return res.status(404).json({ error: 'Not found' });
+  const msgs = db.prepare('SELECT * FROM comms_messages WHERE conversation_id=? ORDER BY sent_at ASC').all(req.params.id);
+  db.prepare('UPDATE comms_conversations SET unread_count=0 WHERE id=?').run(req.params.id);
+  res.json({ conversation: conv, messages: msgs });
+});
+
+router.post('/comms/conversations/:id/messages', requireAdmin, (req, res) => {
+  const { body } = req.body;
+  if (!body?.trim()) return res.status(400).json({ error: 'body required' });
+  const conv = db.prepare('SELECT id FROM comms_conversations WHERE id=?').get(req.params.id);
+  if (!conv) return res.status(404).json({ error: 'Not found' });
+  const now = new Date().toISOString();
+  const r = db.prepare(
+    'INSERT INTO comms_messages (conversation_id, direction, body, status, sent_at) VALUES (?,?,?,?,?)'
+  ).run(req.params.id, 'out', body.trim(), 'delivered', now);
+  db.prepare('UPDATE comms_conversations SET last_message=?, last_at=?, unread_count=0 WHERE id=?').run(body.trim(), now, req.params.id);
+  res.json({ id: r.lastInsertRowid, conversation_id: Number(req.params.id), direction: 'out', body: body.trim(), status: 'delivered', sent_at: now });
+});
+
+// ── Comms: Broadcasts ─────────────────────────────────────────────
+router.get('/comms/broadcasts', requireAdmin, (req, res) => {
+  const rows = db.prepare('SELECT * FROM comms_broadcasts ORDER BY created_at DESC LIMIT 50').all();
+  res.json({ rows });
+});
+
+router.post('/comms/broadcasts', requireAdmin, (req, res) => {
+  const { title, body, channel = 'whatsapp', segment = 'all' } = req.body;
+  if (!title?.trim() || !body?.trim()) return res.status(400).json({ error: 'title and body required' });
+  let count = 0;
+  if (segment === 'active') {
+    count = db.prepare("SELECT COUNT(*) as c FROM subscriptions WHERE status='active'").get().c;
+  } else {
+    count = db.prepare("SELECT COUNT(*) as c FROM users WHERE is_admin=0").get().c;
+  }
+  const now = new Date().toISOString();
+  const r = db.prepare(
+    'INSERT INTO comms_broadcasts (title, body, channel, segment, recipient_count, status, sent_at, created_by) VALUES (?,?,?,?,?,?,?,?)'
+  ).run(title.trim(), body.trim(), channel, segment, count, 'sent', now, req.user?.name || 'Admin');
+  res.status(201).json({ id: r.lastInsertRowid, title: title.trim(), body: body.trim(), channel, segment, recipient_count: count, status: 'sent', sent_at: now, created_at: now });
+});
+
+// ── Comms: Team ───────────────────────────────────────────────────
+router.get('/comms/team', requireAdmin, (req, res) => {
+  const rows = db.prepare('SELECT * FROM comms_team ORDER BY sent_at ASC LIMIT 200').all();
+  res.json({ rows });
+});
+
+router.post('/comms/team', requireAdmin, (req, res) => {
+  const { body } = req.body;
+  if (!body?.trim()) return res.status(400).json({ error: 'body required' });
+  const now = new Date().toISOString();
+  const name = req.user?.name || 'Admin';
+  const role = req.user?.adminRole || 'owner';
+  const r = db.prepare(
+    'INSERT INTO comms_team (sender_name, sender_role, body, sent_at) VALUES (?,?,?,?)'
+  ).run(name, role, body.trim(), now);
+  res.status(201).json({ id: r.lastInsertRowid, sender_name: name, sender_role: role, body: body.trim(), sent_at: now });
+});
+
 export default router;
+
 

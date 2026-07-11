@@ -166,4 +166,13 @@ export const api = {
   adminCreateBanner:  (data)   => request('/admin/banners',      { method: 'POST',   body: data }),
   adminUpdateBanner:  (id, data) => request(`/admin/banners/${id}`, { method: 'PUT', body: data }),
   adminDeleteBanner:  (id)     => request(`/admin/banners/${id}`, { method: 'DELETE' }),
+
+  // Comms
+  adminCommsConversations: ()          => request('/admin/comms/conversations'),
+  adminCommsMessages:      (id)        => request(`/admin/comms/conversations/${id}`),
+  adminCommsSend:          (id, body)  => request(`/admin/comms/conversations/${id}/messages`, { method: 'POST', body: { body } }),
+  adminCommsBroadcasts:    ()          => request('/admin/comms/broadcasts'),
+  adminCommsBroadcastSend: (data)      => request('/admin/comms/broadcasts', { method: 'POST', body: data }),
+  adminCommsTeam:          ()          => request('/admin/comms/team'),
+  adminCommsTeamSend:      (body)      => request('/admin/comms/team', { method: 'POST', body: { body } }),
 };
