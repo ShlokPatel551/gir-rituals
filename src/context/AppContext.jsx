@@ -21,7 +21,9 @@ function AppProvider({ children }) {
   const [banners, setBanners]           = useState([]);
   const [orders, setOrders]             = useState([]);
   const [rituals, setRituals]           = useState([]);
-  const [cart, setCart]                 = useState([]);
+  const [cart, setCart]                 = useState(() => {
+    try { return JSON.parse(localStorage.getItem('gir_cart') || '[]'); } catch { return []; }
+  });
   const [favourites, setFavourites]     = useState(() => {
     try { return JSON.parse(localStorage.getItem("gir_favourites") || "[]"); } catch { return []; }
   });
@@ -125,21 +127,36 @@ function AppProvider({ children }) {
     setRituals(prev => [...prev, { id: `extra-${Date.now()}`, productId, quantity: qty, status: "Extra" }]);
   }, [products]);
 
+  const persistCart = (next) => {
+    try { localStorage.setItem('gir_cart', JSON.stringify(next)); } catch {}
+  };
+
   const addToCart = useCallback((productId, qty = 1) => {
     setCart(prev => {
       const existing = prev.find(c => c.productId === productId);
-      if (existing) return prev.map(c => c.productId === productId ? { ...c, quantity: c.quantity + qty } : c);
-      return [...prev, { productId, quantity: qty }];
+      const next = existing
+        ? prev.map(c => c.productId === productId ? { ...c, quantity: c.quantity + qty } : c)
+        : [...prev, { productId, quantity: qty }];
+      persistCart(next);
+      return next;
     });
   }, []);
 
   const updateCartQty = useCallback((productId, qty) => {
-    if (qty <= 0) { setCart(prev => prev.filter(c => c.productId !== productId)); return; }
-    setCart(prev => prev.map(c => c.productId === productId ? { ...c, quantity: qty } : c));
+    if (qty <= 0) {
+      setCart(prev => { const next = prev.filter(c => c.productId !== productId); persistCart(next); return next; });
+      return;
+    }
+    setCart(prev => { const next = prev.map(c => c.productId === productId ? { ...c, quantity: qty } : c); persistCart(next); return next; });
   }, []);
 
   const removeFromCart = useCallback((productId) => {
-    setCart(prev => prev.filter(c => c.productId !== productId));
+    setCart(prev => { const next = prev.filter(c => c.productId !== productId); persistCart(next); return next; });
+  }, []);
+
+  const clearCart = useCallback(() => {
+    setCart([]);
+    try { localStorage.removeItem('gir_cart'); } catch {}
   }, []);
 
   const toggleFavourite = useCallback((productId) => {
@@ -148,6 +165,18 @@ function AppProvider({ children }) {
       localStorage.setItem("gir_favourites", JSON.stringify(next));
       return next;
     });
+  }, []);
+
+  const createRitual = useCallback(async (productId, quantity = 1) => {
+    const sub = await api.createRitual({ productId, quantity });
+    setRituals(prev => [...prev, sub]);
+    return sub;
+  }, []);
+
+  const createOrder = useCallback(async (cartItems) => {
+    const result = await api.createOrder({ cartItems });
+    setOrders(prev => [...(result.orders || []), ...prev]);
+    return result;
   }, []);
 
   const markAllNotificationsRead = useCallback(() => {
@@ -249,6 +278,9 @@ function AppProvider({ children }) {
     addPaymentMethod,
     removePaymentMethod,
     setDefaultPaymentMethod,
+    createRitual,
+    createOrder,
+    clearCart,
     cartCount,
     cartTotal,
     loadUserData,
@@ -258,7 +290,7 @@ function AppProvider({ children }) {
     login, logout, register, togglePause, addExtra, addToCart, updateCartQty,
     removeFromCart, toggleFavourite, markAllNotificationsRead, markNotificationRead, payBill,
     cancelOrder, addPaymentMethod, removePaymentMethod,
-    setDefaultPaymentMethod, cartCount, cartTotal, loadUserData,
+    setDefaultPaymentMethod, createRitual, createOrder, clearCart, cartCount, cartTotal, loadUserData,
   ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

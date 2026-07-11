@@ -98,8 +98,9 @@ export const api = {
   payBill:  (id, data) => request(`/bills/${id}/pay`, { method: 'POST', body: data }),
 
   // Orders
-  getOrders:   ()   => request('/orders'),
-  cancelOrder: (id) => request(`/orders/${id}/cancel`, { method: 'PUT' }),
+  getOrders:   ()      => request('/orders'),
+  cancelOrder: (id)    => request(`/orders/${id}/cancel`, { method: 'PUT' }),
+  createOrder: (data)  => request('/orders',              { method: 'POST', body: data }),
 
   // Schedule
   getSchedule: (month) => request(`/schedule${month ? `?month=${encodeURIComponent(month)}` : ''}`),
@@ -113,9 +114,10 @@ export const api = {
   markNotificationRead:     (id) => request(`/notifications/${id}/read`, { method: 'PUT' }),
 
   // Rituals / subscriptions
-  getRituals:   ()   => request('/rituals'),
-  pauseRitual:  (id) => request(`/rituals/${id}/pause`,  { method: 'POST' }),
-  resumeRitual: (id) => request(`/rituals/${id}/resume`, { method: 'POST' }),
+  getRituals:    ()     => request('/rituals'),
+  createRitual:  (data) => request('/rituals',             { method: 'POST', body: data }),
+  pauseRitual:   (id)   => request(`/rituals/${id}/pause`,  { method: 'POST' }),
+  resumeRitual:  (id)   => request(`/rituals/${id}/resume`, { method: 'POST' }),
 
   // Payments (Razorpay)
   createPaymentOrder: (amount, billId) => request('/payments/create-order', { method: 'POST', body: { amount, billId } }),
@@ -157,6 +159,18 @@ export const api = {
   // Admin — app settings
   adminSettings:       ()     => request('/admin/settings'),
   adminSaveSettings:   (data) => request('/admin/settings', { method: 'PUT', body: data }),
+
+  // Admin — products CRUD
+  adminProducts:       ()              => request('/admin/products'),
+  adminCreateProduct:  (data)          => request('/admin/products',        { method: 'POST',   body: data }),
+  adminUpdateProduct:  (id, data)      => request(`/admin/products/${id}`,  { method: 'PUT',    body: data }),
+  adminDeleteProduct:  (id)            => request(`/admin/products/${id}`,  { method: 'DELETE' }),
+
+  // Admin — customer bill creation
+  adminCreateBill:     (cid, data)     => request(`/admin/customers/${cid}/bills`, { method: 'POST', body: data }),
+
+  // Admin — subscription management
+  adminUpdateSub:      (id, data)      => request(`/admin/subscriptions/${id}`,    { method: 'PATCH', body: data }),
 
   // Admin — offers CRUD
   adminOffers:        (status) => request(`/admin/offers${status && status !== 'all' ? `?status=${status}` : ''}`),

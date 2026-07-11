@@ -5,6 +5,7 @@ import { randomBytes, createHash } from 'crypto';
 import db from '../db.js';
 import { requireAdmin, requireAdminRole } from '../middleware/auth.js';
 import { JWT_SECRET as SECRET } from '../lib/secret.js';
+import { notify } from '../lib/notify.js';
 
 const router = Router();
 
@@ -626,6 +627,159 @@ router.delete('/banners/:id', requireAdmin, (req, res) => {
   if (!banner) return res.status(404).json({ error: 'Banner not found' });
   db.prepare('DELETE FROM admin_banners WHERE id=?').run(banner.id);
   res.json({ success: true });
+});
+
+// ── Products CRUD ─────────────────────────────────────────────────
+function productRow(p) {
+  const stockQty    = p.stock_qty ?? 0;
+  const threshold   = p.low_stock_threshold ?? 10;
+  const stockStatus = stockQty <= 0 ? 'out_of_stock' : stockQty <= threshold ? 'low_stock' : 'in_stock';
+  const maxStock    = Math.max(stockQty, threshold * 10, 100);
+  let benefits = [];
+  try { benefits = JSON.parse(p.benefits || '[]'); } catch {}
+  return {
+    id: p.id, name: p.name, category: p.category, price: p.price,
+    buyOncePrice: p.buy_once_price ?? null, unit: p.unit,
+    image: p.image || '', description: p.description || '',
+    benefits, inStock: !!p.in_stock,
+    status: p.status || (p.in_stock ? 'active' : 'archived'),
+    stockQty, lowStockThreshold: threshold, shelfLifeDays: p.shelf_life_days ?? 1,
+    stockStatus, stockPct: Math.min(100, Math.round((stockQty / maxStock) * 100)),
+  };
+}
+
+router.get('/products', requireAdmin, (req, res) => {
+  const rows = db.prepare('SELECT * FROM products ORDER BY name ASC').all();
+  res.json(rows.map(productRow));
+});
+
+router.post('/products', requireAdmin, requireAdminRole('owner', 'manager'), (req, res) => {
+  const { name, category, price, buyOncePrice, unit, image, description, benefits, openingStock, lowStockThreshold, shelfLifeDays, status } = req.body;
+  if (!name || !price || !unit) return res.status(400).json({ error: 'name, price, and unit are required' });
+
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const id    = 'PRD-' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  const resolvedStatus = status || 'active';
+  const inStock = resolvedStatus === 'active' ? 1 : 0;
+
+  let benefitsJson = '[]';
+  if (benefits) {
+    benefitsJson = Array.isArray(benefits)
+      ? JSON.stringify(benefits)
+      : JSON.stringify(benefits.split('\n').map(l => l.replace(/^[•\-*]\s*/, '')).filter(Boolean));
+  }
+
+  db.prepare(`
+    INSERT INTO products (id, name, category, price, buy_once_price, unit, image, description, benefits, in_stock, stock_qty, low_stock_threshold, shelf_life_days, status)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+  `).run(
+    id, name, category || 'dairy', parseFloat(price),
+    buyOncePrice ? parseFloat(buyOncePrice) : null,
+    unit, image || '', description || '', benefitsJson, inStock,
+    openingStock ? parseFloat(openingStock) : 0,
+    lowStockThreshold ? parseFloat(lowStockThreshold) : 10,
+    shelfLifeDays ? parseInt(shelfLifeDays) : 1,
+    resolvedStatus
+  );
+
+  res.status(201).json(productRow(db.prepare('SELECT * FROM products WHERE id=?').get(id)));
+});
+
+router.put('/products/:id', requireAdmin, requireAdminRole('owner', 'manager'), (req, res) => {
+  const p = db.prepare('SELECT * FROM products WHERE id=?').get(req.params.id);
+  if (!p) return res.status(404).json({ error: 'Product not found' });
+
+  const { name, category, price, buyOncePrice, unit, image, description, benefits, stockQty, lowStockThreshold, shelfLifeDays, status } = req.body;
+  const resolvedStatus = status ?? p.status;
+  const inStock = resolvedStatus === 'active' ? 1 : 0;
+
+  let benefitsJson = null;
+  if (benefits != null) {
+    benefitsJson = Array.isArray(benefits)
+      ? JSON.stringify(benefits)
+      : JSON.stringify(benefits.split('\n').map(l => l.replace(/^[•\-*]\s*/, '')).filter(Boolean));
+  }
+
+  db.prepare(`
+    UPDATE products SET
+      name=COALESCE(?,name), category=COALESCE(?,category),
+      price=COALESCE(?,price), buy_once_price=COALESCE(?,buy_once_price),
+      unit=COALESCE(?,unit), image=COALESCE(?,image),
+      description=COALESCE(?,description), benefits=COALESCE(?,benefits),
+      in_stock=?, stock_qty=COALESCE(?,stock_qty),
+      low_stock_threshold=COALESCE(?,low_stock_threshold),
+      shelf_life_days=COALESCE(?,shelf_life_days), status=COALESCE(?,status)
+    WHERE id=?
+  `).run(
+    name ?? null, category ?? null,
+    price ? parseFloat(price) : null,
+    buyOncePrice !== undefined ? (buyOncePrice ? parseFloat(buyOncePrice) : null) : null,
+    unit ?? null, image ?? null, description ?? null, benefitsJson,
+    inStock,
+    stockQty !== undefined ? parseFloat(stockQty) : null,
+    lowStockThreshold !== undefined ? parseFloat(lowStockThreshold) : null,
+    shelfLifeDays !== undefined ? parseInt(shelfLifeDays) : null,
+    resolvedStatus ?? null,
+    p.id
+  );
+
+  res.json(productRow(db.prepare('SELECT * FROM products WHERE id=?').get(p.id)));
+});
+
+router.delete('/products/:id', requireAdmin, requireAdminRole('owner'), (req, res) => {
+  const p = db.prepare('SELECT * FROM products WHERE id=?').get(req.params.id);
+  if (!p) return res.status(404).json({ error: 'Product not found' });
+  db.prepare("UPDATE products SET status='archived', in_stock=0 WHERE id=?").run(p.id);
+  res.json({ success: true });
+});
+
+// ── Admin: create bill for a customer ────────────────────────────
+router.post('/customers/:id/bills', requireAdmin, (req, res) => {
+  const c = db.prepare('SELECT * FROM users WHERE id=? AND is_admin=0').get(req.params.id)
+         || db.prepare('SELECT * FROM users WHERE client_id=? AND is_admin=0').get(req.params.id);
+  if (!c) return res.status(404).json({ error: 'Customer not found' });
+
+  const { period, amount, dueDate, items } = req.body;
+  if (!period || !amount) return res.status(400).json({ error: 'period and amount are required' });
+
+  const id = `BILL-${Date.now()}-${c.id}`;
+  db.prepare('INSERT INTO bills (id, user_id, period, amount, status, due_date) VALUES (?,?,?,?,?,?)')
+    .run(id, c.id, period, parseFloat(amount), 'unpaid', dueDate || null);
+
+  if (Array.isArray(items) && items.length > 0) {
+    const ins = db.prepare('INSERT INTO bill_items (bill_id, description, qty, rate, amount) VALUES (?,?,?,?,?)');
+    for (const item of items) ins.run(id, item.description, item.qty || 1, item.rate || 0, item.amount || 0);
+  }
+
+  notify(c.id, 'New Bill Generated', `Your bill for ${period} (₹${amount}) is ready. Due: ${dueDate || 'upon receipt'}.`, '/bills');
+  res.status(201).json({ success: true, id });
+});
+
+// ── Admin: manage customer subscriptions ─────────────────────────
+router.patch('/subscriptions/:id', requireAdmin, (req, res) => {
+  const { status } = req.body;
+  const VALID = ['active', 'paused', 'cancelled'];
+  if (!VALID.includes(status)) return res.status(400).json({ error: `status must be one of: ${VALID.join(', ')}` });
+
+  const sub = db.prepare(`
+    SELECT s.*, p.name as product_name, u.id as uid
+    FROM subscriptions s
+    JOIN products p ON p.id = s.product_id
+    JOIN users u    ON u.id = s.user_id
+    WHERE s.id=?
+  `).get(req.params.id);
+  if (!sub) return res.status(404).json({ error: 'Subscription not found' });
+
+  db.prepare('UPDATE subscriptions SET status=? WHERE id=?').run(status, sub.id);
+
+  const msg = {
+    active:    `Your ${sub.product_name} delivery has been resumed.`,
+    paused:    `Your ${sub.product_name} delivery has been paused by our team.`,
+    cancelled: `Your ${sub.product_name} subscription has been cancelled.`,
+  };
+  notify(sub.uid, `Subscription ${status}`, msg[status], '/schedule');
+
+  res.json({ success: true, status });
 });
 
 // ── Comms helpers ────────────────────────────────────────────────

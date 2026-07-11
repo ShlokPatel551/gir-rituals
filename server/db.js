@@ -115,6 +115,19 @@ rawDb.exec(`
   );
 `);
 
+// Extend products table with extra columns introduced after initial schema
+for (const ddl of [
+  "ALTER TABLE products ADD COLUMN buy_once_price REAL",
+  "ALTER TABLE products ADD COLUMN stock_qty REAL DEFAULT 0",
+  "ALTER TABLE products ADD COLUMN low_stock_threshold REAL DEFAULT 10",
+  "ALTER TABLE products ADD COLUMN shelf_life_days INTEGER DEFAULT 1",
+  "ALTER TABLE products ADD COLUMN status TEXT DEFAULT 'active'",
+  "ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'customer'",
+  "ALTER TABLE users ADD COLUMN admin_role TEXT",
+]) {
+  try { rawDb.exec(ddl); } catch {}
+}
+
 // Compatibility wrapper — same interface as better-sqlite3
 const db = {
   exec: (sql) => rawDb.exec(sql),
