@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../lib/api";
 import "./AdminCreateOffer.css";
 
 const OFFER_TYPES = [
@@ -37,6 +38,8 @@ function AdminCreateOffer() {
   const [endDate,      setEndDate]      = useState("");
   const [maxOrders,    setMaxOrders]    = useState("");
   const [orderType,    setOrderType]    = useState("individual");
+  const [saving,       setSaving]       = useState(false);
+  const [formError,    setFormError]    = useState("");
 
   function toggleProduct(id) {
     setSelectedProds(prev => {
@@ -44,6 +47,40 @@ function AdminCreateOffer() {
       n.has(id) ? n.delete(id) : n.add(id);
       return n;
     });
+  }
+
+  async function handleSave(asDraft) {
+    if (!name.trim()) { setFormError("Offer name is required."); return; }
+    if (!asDraft && (!startDate || !endDate)) { setFormError("Start and end dates are required to schedule."); return; }
+    setFormError("");
+    setSaving(true);
+    try {
+      const selectedColor = OFFER_TYPES.find(t => t.key === offerType)?.iconBg ?? "#f9fafb";
+      const headerColor = offerType === "fixed_price" ? "#2d6a4f"
+        : offerType === "percentage" ? "#1e40af"
+        : offerType === "buy_x_get_y" ? "#d97706"
+        : "#6b7280";
+      await api.adminCreateOffer({
+        title:      name.trim(),
+        description: description.trim(),
+        offerType,
+        offerPrice: offerPrice ? parseFloat(offerPrice) : null,
+        origPrice:  origPrice  ? parseFloat(origPrice)  : null,
+        productIds: Array.from(selectedProds),
+        startDate:  startDate || null,
+        endDate:    endDate   || null,
+        maxOrders:  maxOrders ? parseInt(maxOrders) : null,
+        orderType,
+        status:     asDraft ? "draft" : "schedule",
+        headerColor,
+        icon: OFFER_TYPES.find(t => t.key === offerType)?.icon ?? "local_activity",
+      });
+      navigate("/admin/offers");
+    } catch (e) {
+      setFormError(e.message || "Failed to save offer. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   // Profit check calculations
@@ -351,14 +388,18 @@ function AdminCreateOffer() {
 
       {/* ── Sticky footer ── */}
       <footer className="cof-footer">
-        <p className="cof-footer-note">All fields marked * are required</p>
+        <p className="cof-footer-note">
+          {formError
+            ? <span style={{ color: "#dc2626" }}>{formError}</span>
+            : "All fields marked * are required"}
+        </p>
         <div className="cof-footer-actions">
-          <button type="button" className="cof-btn-draft">
-            Save as draft
+          <button type="button" className="cof-btn-draft" disabled={saving} onClick={() => handleSave(true)}>
+            {saving ? "Saving…" : "Save as draft"}
           </button>
-          <button type="button" className="cof-btn-save">
+          <button type="button" className="cof-btn-save" disabled={saving} onClick={() => handleSave(false)}>
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>save</span>
-            Save &amp; schedule offer
+            {saving ? "Saving…" : "Save & schedule offer"}
           </button>
         </div>
       </footer>

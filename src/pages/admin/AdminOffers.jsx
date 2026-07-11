@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../lib/api";
 import "./AdminOffers.css";
 
-const OFFERS = [
+const SEED_OFFERS = [
   {
-    id: "o1",
+    id: "s1",
     title: "Monsoon Milk Festival",
     deal: "₹60/L",
     subtitle: "A2 Cow Milk — limited days",
@@ -19,12 +20,12 @@ const OFFERS = [
     targetLabel: "62 orders placed of 100 target",
   },
   {
-    id: "o2",
+    id: "s2",
     title: "Pure Ghee Weekend Deal",
     deal: "₹550",
     subtitle: "Ghee 500g — save ₹70",
-    description: "Buy Cow Ghee A2 500g at ₹550 instead of ₹620. Every weekend only. Saturday & Sunday.",
-    tags: ["Individual only", "Weekends", "Every Sat-Sun — Jun 2026"],
+    description: "Buy Cow Ghee A2 500g at ₹550 instead of ₹620. Every weekend only.",
+    tags: ["Individual only", "Weekends"],
     dateRange: "Every Sat-Sun — Jun 2026",
     status: "active",
     headerColor: "#d4a017",
@@ -34,42 +35,12 @@ const OFFERS = [
     targetLabel: "28 orders placed of 60 target",
   },
   {
-    id: "o3",
-    title: "Paneer 3-Pack Offer",
-    deal: "Buy 2 Get 1",
-    subtitle: "Fresh Paneer 250g packs",
-    description: "Buy 2 packs of Fresh Paneer 250g and get 1 pack free. Pay for 2, get 3. Today only.",
-    tags: ["Individual only", "Today only", "10 Jun 2026 only"],
-    dateRange: "10 Jun 2026 only",
-    status: "active",
-    headerColor: "#2980b9",
-    icon: "lunch_dining",
-    ordersPlaced: 17,
-    target: 20,
-    targetLabel: "17 of 20 packs claimed",
-  },
-  {
-    id: "o4",
-    title: "Morning Boost Offer",
-    deal: "Free 500ml",
-    subtitle: "On orders above 3L",
-    description: "Order 3L or more A2 Milk in one purchase and get extra 500ml absolutely free added to your order.",
-    tags: ["Individual only", "Min 3L order", "15 Jun — 30 Jun 2026"],
-    dateRange: "15 Jun — 30 Jun 2026",
-    status: "active",
-    headerColor: "#6c5ce7",
-    icon: "local_drink",
-    ordersPlaced: 12,
-    target: 40,
-    targetLabel: "12 orders placed",
-  },
-  {
-    id: "o5",
+    id: "s3",
     title: "Summer Curd Special",
     deal: "₹35/200g",
     subtitle: "Curd — save ₹10",
-    description: "Fresh Cow Curd at ₹35/200g instead of ₹45. Perfect summer offer. Stock limited daily.",
-    tags: ["Individual only", "Summer special", "Starts 1 Jul 2026"],
+    description: "Fresh Cow Curd at ₹35/200g instead of ₹45.",
+    tags: ["Individual only", "Summer special"],
     dateRange: "Starts 1 Jul 2026",
     status: "upcoming",
     headerColor: "#8e6b41",
@@ -77,38 +48,12 @@ const OFFERS = [
     countdown: "Starts in 21 days",
   },
   {
-    id: "o6",
-    title: "Butter Bonanza — July",
-    deal: "₹70/100g",
-    subtitle: "Table Butter — save ₹20",
-    description: "Table Butter at ₹70/100g instead of ₹90. Fresh white butter made daily. Order any quantity.",
-    tags: ["Individual only", "First week July", "1 Jul — 7 Jul 2026"],
-    dateRange: "1 Jul — 7 Jul 2026",
-    status: "upcoming",
-    headerColor: "#d4a017",
-    icon: "cookie",
-    countdown: "Starts in 21 days",
-  },
-  {
-    id: "o7",
-    title: "Navratri Celebration Offer",
-    deal: "15% OFF",
-    subtitle: "All products — Navratri",
-    description: "15% off on all individual orders during Navratri. Fresh dairy for your puja and celebrations.",
-    tags: ["Individual only", "Festival", "2 Oct — 11 Oct 2026"],
-    dateRange: "2 Oct — 11 Oct 2026",
-    status: "upcoming",
-    headerColor: "#b91c1c",
-    icon: "celebration",
-    countdown: "Scheduled — 4 months away",
-  },
-  {
-    id: "o8",
+    id: "s4",
     title: "Holi Dhamaka Offer",
     deal: "₹55/L",
     subtitle: "Holi special milk offer",
-    description: "Fresh Cow Milk at ₹55/L for 3 days during Holi. Huge success — 210 orders placed.",
-    tags: ["Individual only", "Festival", "13 Mar — 15 Mar 2026 — Ended"],
+    description: "Fresh Cow Milk at ₹55/L for 3 days during Holi.",
+    tags: ["Individual only", "Festival"],
     dateRange: "13 Mar — 15 Mar 2026",
     status: "expired",
     headerColor: "#6b7280",
@@ -116,36 +61,6 @@ const OFFERS = [
     ordersPlaced: 210,
     target: 210,
     targetLabel: "210 orders — 100% target reached",
-  },
-  {
-    id: "o9",
-    title: "New Year Ghee Bonanza",
-    deal: "₹500 Ghee",
-    subtitle: "New Year Ghee offer",
-    description: "Cow Ghee 500g at ₹500 for New Year week. 87 jars sold.",
-    tags: ["Individual only", "1 Jan — 7 Jan 2026 — Ended"],
-    dateRange: "1 Jan — 7 Jan 2026",
-    status: "expired",
-    headerColor: "#6b7280",
-    icon: "opacity",
-    ordersPlaced: 87,
-    target: 100,
-    targetLabel: "87 orders placed",
-  },
-  {
-    id: "o10",
-    title: "Diwali Combo — Ghee + Paneer",
-    deal: "Combo Pack",
-    subtitle: "Diwali special combo",
-    description: "Buy Ghee 500g + Paneer 500g together at ₹900 instead of ₹1,070. Diwali gift packs.",
-    tags: ["Individual only", "Combo", "1 Nov — 5 Nov 2025 — Ended"],
-    dateRange: "1 Nov — 5 Nov 2025",
-    status: "expired",
-    headerColor: "#8e8d41",
-    icon: "inventory_2",
-    ordersPlaced: 95,
-    target: 100,
-    targetLabel: "95 combos sold",
   },
 ];
 
@@ -160,20 +75,119 @@ const STATUS_BADGE = {
   active:   { label: "Active",   cls: "of-badge-active" },
   upcoming: { label: "Upcoming", cls: "of-badge-upcoming" },
   expired:  { label: "Expired",  cls: "of-badge-expired" },
+  draft:    { label: "Draft",    cls: "of-badge-upcoming" },
 };
+
+// map API offer to card-display shape
+function normalizeOffer(o) {
+  const pp = o.offerPrice ?? null;
+  const op = o.origPrice  ?? null;
+  const deal = pp != null
+    ? `₹${pp}`
+    : o.deal ?? "—";
+  const dateRange = o.startDate && o.endDate
+    ? `${o.startDate} — ${o.endDate}`
+    : o.startDate
+    ? `From ${o.startDate}`
+    : o.dateRange ?? "";
+  const target   = o.maxOrders   ?? o.target    ?? 0;
+  const placed   = o.ordersPlaced ?? 0;
+  return {
+    ...o,
+    deal,
+    subtitle: op != null ? `instead of ₹${op}` : o.subtitle ?? "",
+    tags: o.tags ?? [o.orderType === "subscription" ? "Subscriptions" : "Individual only"],
+    dateRange,
+    target,
+    ordersPlaced: placed,
+    targetLabel: target > 0 ? `${placed} orders placed of ${target} target` : `${placed} orders placed`,
+    countdown: o.countdown ?? (o.startDate ? `Starts on ${o.startDate}` : "Scheduled"),
+  };
+}
 
 function AdminOffers() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("expired");
+  const [offers, setOffers]   = useState(SEED_OFFERS);
+  const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState(null);
+  const [tab, setTab] = useState("all");
 
-  const counts = {
-    all:      OFFERS.length,
-    active:   OFFERS.filter(o => o.status === "active").length,
-    upcoming: OFFERS.filter(o => o.status === "upcoming").length,
-    expired:  OFFERS.filter(o => o.status === "expired").length,
+  const loadOffers = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await api.adminOffers();
+      setOffers(data.length > 0 ? data.map(normalizeOffer) : SEED_OFFERS);
+    } catch {
+      // keep seed data on failure so UI is never empty
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadOffers(); }, [loadOffers]);
+
+  const handleStop = async (offer) => {
+    if (!window.confirm(`Stop "${offer.title}"? This will end the offer for customers.`)) return;
+    try {
+      if (String(offer.id).startsWith("s")) {
+        // seed data — just remove from local state
+        setOffers(prev => prev.filter(o => o.id !== offer.id));
+        return;
+      }
+      await api.adminUpdateOffer(offer.id, { status: "expired" });
+      setOffers(prev => prev.map(o => o.id === offer.id ? { ...o, status: "expired" } : o));
+    } catch (e) {
+      alert(e.message || "Failed to stop offer.");
+    }
   };
 
-  const visible = tab === "all" ? OFFERS : OFFERS.filter(o => o.status === tab);
+  const handleDelete = async (offer) => {
+    if (!window.confirm(`Delete "${offer.title}"? This cannot be undone.`)) return;
+    try {
+      if (String(offer.id).startsWith("s")) {
+        setOffers(prev => prev.filter(o => o.id !== offer.id));
+        return;
+      }
+      await api.adminDeleteOffer(offer.id);
+      setOffers(prev => prev.filter(o => o.id !== offer.id));
+    } catch (e) {
+      alert(e.message || "Failed to delete offer.");
+    }
+  };
+
+  const handleDuplicate = async (offer) => {
+    try {
+      const payload = {
+        title:       `${offer.title} (Copy)`,
+        description: offer.description,
+        offerType:   offer.offerType  ?? "fixed_price",
+        offerPrice:  offer.offerPrice ?? null,
+        origPrice:   offer.origPrice  ?? null,
+        orderType:   offer.orderType  ?? "individual",
+        status:      "draft",
+        headerColor: offer.headerColor,
+        icon:        offer.icon,
+      };
+      const created = await api.adminCreateOffer(payload);
+      setOffers(prev => [normalizeOffer(created), ...prev]);
+    } catch (e) {
+      alert(e.message || "Failed to duplicate offer.");
+    }
+  };
+
+  const counts = {
+    all:      offers.length,
+    active:   offers.filter(o => o.status === "active").length,
+    upcoming: offers.filter(o => o.status === "upcoming" || o.status === "draft").length,
+    expired:  offers.filter(o => o.status === "expired").length,
+  };
+
+  const visible = tab === "all"
+    ? offers
+    : tab === "upcoming"
+    ? offers.filter(o => o.status === "upcoming" || o.status === "draft")
+    : offers.filter(o => o.status === tab);
 
   return (
     <div className="promo-page">
@@ -194,9 +208,9 @@ function AdminOffers() {
           { key: "active",   icon: "bolt",           iconCls: "of-kpi-icon-yellow", value: counts.active,   label: "Currently active" },
           { key: "upcoming", icon: "schedule",       iconCls: "of-kpi-icon-blue",   value: counts.upcoming, label: "Upcoming / scheduled" },
         ].map(card => {
-          const isFiltered = tab !== "all" && tab !== "expired";
+          const isFiltered  = tab !== "all" && tab !== "expired";
           const isHighlight = tab === card.key;
-          const isDim = isFiltered && !isHighlight;
+          const isDim       = isFiltered && !isHighlight;
           return (
             <button
               key={card.key}
@@ -234,21 +248,50 @@ function AdminOffers() {
       </div>
 
       {/* ── Cards grid ── */}
-      <div className="of-cards-grid">
-        {visible.map(offer => (
-          <OfferCard key={offer.id} offer={offer} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="of-loading">
+          <span className="material-symbols-outlined of-spin">refresh</span>
+          Loading offers…
+        </div>
+      ) : error ? (
+        <div className="of-error">
+          <span className="material-symbols-outlined">error</span>
+          {error}
+          <button type="button" onClick={loadOffers} className="of-action-outline">Retry</button>
+        </div>
+      ) : (
+        <div className="of-cards-grid">
+          {visible.map(offer => (
+            <OfferCard
+              key={offer.id}
+              offer={offer}
+              onStop={handleStop}
+              onDelete={handleDelete}
+              onDuplicate={handleDuplicate}
+              onEdit={(o) => navigate(`/admin/offers/create?edit=${o.id}`)}
+            />
+          ))}
+          {visible.length === 0 && (
+            <div className="of-empty">
+              <span className="material-symbols-outlined" style={{ fontSize: 40, color: "#9ca3af" }}>local_activity</span>
+              <p>No {tab === "all" ? "" : tab} offers yet.</p>
+              <button type="button" className="of-create-btn" onClick={() => navigate("/admin/offers/create")}>
+                Create first offer
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
     </div>
   );
 }
 
-function OfferCard({ offer }) {
-  const badge    = STATUS_BADGE[offer.status];
+function OfferCard({ offer, onStop, onDelete, onDuplicate, onEdit }) {
+  const badge     = STATUS_BADGE[offer.status] ?? STATUS_BADGE.active;
   const isExpired  = offer.status === "expired";
-  const isUpcoming = offer.status === "upcoming";
-  const pct = offer.target ? Math.round((offer.ordersPlaced / offer.target) * 100) : 0;
+  const isUpcoming = offer.status === "upcoming" || offer.status === "draft";
+  const pct = offer.target > 0 ? Math.round((offer.ordersPlaced / offer.target) * 100) : 0;
 
   return (
     <article className={`of-card${isExpired ? " of-card-expired" : ""}`}>
@@ -281,7 +324,7 @@ function OfferCard({ offer }) {
         <p className="of-card-desc">{offer.description}</p>
 
         <div className="of-card-tags">
-          {offer.tags.map(tag => (
+          {(offer.tags ?? []).map(tag => (
             <span key={tag} className="of-tag">
               <span className="of-tag-dot" />
               {tag}
@@ -295,7 +338,6 @@ function OfferCard({ offer }) {
         </p>
 
         <div className="of-card-bottom">
-          {/* Active: label above bar */}
           {!isUpcoming && !isExpired && (
             <>
               <div className="of-progress-label">{offer.targetLabel}</div>
@@ -308,7 +350,6 @@ function OfferCard({ offer }) {
             </>
           )}
 
-          {/* Expired: thin bar then label below */}
           {isExpired && (
             <>
               <div className="of-progress-track of-progress-track-thin">
@@ -318,7 +359,6 @@ function OfferCard({ offer }) {
             </>
           )}
 
-          {/* Upcoming: countdown banner */}
           {isUpcoming && (
             <div className="of-countdown">
               <span className="material-symbols-outlined" style={{ fontSize: 13 }}>schedule</span>
@@ -330,15 +370,11 @@ function OfferCard({ offer }) {
           <div className="of-card-actions">
             {!isExpired ? (
               <>
-                <button type="button" className="of-action-outline">
-                  <span className="material-symbols-outlined" style={{ fontSize: 13 }}>open_in_new</span>
-                  View
-                </button>
-                <button type="button" className="of-action-outline">
+                <button type="button" className="of-action-outline" onClick={() => onEdit(offer)}>
                   <span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span>
                   Edit
                 </button>
-                <button type="button" className="of-action-danger">
+                <button type="button" className="of-action-danger" onClick={() => isUpcoming ? onDelete(offer) : onStop(offer)}>
                   <span className="material-symbols-outlined" style={{ fontSize: 13 }}>
                     {isUpcoming ? "delete" : "stop_circle"}
                   </span>
@@ -347,11 +383,7 @@ function OfferCard({ offer }) {
               </>
             ) : (
               <>
-                <button type="button" className="of-action-outline">
-                  <span className="material-symbols-outlined" style={{ fontSize: 13 }}>bar_chart</span>
-                  View report
-                </button>
-                <button type="button" className="of-action-outline">
+                <button type="button" className="of-action-outline" onClick={() => onDuplicate(offer)}>
                   <span className="material-symbols-outlined" style={{ fontSize: 13 }}>content_copy</span>
                   Duplicate
                 </button>

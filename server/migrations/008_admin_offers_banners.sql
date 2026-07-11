@@ -1,0 +1,42 @@
+CREATE TABLE IF NOT EXISTS admin_offers (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  title         TEXT    NOT NULL,
+  description   TEXT,
+  offer_type    TEXT    NOT NULL DEFAULT 'fixed_price',
+  offer_price   REAL,
+  orig_price    REAL,
+  product_ids   TEXT,
+  start_date    TEXT,
+  end_date      TEXT,
+  max_orders    INTEGER,
+  order_type    TEXT    NOT NULL DEFAULT 'individual',
+  status        TEXT    NOT NULL DEFAULT 'draft',
+  header_color  TEXT,
+  icon          TEXT,
+  orders_placed INTEGER NOT NULL DEFAULT 0,
+  created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+  updated_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS admin_banners (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  title         TEXT    NOT NULL,
+  category      TEXT,
+  category_icon TEXT,
+  headline      TEXT,
+  tagline       TEXT,
+  cta_label     TEXT,
+  cta_color     TEXT,
+  bg_color      TEXT,
+  emoji         TEXT,
+  product       TEXT,
+  start_date    TEXT,
+  end_date      TEXT,
+  link_to       TEXT,
+  display_order INTEGER NOT NULL DEFAULT 0,
+  status        TEXT    NOT NULL DEFAULT 'draft',
+  impressions   INTEGER NOT NULL DEFAULT 0,
+  taps          INTEGER NOT NULL DEFAULT 0,
+  created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+  updated_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+);

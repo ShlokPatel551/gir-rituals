@@ -407,4 +407,204 @@ router.put('/settings', requireAdminRole('owner'), (req, res) => {
   res.json({ success: true });
 });
 
+// ── Admin Offers ──────────────────────────────────────────────────
+function offerRow(r) {
+  return {
+    id:           r.id,
+    title:        r.title,
+    description:  r.description || '',
+    offerType:    r.offer_type,
+    offerPrice:   r.offer_price,
+    origPrice:    r.orig_price,
+    productIds:   r.product_ids ? JSON.parse(r.product_ids) : [],
+    startDate:    r.start_date || '',
+    endDate:      r.end_date   || '',
+    maxOrders:    r.max_orders,
+    orderType:    r.order_type,
+    status:       r.status,
+    headerColor:  r.header_color || '#2d6a4f',
+    icon:         r.icon || 'local_activity',
+    ordersPlaced: r.orders_placed,
+    createdAt:    r.created_at,
+  };
+}
+
+router.get('/offers', requireAdmin, (req, res) => {
+  const { status } = req.query;
+  const rows = status && status !== 'all'
+    ? db.prepare('SELECT * FROM admin_offers WHERE status=? ORDER BY created_at DESC').all(status)
+    : db.prepare('SELECT * FROM admin_offers ORDER BY created_at DESC').all();
+  res.json(rows.map(offerRow));
+});
+
+router.post('/offers', requireAdmin, (req, res) => {
+  const { title, description, offerType, offerPrice, origPrice, productIds, startDate, endDate, maxOrders, orderType, status, headerColor, icon } = req.body;
+  if (!title) return res.status(400).json({ error: 'title is required' });
+
+  const today = new Date().toISOString().slice(0, 10);
+  let computedStatus = status || 'draft';
+  if (computedStatus !== 'draft') {
+    if (startDate && startDate > today) computedStatus = 'upcoming';
+    else if (startDate && startDate <= today) computedStatus = 'active';
+  }
+
+  const r = db.prepare(`
+    INSERT INTO admin_offers
+      (title, description, offer_type, offer_price, orig_price, product_ids, start_date, end_date, max_orders, order_type, status, header_color, icon)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+  `).run(
+    title, description || '', offerType || 'fixed_price',
+    offerPrice ?? null, origPrice ?? null,
+    productIds ? JSON.stringify(productIds) : null,
+    startDate || null, endDate || null,
+    maxOrders ? parseInt(maxOrders) : null,
+    orderType || 'individual', computedStatus,
+    headerColor || '#2d6a4f', icon || 'local_activity'
+  );
+
+  const created = db.prepare('SELECT * FROM admin_offers WHERE id=?').get(r.lastInsertRowid);
+  res.status(201).json(offerRow(created));
+});
+
+router.put('/offers/:id', requireAdmin, (req, res) => {
+  const offer = db.prepare('SELECT * FROM admin_offers WHERE id=?').get(req.params.id);
+  if (!offer) return res.status(404).json({ error: 'Offer not found' });
+
+  const { title, description, offerType, offerPrice, origPrice, productIds, startDate, endDate, maxOrders, orderType, status, headerColor, icon } = req.body;
+
+  db.prepare(`
+    UPDATE admin_offers SET
+      title=COALESCE(?,title), description=COALESCE(?,description),
+      offer_type=COALESCE(?,offer_type), offer_price=COALESCE(?,offer_price),
+      orig_price=COALESCE(?,orig_price), product_ids=COALESCE(?,product_ids),
+      start_date=COALESCE(?,start_date), end_date=COALESCE(?,end_date),
+      max_orders=COALESCE(?,max_orders), order_type=COALESCE(?,order_type),
+      status=COALESCE(?,status), header_color=COALESCE(?,header_color),
+      icon=COALESCE(?,icon), updated_at=datetime('now')
+    WHERE id=?
+  `).run(
+    title ?? null, description ?? null, offerType ?? null,
+    offerPrice ?? null, origPrice ?? null,
+    productIds ? JSON.stringify(productIds) : null,
+    startDate ?? null, endDate ?? null,
+    maxOrders ? parseInt(maxOrders) : null,
+    orderType ?? null, status ?? null,
+    headerColor ?? null, icon ?? null,
+    offer.id
+  );
+
+  res.json(offerRow(db.prepare('SELECT * FROM admin_offers WHERE id=?').get(offer.id)));
+});
+
+router.delete('/offers/:id', requireAdmin, (req, res) => {
+  const offer = db.prepare('SELECT * FROM admin_offers WHERE id=?').get(req.params.id);
+  if (!offer) return res.status(404).json({ error: 'Offer not found' });
+  db.prepare('DELETE FROM admin_offers WHERE id=?').run(offer.id);
+  res.json({ success: true });
+});
+
+// ── Admin Banners ─────────────────────────────────────────────────
+function bannerRow(r) {
+  const ctr = r.impressions > 0 ? parseFloat(((r.taps / r.impressions) * 100).toFixed(1)) : 0;
+  return {
+    id:           r.id,
+    title:        r.title,
+    category:     r.category || '',
+    categoryIcon: r.category_icon || 'photo_library',
+    headline:     r.headline || '',
+    tagline:      r.tagline  || '',
+    ctaLabel:     r.cta_label || '',
+    ctaColor:     r.cta_color || '#ffffff',
+    bgColor:      r.bg_color  || '#1b4332',
+    bgGradient:   `linear-gradient(135deg, ${r.bg_color || '#1b4332'} 0%, ${r.bg_color || '#1b4332'}cc 100%)`,
+    emoji:        r.emoji || '🥛',
+    product:      r.product || '',
+    startDate:    r.start_date || '',
+    endDate:      r.end_date   || '',
+    linkTo:       r.link_to    || '',
+    displayOrder: r.display_order,
+    status:       r.status,
+    impressions:  r.impressions,
+    taps:         r.taps,
+    ctr,
+    createdAt:    r.created_at,
+  };
+}
+
+router.get('/banners', requireAdmin, (req, res) => {
+  const { status } = req.query;
+  const rows = status && status !== 'all'
+    ? db.prepare('SELECT * FROM admin_banners WHERE status=? ORDER BY display_order ASC, created_at DESC').all(status)
+    : db.prepare('SELECT * FROM admin_banners ORDER BY display_order ASC, created_at DESC').all();
+  res.json(rows.map(bannerRow));
+});
+
+router.post('/banners', requireAdmin, (req, res) => {
+  const { title, category, categoryIcon, headline, tagline, ctaLabel, ctaColor, bgColor, emoji, product, startDate, endDate, linkTo, displayOrder, status } = req.body;
+  if (!title) return res.status(400).json({ error: 'title is required' });
+
+  const today = new Date().toISOString().slice(0, 10);
+  let computedStatus = status || 'draft';
+  if (computedStatus !== 'draft') {
+    if (startDate && startDate > today) computedStatus = 'upcoming';
+    else if (startDate && startDate <= today) computedStatus = 'active';
+  }
+
+  const r = db.prepare(`
+    INSERT INTO admin_banners
+      (title, category, category_icon, headline, tagline, cta_label, cta_color, bg_color, emoji, product, start_date, end_date, link_to, display_order, status)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+  `).run(
+    title, category || '', categoryIcon || 'photo_library',
+    headline || '', tagline || '',
+    ctaLabel || '', ctaColor || '#ffffff',
+    bgColor || '#1b4332', emoji || '🥛',
+    product || '', startDate || null, endDate || null,
+    linkTo || '', parseInt(displayOrder) || 0, computedStatus
+  );
+
+  const created = db.prepare('SELECT * FROM admin_banners WHERE id=?').get(r.lastInsertRowid);
+  res.status(201).json(bannerRow(created));
+});
+
+router.put('/banners/:id', requireAdmin, (req, res) => {
+  const banner = db.prepare('SELECT * FROM admin_banners WHERE id=?').get(req.params.id);
+  if (!banner) return res.status(404).json({ error: 'Banner not found' });
+
+  const { title, category, categoryIcon, headline, tagline, ctaLabel, ctaColor, bgColor, emoji, product, startDate, endDate, linkTo, displayOrder, status } = req.body;
+
+  db.prepare(`
+    UPDATE admin_banners SET
+      title=COALESCE(?,title), category=COALESCE(?,category),
+      category_icon=COALESCE(?,category_icon), headline=COALESCE(?,headline),
+      tagline=COALESCE(?,tagline), cta_label=COALESCE(?,cta_label),
+      cta_color=COALESCE(?,cta_color), bg_color=COALESCE(?,bg_color),
+      emoji=COALESCE(?,emoji), product=COALESCE(?,product),
+      start_date=COALESCE(?,start_date), end_date=COALESCE(?,end_date),
+      link_to=COALESCE(?,link_to),
+      display_order=COALESCE(?,display_order),
+      status=COALESCE(?,status), updated_at=datetime('now')
+    WHERE id=?
+  `).run(
+    title ?? null, category ?? null, categoryIcon ?? null,
+    headline ?? null, tagline ?? null, ctaLabel ?? null,
+    ctaColor ?? null, bgColor ?? null, emoji ?? null,
+    product ?? null, startDate ?? null, endDate ?? null,
+    linkTo ?? null,
+    displayOrder != null ? parseInt(displayOrder) : null,
+    status ?? null,
+    banner.id
+  );
+
+  res.json(bannerRow(db.prepare('SELECT * FROM admin_banners WHERE id=?').get(banner.id)));
+});
+
+router.delete('/banners/:id', requireAdmin, (req, res) => {
+  const banner = db.prepare('SELECT * FROM admin_banners WHERE id=?').get(req.params.id);
+  if (!banner) return res.status(404).json({ error: 'Banner not found' });
+  db.prepare('DELETE FROM admin_banners WHERE id=?').run(banner.id);
+  res.json({ success: true });
+});
+
 export default router;
+

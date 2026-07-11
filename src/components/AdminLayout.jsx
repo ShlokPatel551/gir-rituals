@@ -18,6 +18,7 @@ const ALL_NAV = [
   { path: "/admin/finance",    label: "Finance",    icon: "payments",                     roles: ["owner","accountant"] },
   { path: "/admin/analytics",  label: "Analytics",  icon: "analytics",                    roles: ["owner","accountant"] },
   { path: "/admin/billing",    label: "Billing",    icon: "receipt_long",                 roles: ["owner","accountant"] },
+  { path: "/admin/notifications", label: "Notifications", icon: "notifications",              roles: ["owner","manager","accountant"] },
   { path: "/admin/refunds",    label: "Refunds",    icon: "currency_exchange",            roles: ["owner","accountant"] },
   { path: "/admin/offers",     label: "Offers",     icon: "local_activity",               roles: ["owner","manager"] },
   { path: "/admin/campaigns",  label: "Campaigns",  icon: "campaign",                     roles: ["owner","manager"] },
@@ -265,7 +266,7 @@ function AdminLayout() {
                   <button
                     type="button"
                     className="admin-notif-view-all"
-                    onClick={() => { setNotifOpen(false); navigate("/admin"); }}
+                    onClick={() => { setNotifOpen(false); navigate("/admin/notifications"); }}
                   >
                     View all activity →
                   </button>

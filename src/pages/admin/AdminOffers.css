@@ -433,3 +433,26 @@
 }
 
 .of-action-danger:hover { background: #fef2f2; }
+
+/* ── Loading / Error / Empty states ── */
+.of-loading, .of-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.of-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+@keyframes of-spin { to { transform: rotate(360deg); } }
+.of-spin { animation: of-spin 1s linear infinite; }

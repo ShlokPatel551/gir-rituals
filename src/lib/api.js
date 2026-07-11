@@ -154,4 +154,16 @@ export const api = {
   // Admin — app settings
   adminSettings:       ()     => request('/admin/settings'),
   adminSaveSettings:   (data) => request('/admin/settings', { method: 'PUT', body: data }),
+
+  // Admin — offers CRUD
+  adminOffers:        (status) => request(`/admin/offers${status && status !== 'all' ? `?status=${status}` : ''}`),
+  adminCreateOffer:   (data)   => request('/admin/offers',      { method: 'POST',   body: data }),
+  adminUpdateOffer:   (id, data) => request(`/admin/offers/${id}`, { method: 'PUT', body: data }),
+  adminDeleteOffer:   (id)     => request(`/admin/offers/${id}`, { method: 'DELETE' }),
+
+  // Admin — banners CRUD
+  adminBanners:       (status) => request(`/admin/banners${status && status !== 'all' ? `?status=${status}` : ''}`),
+  adminCreateBanner:  (data)   => request('/admin/banners',      { method: 'POST',   body: data }),
+  adminUpdateBanner:  (id, data) => request(`/admin/banners/${id}`, { method: 'PUT', body: data }),
+  adminDeleteBanner:  (id)     => request(`/admin/banners/${id}`, { method: 'DELETE' }),
 };

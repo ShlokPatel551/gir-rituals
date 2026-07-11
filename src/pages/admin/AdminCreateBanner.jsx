@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../lib/api";
 import "./AdminCreateBanner.css";
 
 const COLORS = [
@@ -48,10 +49,44 @@ function AdminCreateBanner() {
   const [linkTo,       setLinkTo]       = useState("product_milk");
   const [displayOrder, setDisplayOrder] = useState("2");
 
-  const [sections, setSections] = useState({ content: true, design: true, schedule: true });
+  const [sections,   setSections]   = useState({ content: true, design: true, schedule: true });
+  const [saving,     setSaving]     = useState(false);
+  const [formError,  setFormError]  = useState("");
 
   function toggleSection(key) {
     setSections(prev => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  async function handleSave(asDraft) {
+    if (!title.trim()) { setFormError("Main title is required."); return; }
+    if (!asDraft && (!startDate || !endDate)) { setFormError("Start and end dates are required to schedule."); return; }
+    setFormError("");
+    setSaving(true);
+    try {
+      const selectedEmoji = PRODUCTS.find(p => p.value === product)?.label.split(" ")[0] ?? "🥛";
+      await api.adminCreateBanner({
+        title:        title.trim(),
+        category:     eyebrow.trim() || "General",
+        categoryIcon: "photo_library",
+        headline:     title.trim(),
+        tagline:      subtitle.trim(),
+        ctaLabel:     buttonText.trim(),
+        ctaColor:     "#ffffff",
+        bgColor:      bgColor,
+        emoji:        selectedEmoji,
+        product:      product,
+        startDate:    startDate || null,
+        endDate:      endDate   || null,
+        linkTo:       linkTo,
+        displayOrder: parseInt(displayOrder) || 0,
+        status:       asDraft ? "draft" : "schedule",
+      });
+      navigate("/admin/campaigns");
+    } catch (e) {
+      setFormError(e.message || "Failed to save banner. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -286,14 +321,18 @@ function AdminCreateBanner() {
 
       {/* ── Sticky footer ── */}
       <footer className="cbn-footer">
-        <p className="cbn-footer-note">Banner will go live automatically on start date</p>
+        <p className="cbn-footer-note">
+          {formError
+            ? <span style={{ color: "#dc2626" }}>{formError}</span>
+            : "Banner will go live automatically on start date"}
+        </p>
         <div className="cbn-footer-actions">
-          <button type="button" className="cbn-btn-draft">
-            Save as draft
+          <button type="button" className="cbn-btn-draft" disabled={saving} onClick={() => handleSave(true)}>
+            {saving ? "Saving…" : "Save as draft"}
           </button>
-          <button type="button" className="cbn-btn-save">
+          <button type="button" className="cbn-btn-save" disabled={saving} onClick={() => handleSave(false)}>
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>save</span>
-            Save &amp; schedule banner
+            {saving ? "Saving…" : "Save & schedule banner"}
           </button>
         </div>
       </footer>

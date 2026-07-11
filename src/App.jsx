@@ -32,6 +32,7 @@ import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminDeliveries } from "./pages/admin/AdminDeliveries";
 import { AdminAnalytics } from "./pages/admin/AdminAnalytics";
 import { AdminFinance } from "./pages/admin/AdminFinance";
+import { AdminNotifications } from "./pages/admin/AdminNotifications";
 import { AdminRefunds } from "./pages/admin/AdminRefunds";
 import { AdminLogin } from "./pages/admin/AdminLogin";
 import { AdminOrders } from "./pages/admin/AdminOrders";
@@ -106,6 +107,7 @@ function AppRoutes() {
         <Route path="finance" element={<AdminFinance />} />
         <Route path="billing" element={<AdminBilling />} />
         <Route path="analytics" element={<AdminAnalytics />} />
+        <Route path="notifications" element={<AdminNotifications />} />
         <Route path="refunds" element={<AdminRefunds />} />
         <Route path="offers" element={<AdminOffers />} />
         <Route path="offers/create" element={<AdminCreateOffer />} />

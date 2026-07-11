@@ -1,0 +1,244 @@
+/* ── Overlay ── */
+.rsm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9100;
+  padding: 1rem;
+}
+
+/* ── Modal shell ── */
+.rsm-modal {
+  background: #fff;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.rsm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.rsm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1b4332;
+}
+
+.rsm-title {
+  font-family: 'Libre Caslon Text', 'Literata', Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #1b4332;
+  margin: 0;
+}
+
+.rsm-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+  line-height: 0;
+}
+
+.rsm-close:hover { color: #4b5563; }
+
+/* ── Success section ── */
+.rsm-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.rsm-check-outer {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: rgba(27, 67, 50, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.rsm-check-inner {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: #1b4332;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.rsm-amount {
+  font-family: 'Libre Caslon Text', 'Literata', Georgia, serif;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.25rem;
+  line-height: 1.15;
+}
+
+.rsm-recipient {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ── Details section ── */
+.rsm-details {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.rsm-hr {
+  border: none;
+  border-top: 1px solid #f3f4f6;
+  margin: 0 0 0.75rem;
+}
+
+.rsm-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+}
+
+.rsm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.875rem;
+}
+
+.rsm-row-label {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.rsm-row-value {
+  font-weight: 600;
+  color: #111827;
+  text-align: right;
+}
+
+.rsm-row-mono {
+  font-family: ui-monospace, SFMono-Regular, 'Courier New', monospace;
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+}
+
+/* Method badge */
+.rsm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.rsm-badge-blue {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.rsm-badge-amber {
+  background: #fffbeb;
+  color: #92400e;
+}
+
+/* Notification banner */
+.rsm-notif-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: rgba(27, 67, 50, 0.08);
+  border: 1px solid rgba(27, 67, 50, 0.2);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.rsm-notif-icon {
+  color: #1b4332;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+  display: flex;
+  align-items: center;
+}
+
+.rsm-notif-banner p {
+  font-size: 0.75rem;
+  color: #1b4332;
+  font-weight: 500;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Footer ── */
+.rsm-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.125rem 1.5rem;
+  background: rgba(249, 250, 251, 0.5);
+  border-top: 1px solid #f3f4f6;
+}
+
+.rsm-btn-outline {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  border: 2px solid #1b4332;
+  background: #fff;
+  color: #1b4332;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.rsm-btn-outline:hover {
+  background: #1b4332;
+  color: #fff;
+}
+
+.rsm-btn-filled {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  border: none;
+  background: #1b4332;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.15s;
+}
+
+.rsm-btn-filled:hover { opacity: 0.88; }

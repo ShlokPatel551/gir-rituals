@@ -1,0 +1,460 @@
+/* ── Page wrapper ── */
+.nc-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 56rem;
+}
+
+/* ── Page header ── */
+.nc-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.nc-page-title {
+  font-family: 'Libre Caslon Text', 'Literata', Georgia, serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #012d1d;
+  margin: 0 0 0.375rem;
+  line-height: 1.3;
+}
+
+.nc-page-desc {
+  font-size: 0.9375rem;
+  color: #414844;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── Action buttons ── */
+.nc-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-shrink: 0;
+}
+
+.nc-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5625rem 1rem;
+  background: #fff;
+  border: 1px solid #c1c8c2;
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1c1b1b;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.04);
+  transition: background 0.15s;
+}
+.nc-btn-outline:hover { background: #f2edec; }
+
+.nc-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5625rem 1rem;
+  background: #ffdad6;
+  border: none;
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #93000a;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(27, 67, 50, 0.04);
+  transition: opacity 0.15s;
+}
+.nc-btn-danger:hover { opacity: 0.88; }
+
+/* ── Date filter ── */
+.nc-date-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.nc-date-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  border: 1px solid #c1c8c2;
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #414844;
+}
+
+.nc-date-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.nc-today-btn {
+  padding: 0.5rem 1.25rem;
+  background: #ece7e6;
+  border: 1px solid #c1c8c2;
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #012d1d;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: background 0.15s;
+}
+.nc-today-btn:hover { background: #ddd9d8; }
+
+/* ── KPI grid ── */
+.nc-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .nc-kpi-grid { grid-template-columns: 1fr; }
+}
+
+.nc-kpi-card {
+  background: #fff;
+  border: 1px solid #ece7e6;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+  transition: transform 0.15s;
+}
+.nc-kpi-card:hover { transform: translateY(-2px); }
+
+.nc-kpi-label {
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #414844;
+  margin: 0 0 0.5rem;
+}
+
+.nc-kpi-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.nc-kpi-value {
+  font-family: 'Libre Caslon Text', 'Literata', Georgia, serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #012d1d;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.nc-kpi-sub {
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #717973;
+}
+
+.nc-kpi-green { color: #2d6a4f; }
+.nc-kpi-amber { color: #ea9147; }
+
+/* ── Tabs ── */
+.nc-tabs-wrap {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nc-tabs-wrap::-webkit-scrollbar { display: none; }
+
+.nc-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  border-bottom: 1px solid #c1c8c2;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+.nc-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.25rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #414844;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.nc-tab:hover:not(.nc-tab-active) { color: #012d1d; }
+
+.nc-tab-active {
+  color: #012d1d;
+  font-weight: 700;
+  border-bottom-color: #012d1d;
+}
+
+.nc-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  min-width: 1.25rem;
+  padding: 0.15rem 0.4375rem;
+  border-radius: 9999px;
+  background: #e6e1e0;
+  color: #414844;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nc-tab-badge-active {
+  background: #012d1d;
+  color: #fff;
+}
+
+/* ── Filter description ── */
+.nc-filter-desc {
+  font-size: 0.875rem;
+  color: #717973;
+  font-style: italic;
+  margin: -0.25rem 0 0;
+}
+
+/* ── Notifications list ── */
+.nc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.nc-group-title {
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #414844;
+  opacity: 0.6;
+  margin: 0 0 0.875rem;
+}
+
+.nc-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── Notification item ── */
+.nc-item {
+  background: #fff;
+  border: 1px solid #f2edec;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 1px 4px rgba(27, 67, 50, 0.05);
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.nc-item:hover {
+  transform: translateX(4px);
+  border-color: rgba(27, 67, 50, 0.3);
+  box-shadow: 0 4px 12px rgba(27, 67, 50, 0.1);
+}
+
+/* Read items — white background, dimmed body */
+.nc-item-read {
+  background: #fff;
+}
+.nc-item-read .nc-item-body {
+  opacity: 0.6;
+}
+
+/* Unread items — cream tint */
+.nc-item-unread {
+  background: #f7f2f1;
+}
+
+/* Unread with red left accent */
+.nc-item-accent-error {
+  background: #fcf8f0;
+  border-color: #ece7e6;
+  border-left: 4px solid #ba1a1a;
+}
+
+/* Unread with green left accent */
+.nc-item-accent-primary {
+  background: #f0f4f2;
+  border-color: #ece7e6;
+  border-left: 4px solid #012d1d;
+}
+
+/* ── Icon box ── */
+.nc-icon-box {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nc-icon-box .material-symbols-outlined {
+  font-size: 22px;
+}
+
+/* ── Item body ── */
+.nc-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.nc-item-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.nc-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.nc-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #012d1d;
+  flex-shrink: 0;
+  animation: nc-pulse 2s ease-in-out infinite;
+}
+
+@keyframes nc-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.nc-item-title {
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1c1b1b;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.nc-item-title-unread {
+  color: #012d1d;
+}
+
+.nc-time {
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #717973;
+  white-space: nowrap;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.nc-item-desc {
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  color: #414844;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Delete button (shown on hover) ── */
+.nc-delete-btn {
+  padding: 0.375rem;
+  background: none;
+  border: none;
+  color: #717973;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  opacity: 0;
+  line-height: 0;
+  flex-shrink: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+.nc-item:hover .nc-delete-btn { opacity: 1; }
+.nc-delete-btn:hover { color: #ba1a1a; }
+.nc-delete-btn .material-symbols-outlined { font-size: 20px; }
+
+/* ── Empty state ── */
+.nc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem;
+  color: #717973;
+  font-family: var(--admin-font-body);
+  font-size: 0.9375rem;
+}
+.nc-empty p { margin: 0; }
+.nc-empty .material-symbols-outlined { font-size: 48px; color: #c1c8c2; }
+
+/* ── Footer ── */
+.nc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #c1c8c2;
+}
+
+.nc-footer-text {
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  color: #717973;
+  margin: 0;
+}
+
+.nc-show-all-btn {
+  padding: 0.75rem 2rem;
+  background: #012d1d;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.15s, transform 0.1s;
+}
+.nc-show-all-btn:hover  { opacity: 0.88; }
+.nc-show-all-btn:active { transform: scale(0.97); }
