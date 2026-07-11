@@ -162,7 +162,7 @@ function Layout() {
               </div>
               <div className="user-menu-wrapper" ref={userMenuRef}>
                 <button type="button" className="avatar-btn" onClick={() => setUserMenuOpen(!userMenuOpen)} aria-label="My account">
-                  {user.firstName[0]}{user.lastName[0]}
+                  {user?.firstName?.[0] ?? "?"}{user?.lastName?.[0] ?? ""}
                 </button>
                 {userMenuOpen && <div className="user-dropdown">
                     <div className="user-dropdown-header">

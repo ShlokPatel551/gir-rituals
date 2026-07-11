@@ -1,74 +1,259 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Fragment, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
+import "./Checkout.css";
+
 const GST_RATE = 0.05;
+
+const PRODUCT_IMGS = {
+  milk:   "https://lh3.googleusercontent.com/aida-public/AB6AXuDUBwAsVrFtBz-ThjfsL4wBtlGs5nkhWQgbrGKAD4I09yAX3lMOPqVJotnKFNC4lR2cC7t6BJ-VhO-BKtcMtISnH6CDjA36vO224abotHkxliKJnqyOoeSmKJA3Jd7-9Zm_7uVAYA1vtjIe6ZBzTpwTi1bgxtOh7lFH2YMxaNHQjknJaxJYUF8FxoDwpmVJ1l60lfkN4R8Ae9o3wulP14SJseRIpXHgkh_15uf00nvdKYMVe9xPORLksOA3uPwRljhPrRDk5kWbBa-K",
+  ghee:   "https://lh3.googleusercontent.com/aida-public/AB6AXuCiTmIEx28DBMRj6KXJ0fTF9ImOqxnUJJyBknqmNlhmc5sw8JRMpTjYS0AYkJU3bkMOiWIr78g54IIhA1MZc4GJn9tXMa_W88DN6khO_gwHSi9pXukLWE2xyI3qYh6aT-QOtZd4_1U_EHdTrbkjnYwS_mBeDGOAw2pszut3hlr1ausDueRYx4wQHWF3XvOUpgWrBizIr_5tZOLbTPrqSg079S8WEXp4dvgU9HJpHn5PUW5niqW0AuSnAOPw-P5Pz58MI8XRcc5u9QjJ",
+  paneer: "https://lh3.googleusercontent.com/aida-public/AB6AXuAatjBp5DXyWvUZZ4BB_9zx4pERQNU1w3VjAvJuJDoLOdyY9IGaAGC921C5xATSHLlQyf7HnkQNWZVsBIiA2Sf-7HGvB8LEn0ohhFobBJ863tviw017miklgYNuulbmq4QpWg0XtFZiY8DzykMODS2yN56yIJDalRLaXk2qAQSuEK1d-zlangC9RaFhYpYwtaPr0Aw5jUw6RAc3w7OTanhzGTsGV5cCivK1sRS0Zhzu79GRYxzC1CMjlnUAJSyTxdE4ZMQQuiGH2Lk7",
+  honey:  "https://lh3.googleusercontent.com/aida-public/AB6AXuBCNOyK7_HTwbAMW4DZ59PdwTo0dg8yTMKRp6go0eBbyTxKZI1VzMpAlAwAb754GeYn7jILXdnHAeNNBG9EJVhRHqQwNI9_tR8LnJ6_nxXjYLzsTyenjB0QUJIk9kyLZgB2sBFmTFCm6H3oxk3frSTOegnTlNJnM0NT6D6gCnqqQpR8u1vDkcuVRZSm-wINzvOmmxsGDRpflXVP68KqVKJJwicJJ36raXQKC3DbVtyr15CsuT59qHpmYvASsXhpiUFRla0_BZ0Qb5MS",
+};
+
+const STEPS = ["Order Review", "Delivery", "Payment", "Confirm"];
+
+const PAYMENT_METHODS = [
+  { id: "upi",        icon: "smartphone",      label: "UPI" },
+  { id: "netbanking", icon: "account_balance", label: "Net Banking" },
+  { id: "card",       icon: "credit_card",     label: "Credit / Debit Card" },
+];
+
+function imgKey(productId = "") {
+  if (productId.includes("ghee"))   return "ghee";
+  if (productId.includes("paneer")) return "paneer";
+  if (productId.includes("honey"))  return "honey";
+  return "milk";
+}
+
+function StepIndicator({ step }) {
+  return (
+    <div className="chk-steps">
+      {STEPS.map((label, i) => {
+        const num    = i + 1;
+        const active = num === step;
+        const done   = num < step;
+        return (
+          <Fragment key={label}>
+            <div className="chk-step-group">
+              <div className={`chk-step-circle ${active ? "chk-step-circle-active" : done ? "chk-step-circle-done" : ""}`}>
+                {done
+                  ? <span className="material-symbols-outlined" style={{ fontSize: 15 }}>check</span>
+                  : num}
+              </div>
+              <span className={`chk-step-label ${active ? "chk-step-label-active" : ""}`}>{label}</span>
+            </div>
+            {i < STEPS.length - 1 && <div className="chk-step-line" />}
+          </Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
 function Checkout() {
   const navigate = useNavigate();
   const { cart, cartTotal, user, products } = useApp();
-  const [step, setStep] = useState(1);
+
+  const [step,          setStep]          = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("upi");
-  const [promo, setPromo] = useState("");
-  const gst = Math.round(cartTotal * GST_RATE);
+
+  const gst        = Math.round(cartTotal * GST_RATE);
   const netPayable = cartTotal + gst;
-  const steps = ["Order Review", "Delivery Address", "Payment Method", "Order Summary"];
+  const addr       = user?.deliveryAddress ?? {};
+
+  const items = cart.map(c => {
+    const p = products.find(x => x.id === c.productId);
+    return { productId: c.productId, quantity: c.quantity, name: p?.name ?? c.productId, unit: p?.unit ?? "", price: p?.price ?? 0 };
+  });
+
   const handleConfirm = () => {
     navigate(`/payment?amount=${netPayable}&checkout=1`);
   };
-  return <div style={{ maxWidth: 480, margin: "0 auto", padding: "1rem" }}>
-      <h1 className="page-title">Checkout</h1>
-      <p style={{ color: "var(--text-muted)", marginBottom: "1rem" }}>Step {step} of 4 — {steps[step - 1]}</p>
 
-      {step === 1 && <div className="card">
-          {cart.map((item) => {
-    const p = products.find((x) => x.id === item.productId);
-    if (!p) return null;
-    return <div key={item.productId} style={{ padding: "0.5rem 0", borderBottom: "1px solid var(--border)" }}>
-                {p.name} × {item.quantity} — ₹{p.price * item.quantity}
-              </div>;
-  })}
-          <div style={{ marginTop: "0.75rem", paddingTop: "0.5rem", borderTop: "1px solid var(--border)", fontSize: "0.9rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}><span>Subtotal</span><span>₹{cartTotal.toFixed(2)}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", color: "var(--text-muted)" }}><span>GST (5%)</span><span>₹{gst.toFixed(2)}</span></div>
+  return (
+    <div className="chk-page">
+      <StepIndicator step={step} />
+
+      <div className="chk-body">
+
+        {/* ── Step 1: Order Review ── */}
+        {step === 1 && (
+          <>
+            <div className="chk-card">
+              <div className="chk-card-hdr">
+                <div className="chk-card-hdr-icon">
+                  <span className="material-symbols-outlined">shopping_bag</span>
+                </div>
+                <h3>Your Order</h3>
+              </div>
+              <div className="chk-card-body">
+                {items.length === 0 ? (
+                  <p style={{ color: "#9a8578", fontSize: "0.875rem" }}>Your cart is empty.</p>
+                ) : (
+                  <div className="chk-items">
+                    {items.map(item => (
+                      <div key={item.productId} className="chk-item">
+                        <div className="chk-item-img">
+                          {PRODUCT_IMGS[imgKey(item.productId)]
+                            ? <img src={PRODUCT_IMGS[imgKey(item.productId)]} alt={item.name} onError={e => { e.target.style.display = "none"; }} />
+                            : "🌿"
+                          }
+                        </div>
+                        <div className="chk-item-info">
+                          <p className="chk-item-name">{item.name}</p>
+                          <p className="chk-item-sub">{item.quantity} × {item.unit}</p>
+                        </div>
+                        <span className="chk-item-price">₹{(item.price * item.quantity).toLocaleString("en-IN")}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <hr className="chk-divider" />
+                <div className="chk-totals">
+                  <div className="chk-total-row"><span>Subtotal</span><span>₹{cartTotal.toFixed(2)}</span></div>
+                  <div className="chk-total-row"><span>GST (5%)</span><span>₹{gst.toFixed(2)}</span></div>
+                  <div className="chk-total-row"><span>Delivery</span><span style={{ color: "#2e7d32", fontWeight: 700 }}>FREE</span></div>
+                  <div className="chk-total-row chk-total-grand"><span>Total</span><span>₹{netPayable.toFixed(2)}</span></div>
+                </div>
+                <Link to="/cart" className="chk-edit-link">
+                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>edit</span>
+                  Edit cart
+                </Link>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── Step 2: Delivery ── */}
+        {step === 2 && (
+          <div className="chk-card">
+            <div className="chk-card-hdr">
+              <div className="chk-card-hdr-icon">
+                <span className="material-symbols-outlined">local_shipping</span>
+              </div>
+              <h3>Delivery Details</h3>
+            </div>
+            <div className="chk-card-body">
+              <div className="chk-address">
+                <div className="chk-addr-icon">
+                  <span className="material-symbols-outlined">location_on</span>
+                </div>
+                <div className="chk-addr-body">
+                  <p className="chk-addr-label">Delivering to</p>
+                  <p className="chk-addr-main">{addr.street || "No address on file"}</p>
+                  {addr.city && (
+                    <p className="chk-addr-sub">{addr.city}, {addr.state} – {addr.pinCode}</p>
+                  )}
+                  <Link to="/profile/settings" className="chk-addr-edit">
+                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>edit</span>
+                    Edit address
+                  </Link>
+                </div>
+              </div>
+
+              <div className="chk-info-note">
+                <span className="material-symbols-outlined">schedule</span>
+                <span>Expected delivery: <strong>Tomorrow, 6:00 AM – 8:00 AM</strong>. Our partner will call 30 min before arrival.</span>
+              </div>
+            </div>
           </div>
-          <p style={{ fontWeight: 700, marginTop: "0.5rem", fontSize: "1.1rem" }}>Total: ₹{(cartTotal + gst).toFixed(2)}</p>
-          <Link to="/cart" style={{ fontSize: "0.9rem", color: "var(--green-700)" }}>Edit cart</Link>
-        </div>}
+        )}
 
-      {step === 2 && <div className="card">
-          <p>{user.deliveryAddress.street}</p>
-          <p>{user.deliveryAddress.city}, {user.deliveryAddress.state} {user.deliveryAddress.pinCode}</p>
-        </div>}
-
-      {step === 3 && <div className="card">
-          {["upi", "netbanking", "card"].map((m) => <label key={m} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 0", cursor: "pointer" }}>
-              <input type="radio" name="pay" value={m} checked={paymentMethod === m} onChange={() => setPaymentMethod(m)} />
-              {m === "upi" && "\u{1F4F2} UPI"}
-              {m === "netbanking" && "\u{1F3E6} Net Banking"}
-              {m === "card" && "\u{1F4B3} Credit / Debit Card"}
-            </label>)}
-          <div className="form-group" style={{ marginTop: "0.75rem" }}>
-            <label>Promo code</label>
-            <input value={promo} onChange={(e) => setPromo(e.target.value)} placeholder="Enter promo code" />
+        {/* ── Step 3: Payment ── */}
+        {step === 3 && (
+          <div className="chk-card">
+            <div className="chk-card-hdr">
+              <div className="chk-card-hdr-icon">
+                <span className="material-symbols-outlined">payments</span>
+              </div>
+              <h3>Payment Method</h3>
+            </div>
+            <div className="chk-card-body">
+              <div className="chk-pay-options">
+                {PAYMENT_METHODS.map(m => (
+                  <label key={m.id} className={`chk-pay-option ${paymentMethod === m.id ? "chk-pay-option-active" : ""}`}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      value={m.id}
+                      checked={paymentMethod === m.id}
+                      onChange={() => setPaymentMethod(m.id)}
+                      className="chk-pay-radio"
+                    />
+                    <div className="chk-pay-icon">
+                      <span className="material-symbols-outlined">{m.icon}</span>
+                    </div>
+                    <span className="chk-pay-label">{m.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>}
+        )}
 
-      {step === 4 && <div className="card">
-          <p><strong>Items:</strong> {cart.length} product(s)</p>
-          <p><strong>Delivery to:</strong> {user.deliveryAddress.street}, {user.deliveryAddress.city}</p>
-          <p><strong>Payment:</strong> {paymentMethod === "upi" ? "UPI" : paymentMethod === "netbanking" ? "Net Banking" : "Credit/Debit Card"}</p>
-          <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border)", fontSize: "0.9rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}><span>Subtotal</span><span>₹{cartTotal.toFixed(2)}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", color: "var(--text-muted)" }}><span>GST (5%)</span><span>₹{gst.toFixed(2)}</span></div>
+        {/* ── Step 4: Confirm ── */}
+        {step === 4 && (
+          <div className="chk-card">
+            <div className="chk-card-hdr">
+              <div className="chk-card-hdr-icon">
+                <span className="material-symbols-outlined">receipt_long</span>
+              </div>
+              <h3>Order Summary</h3>
+            </div>
+            <div className="chk-card-body">
+              <div className="chk-totals">
+                <div className="chk-total-row"><span>Items ({items.length})</span><span>₹{cartTotal.toFixed(2)}</span></div>
+                <div className="chk-total-row"><span>GST (5%)</span><span>₹{gst.toFixed(2)}</span></div>
+                <div className="chk-total-row"><span>Delivery to</span><span>{addr.city || "—"}</span></div>
+                <div className="chk-total-row"><span>Payment via</span><span>{PAYMENT_METHODS.find(m => m.id === paymentMethod)?.label}</span></div>
+                <div className="chk-total-row chk-total-grand"><span>Net Payable</span><span>₹{netPayable.toFixed(2)}</span></div>
+              </div>
+            </div>
           </div>
-          <p style={{ fontSize: "1.25rem", fontWeight: 700, marginTop: "0.5rem" }}>Net Payable: ₹{netPayable.toFixed(2)}</p>
-        </div>}
+        )}
 
-      <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
-        {step > 1 && <button type="button" className="btn btn-secondary" onClick={() => setStep(step - 1)}>Back</button>}
-        {step < 4 ? <button type="button" className="btn btn-primary" style={{ flex: 1 }} onClick={() => setStep(step + 1)}>Continue</button> : <button type="button" className="btn btn-primary" style={{ flex: 1 }} onClick={handleConfirm}>Confirm & Pay</button>}
+        {/* ── Bottom Summary + Actions ── */}
+        {step < 4 && (
+          <div className="chk-summary-card">
+            <p className="chk-summary-title">Order Total</p>
+            <div className="chk-summary-rows">
+              <div className="chk-summary-row"><span>Subtotal</span><span>₹{cartTotal.toFixed(2)}</span></div>
+              <div className="chk-summary-row"><span>GST</span><span>₹{gst.toFixed(2)}</span></div>
+            </div>
+            <div className="chk-summary-total"><span>Total</span><span>₹{netPayable.toFixed(2)}</span></div>
+          </div>
+        )}
+
+        <div className="chk-actions">
+          {step < 4 ? (
+            <button type="button" className="chk-btn-primary" onClick={() => { setStep(s => s + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+              Continue
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </button>
+          ) : (
+            <button type="button" className="chk-btn-primary" onClick={handleConfirm}>
+              <span className="material-symbols-outlined">lock</span>
+              Confirm &amp; Pay ₹{netPayable.toFixed(2)}
+            </button>
+          )}
+
+          {step > 1 && (
+            <button type="button" className="chk-btn-secondary" onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+              <span className="material-symbols-outlined">arrow_back</span>
+              Back
+            </button>
+          )}
+
+          <p className="chk-secure-note">
+            <span className="material-symbols-outlined">verified_user</span>
+            256-bit SSL encrypted · GIR RITUALS never stores card details
+          </p>
+        </div>
       </div>
-    </div>;
+    </div>
+  );
 }
-export {
-  Checkout
-};
+
+export { Checkout };

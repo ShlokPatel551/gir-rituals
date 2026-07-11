@@ -1,0 +1,469 @@
+/* ── GIR RITUALS — Checkout Page ── */
+
+.chk-page {
+  min-height: 100vh;
+  background: #f7f4ef;
+  padding: 1.5rem 1rem 4rem;
+}
+
+/* ── Steps ── */
+.chk-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.chk-step-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+}
+
+.chk-step-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 64px;
+}
+
+.chk-step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border: 2px solid #d4c9bc;
+  background: #fff;
+  color: #9a8578;
+  transition: all 0.2s;
+}
+
+.chk-step-circle-active {
+  border-color: #5a3b22;
+  background: #5a3b22;
+  color: #fff;
+}
+
+.chk-step-circle-done {
+  border-color: #2e7d32;
+  background: #2e7d32;
+  color: #fff;
+}
+
+.chk-step-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #9a8578;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.chk-step-label-active {
+  color: #3c2a21;
+  font-weight: 700;
+}
+
+.chk-step-line {
+  flex: 1;
+  height: 2px;
+  background: #d4c9bc;
+  margin-bottom: 1.2rem;
+}
+
+/* ── Body ── */
+.chk-body {
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ── Cards ── */
+.chk-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #ede5db;
+  overflow: hidden;
+}
+
+.chk-card-hdr {
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #f0ebe4;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.chk-card-hdr-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f9f3e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7b5233;
+  font-size: 18px;
+}
+
+.chk-card-hdr h3 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #3c2a21;
+  margin: 0;
+}
+
+.chk-card-body {
+  padding: 1rem 1.25rem;
+}
+
+/* ── Order items ── */
+.chk-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.chk-item {
+  display: flex;
+  gap: 0.875rem;
+  align-items: center;
+}
+
+.chk-item-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: #f0ebe4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.chk-item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chk-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chk-item-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #3c2a21;
+  margin: 0 0 2px;
+}
+
+.chk-item-sub {
+  font-size: 0.75rem;
+  color: #9a8578;
+  margin: 0;
+}
+
+.chk-item-price {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #3c2a21;
+  flex-shrink: 0;
+}
+
+.chk-divider {
+  border: none;
+  border-top: 1px solid #f0ebe4;
+  margin: 0.75rem 0;
+}
+
+.chk-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chk-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8375rem;
+  color: #6b5040;
+}
+
+.chk-total-row.chk-total-grand {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3c2a21;
+  padding-top: 0.25rem;
+}
+
+.chk-edit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #7b5233;
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: 0.875rem;
+}
+
+.chk-edit-link:hover { text-decoration: underline; }
+
+/* ── Address ── */
+.chk-address {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+}
+
+.chk-addr-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f0faf3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2e7d32;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.chk-addr-body {
+  flex: 1;
+}
+
+.chk-addr-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9a8578;
+  margin: 0 0 4px;
+}
+
+.chk-addr-main {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #3c2a21;
+  margin: 0 0 2px;
+}
+
+.chk-addr-sub {
+  font-size: 0.8rem;
+  color: #6b5040;
+  margin: 0 0 8px;
+}
+
+.chk-addr-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #7b5233;
+  text-decoration: none;
+}
+
+.chk-addr-edit:hover { text-decoration: underline; }
+
+.chk-info-note {
+  display: flex;
+  gap: 0.625rem;
+  align-items: flex-start;
+  padding: 0.875rem;
+  background: #f9f3e9;
+  border-radius: 10px;
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: #6b5040;
+  line-height: 1.45;
+}
+
+.chk-info-note .material-symbols-outlined {
+  font-size: 18px;
+  color: #7b5233;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Payment options ── */
+.chk-pay-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.chk-pay-option {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid #ede5db;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.chk-pay-option:hover {
+  border-color: #c9a98a;
+  background: #fdf9f5;
+}
+
+.chk-pay-option-active {
+  border-color: #7b5233;
+  background: #fdf9f5;
+}
+
+.chk-pay-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #c9a98a;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.chk-pay-radio:checked {
+  border-color: #7b5233;
+  background: #7b5233;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+
+.chk-pay-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f9f3e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7b5233;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.chk-pay-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #3c2a21;
+  flex: 1;
+}
+
+/* ── Summary card at bottom ── */
+.chk-summary-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #ede5db;
+  padding: 1.25rem;
+}
+
+.chk-summary-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3c2a21;
+  margin: 0 0 1rem;
+}
+
+.chk-summary-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.chk-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.84rem;
+  color: #6b5040;
+}
+
+.chk-summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #3c2a21;
+  padding-top: 0.875rem;
+  border-top: 1px solid #f0ebe4;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Actions ── */
+.chk-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.chk-btn-primary {
+  width: 100%;
+  padding: 0.9375rem;
+  background: #3c2a21;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background 0.15s;
+}
+
+.chk-btn-primary:hover { background: #5a3b22; }
+
+.chk-btn-secondary {
+  width: 100%;
+  padding: 0.75rem;
+  background: transparent;
+  color: #7b5233;
+  border: 1.5px solid #c9a98a;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background 0.15s;
+}
+
+.chk-btn-secondary:hover { background: #fdf9f5; }
+
+.chk-secure-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: #9a8578;
+  margin-top: 0.75rem;
+}
+
+.chk-secure-note .material-symbols-outlined {
+  font-size: 14px;
+  color: #2e7d32;
+}

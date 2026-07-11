@@ -646,18 +646,11 @@ function Bills() {
           <div className="bl-card bl-store-credit-card">
             <strong className="bl-credit-card-title">Refund → Store Credit</strong>
             <p className="bl-credit-card-desc">
-              Received a refund? Add it to your wallet for instant use on future orders.
+              Received a refund? Contact support and we'll credit it to your Ritual Wallet for instant use on future orders.
             </p>
-            <button
-              type="button"
-              className="bl-credit-card-btn"
-              onClick={() => {
-                if (addWalletCredit) addWalletCredit(140);
-                showToast("₹140 store credit added to your wallet!");
-              }}
-            >
-              + Add Demo Store Credit (₹140)
-            </button>
+            <Link to="/contact" className="bl-credit-card-btn">
+              Contact Support
+            </Link>
           </div>
         </div>
       )}
