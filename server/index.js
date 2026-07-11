@@ -23,6 +23,8 @@ import scheduleRoutes     from './routes/schedule.js';
 import userRoutes         from './routes/user.js';
 import adminRoutes        from './routes/admin.js';
 import paymentRoutes      from './routes/payments.js';
+import webhookRoutes      from './routes/webhooks.js';
+import { startImapPoller } from './lib/comms-imap.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT      = process.env.PORT || 3001;
@@ -137,6 +139,8 @@ app.use('/api/schedule',      scheduleRoutes);
 app.use('/api/user',          userRoutes);
 app.use('/api/admin',         adminRoutes);
 app.use('/api/payments',      paymentRoutes);
+// Webhook routes accept raw bodies (Twilio sends form-encoded)
+app.use('/api/webhooks', express.urlencoded({ extended: false }), webhookRoutes);
 
 app.get('/api/health', (_, res) => res.json({
   status: 'ok',
@@ -177,4 +181,8 @@ app.use((err, req, res, next) => {
   res.status(status).json({ error: status === 500 ? 'Internal server error' : err.message });
 });
 
-app.listen(PORT, () => logger.info(`GIR RITUALS API → http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  logger.info(`GIR RITUALS API → http://localhost:${PORT}`);
+  // Start polling Gmail inbox for inbound email replies
+  startImapPoller(logger, 30_000);
+});

@@ -606,6 +606,28 @@ router.delete('/banners/:id', requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// ── Comms helpers ────────────────────────────────────────────────
+import { sendCommsMessage, sendBroadcast, CHANNELS_STATUS } from '../lib/comms-send.js';
+
+// ── Comms: channel status ─────────────────────────────────────────
+router.get('/comms/status', requireAdmin, (req, res) => {
+  const baseUrl = process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3001}`;
+  res.json({
+    channels: CHANNELS_STATUS,
+    webhooks: {
+      twilio:  `${baseUrl}/api/webhooks/whatsapp/twilio`,
+      msg91:   `${baseUrl}/api/webhooks/whatsapp/msg91`,
+      gupshup: `${baseUrl}/api/webhooks/whatsapp/gupshup`,
+      email:   `${baseUrl}/api/webhooks/email`,
+    },
+    imap: {
+      enabled: !!(process.env.SMTP_USER && process.env.SMTP_PASS),
+      host:    process.env.IMAP_HOST || 'imap.gmail.com',
+      user:    process.env.SMTP_USER || null,
+    },
+  });
+});
+
 // ── Comms: Conversations ─────────────────────────────────────────
 router.get('/comms/conversations', requireAdmin, (req, res) => {
   const rows = db.prepare(`
@@ -626,17 +648,38 @@ router.get('/comms/conversations/:id', requireAdmin, (req, res) => {
   res.json({ conversation: conv, messages: msgs });
 });
 
-router.post('/comms/conversations/:id/messages', requireAdmin, (req, res) => {
+router.post('/comms/conversations/:id/messages', requireAdmin, async (req, res) => {
   const { body } = req.body;
   if (!body?.trim()) return res.status(400).json({ error: 'body required' });
-  const conv = db.prepare('SELECT id FROM comms_conversations WHERE id=?').get(req.params.id);
+
+  const conv = db.prepare(`
+    SELECT c.*, u.phone, u.email AS customer_email
+    FROM comms_conversations c
+    LEFT JOIN users u ON u.client_id = c.client_id
+    WHERE c.id=?
+  `).get(req.params.id);
   if (!conv) return res.status(404).json({ error: 'Not found' });
+
   const now = new Date().toISOString();
+  let deliveryStatus = 'sent';
+
+  // Attempt real delivery
+  try {
+    const to = conv.channel === 'email' ? conv.customer_email : conv.phone;
+    if (to) {
+      await sendCommsMessage({ channel: conv.channel, to, body: body.trim() });
+      deliveryStatus = 'delivered';
+    }
+  } catch (err) {
+    // Log but don't fail — message is stored regardless
+    console.warn(`[comms] delivery failed (${conv.channel}): ${err.message}`);
+  }
+
   const r = db.prepare(
     'INSERT INTO comms_messages (conversation_id, direction, body, status, sent_at) VALUES (?,?,?,?,?)'
-  ).run(req.params.id, 'out', body.trim(), 'delivered', now);
+  ).run(req.params.id, 'out', body.trim(), deliveryStatus, now);
   db.prepare('UPDATE comms_conversations SET last_message=?, last_at=?, unread_count=0 WHERE id=?').run(body.trim(), now, req.params.id);
-  res.json({ id: r.lastInsertRowid, conversation_id: Number(req.params.id), direction: 'out', body: body.trim(), status: 'delivered', sent_at: now });
+  res.json({ id: r.lastInsertRowid, conversation_id: Number(req.params.id), direction: 'out', body: body.trim(), status: deliveryStatus, sent_at: now });
 });
 
 // ── Comms: Broadcasts ─────────────────────────────────────────────
@@ -645,20 +688,50 @@ router.get('/comms/broadcasts', requireAdmin, (req, res) => {
   res.json({ rows });
 });
 
-router.post('/comms/broadcasts', requireAdmin, (req, res) => {
+router.post('/comms/broadcasts', requireAdmin, async (req, res) => {
   const { title, body, channel = 'whatsapp', segment = 'all' } = req.body;
   if (!title?.trim() || !body?.trim()) return res.status(400).json({ error: 'title and body required' });
-  let count = 0;
+
+  // Build recipient list
+  let users = [];
   if (segment === 'active') {
-    count = db.prepare("SELECT COUNT(*) as c FROM subscriptions WHERE status='active'").get().c;
+    users = db.prepare(`
+      SELECT DISTINCT u.phone, u.email FROM users u
+      JOIN subscriptions s ON s.user_id = u.id
+      WHERE s.status='active' AND u.is_admin=0 AND (u.phone IS NOT NULL OR u.email IS NOT NULL)
+    `).all();
+  } else if (segment === 'inactive') {
+    users = db.prepare(`
+      SELECT u.phone, u.email FROM users u
+      WHERE u.is_admin=0 AND (u.phone IS NOT NULL OR u.email IS NOT NULL)
+        AND u.id NOT IN (SELECT user_id FROM subscriptions WHERE status='active')
+    `).all();
   } else {
-    count = db.prepare("SELECT COUNT(*) as c FROM users WHERE is_admin=0").get().c;
+    users = db.prepare(
+      "SELECT phone, email FROM users WHERE is_admin=0 AND (phone IS NOT NULL OR email IS NOT NULL)"
+    ).all();
   }
+
   const now = new Date().toISOString();
   const r = db.prepare(
     'INSERT INTO comms_broadcasts (title, body, channel, segment, recipient_count, status, sent_at, created_by) VALUES (?,?,?,?,?,?,?,?)'
-  ).run(title.trim(), body.trim(), channel, segment, count, 'sent', now, req.user?.name || 'Admin');
-  res.status(201).json({ id: r.lastInsertRowid, title: title.trim(), body: body.trim(), channel, segment, recipient_count: count, status: 'sent', sent_at: now, created_at: now });
+  ).run(title.trim(), body.trim(), channel, segment, users.length, 'sent', now, req.user?.name || 'Admin');
+
+  // Fire-and-forget delivery (don't block the response)
+  const recipients = users.map(u => ({
+    to:      channel === 'email' ? u.email : u.phone,
+    subject: title.trim(),
+  })).filter(r => r.to);
+
+  if (recipients.length > 0) {
+    sendBroadcast({ channel, body: body.trim(), recipients })
+      .catch(err => console.warn('[comms] broadcast error:', err.message));
+  }
+
+  res.status(201).json({
+    id: r.lastInsertRowid, title: title.trim(), body: body.trim(),
+    channel, segment, recipient_count: users.length, status: 'sent', sent_at: now, created_at: now,
+  });
 });
 
 // ── Comms: Team ───────────────────────────────────────────────────

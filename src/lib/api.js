@@ -168,6 +168,7 @@ export const api = {
   adminDeleteBanner:  (id)     => request(`/admin/banners/${id}`, { method: 'DELETE' }),
 
   // Comms
+  adminCommsStatus:        ()          => request('/admin/comms/status'),
   adminCommsConversations: ()          => request('/admin/comms/conversations'),
   adminCommsMessages:      (id)        => request(`/admin/comms/conversations/${id}`),
   adminCommsSend:          (id, body)  => request(`/admin/comms/conversations/${id}/messages`, { method: 'POST', body: { body } }),

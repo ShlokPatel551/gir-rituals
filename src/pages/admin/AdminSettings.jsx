@@ -55,6 +55,7 @@ const ROLE_DESCRIPTIONS = {
 const TABS = [
   { key: "accounts",  label: "Admin accounts" },
   { key: "twofa",     label: "2FA Security" },
+  { key: "comms",     label: "Comms channels" },
   { key: "whatsapp",  label: "WhatsApp API" },
   { key: "sms",       label: "SMS gateway" },
   { key: "gst",       label: "GST rates" },
@@ -176,6 +177,9 @@ function AdminSettings() {
   const [saving,          setSaving]          = useState(false);
   const [savedTab,        setSavedTab]        = useState(null);
 
+  const [commsStatus, setCommsStatus] = useState(null);
+  const [msg91Form,   setMsg91Form]   = useState({ msg91_auth_key:"", msg91_whatsapp_number:"" });
+
   const [waForm,  setWaForm]  = useState({ twilio_account_sid:"", twilio_auth_token:"", twilio_whatsapp_from:"" });
   const [smsForm, setSmsForm] = useState({ twilio_sms_from:"" });
   const [gstForm, setGstForm] = useState({ gst_cgst:"9", gst_sgst:"9", gst_igst:"18" });
@@ -201,6 +205,7 @@ function AdminSettings() {
   useEffect(() => {
     api.adminSettings()
       .then(s => {
+        setMsg91Form({ msg91_auth_key: s.msg91_auth_key || "", msg91_whatsapp_number: s.msg91_whatsapp_number || "" });
         setWaForm({ twilio_account_sid: s.twilio_account_sid || "", twilio_auth_token: s.twilio_auth_token || "", twilio_whatsapp_from: s.twilio_whatsapp_from || "" });
         setSmsForm({ twilio_sms_from: s.twilio_sms_from || "" });
         setGstForm({ gst_cgst: s.gst_cgst || "9", gst_sgst: s.gst_sgst || "9", gst_igst: s.gst_igst || "18" });
@@ -208,6 +213,7 @@ function AdminSettings() {
       })
       .catch(() => {})
       .finally(() => setSettingsLoading(false));
+    api.adminCommsStatus().then(setCommsStatus).catch(() => {});
   }, []);
 
   async function saveTab(tabKey, data) {
@@ -495,6 +501,110 @@ function AdminSettings() {
                 <div className="as-twofa-info-row">
                   <span className="material-symbols-outlined">lock_clock</span>
                   <div><p className="as-twofa-info-title">RFC 6238 TOTP standard</p><p className="as-twofa-info-body">Industry-standard HMAC-SHA1 time-based OTP. Codes are computed locally — no server roundtrip needed.</p></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Comms Channels tab ── */}
+          {activeTab === "comms" && (
+            <div>
+              <div style={{ marginBottom:"1.5rem" }}>
+                <h3 style={{ margin:"0 0 4px",fontSize:"1.05rem",fontWeight:700 }}>Comms Channel Status</h3>
+                <p style={{ margin:0,color:"#6b7280",fontSize:"0.85rem" }}>Live channel connectivity and webhook URLs for inbound messages.</p>
+              </div>
+
+              {/* Channel status cards */}
+              <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:"0.875rem",marginBottom:"1.5rem" }}>
+                {[
+                  { key:"whatsapp", label:"WhatsApp",  icon:"forum"      },
+                  { key:"sms",      label:"SMS",        icon:"sms"        },
+                  { key:"email",    label:"Email",      icon:"mail"       },
+                ].map(ch => {
+                  const status = commsStatus?.channels?.[ch.key] || "disabled";
+                  const ok     = status !== "disabled";
+                  return (
+                    <div key={ch.key} style={{ padding:"1rem",borderRadius:12,border:`1px solid ${ok?"#86efac":"#e5e7eb"}`,background:ok?"#f0fdf4":"#f9fafb",display:"flex",alignItems:"center",gap:"0.75rem" }}>
+                      <span className="material-symbols-outlined" style={{ fontSize:24,color:ok?"#16a34a":"#9ca3af",fontVariationSettings:"'FILL' 1" }}>{ch.icon}</span>
+                      <div>
+                        <p style={{ margin:"0 0 2px",fontWeight:700,fontSize:"0.875rem",color:ok?"#166534":"#374151" }}>{ch.label}</p>
+                        <p style={{ margin:0,fontSize:"0.75rem",color:ok?"#16a34a":"#9ca3af",fontWeight:600 }}>{ok ? status.toUpperCase() : "Not configured"}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* MSG91 config */}
+              <div style={{ ...sectionCard,marginBottom:"1.25rem" }}>
+                <h4 style={{ margin:"0 0 0.875rem",fontSize:"0.9rem",fontWeight:700 }}>MSG91 — WhatsApp (India)</h4>
+                <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:"1rem" }}>
+                  <div>
+                    <label style={labelStyle}>Auth Key</label>
+                    <input style={fieldStyle} type="password" value={msg91Form.msg91_auth_key}
+                      placeholder={msg91Form.msg91_auth_key ? "Key saved (hidden)" : "your-msg91-auth-key"}
+                      onChange={e => setMsg91Form(f=>({...f,msg91_auth_key:e.target.value}))} />
+                    <p style={{ fontSize:"0.75rem",color:"#9ca3af",marginTop:4 }}>msg91.com → API → Auth Key</p>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>WhatsApp Number</label>
+                    <input style={fieldStyle} value={msg91Form.msg91_whatsapp_number}
+                      placeholder="+91XXXXXXXXXX"
+                      onChange={e => setMsg91Form(f=>({...f,msg91_whatsapp_number:e.target.value}))} />
+                    <p style={{ fontSize:"0.75rem",color:"#9ca3af",marginTop:4 }}>Your approved WhatsApp Business number (E.164)</p>
+                  </div>
+                </div>
+                <div style={{ display:"flex",justifyContent:"flex-end",marginTop:"0.875rem" }}>
+                  <SaveBtn loading={saving} saved={savedTab==="comms"} onClick={() => saveTab("comms", msg91Form)} />
+                </div>
+              </div>
+
+              {/* Webhook URLs */}
+              <div style={{ ...sectionCard,marginBottom:"1.25rem" }}>
+                <h4 style={{ margin:"0 0 0.875rem",fontSize:"0.9rem",fontWeight:700 }}>Inbound Webhook URLs</h4>
+                <p style={{ margin:"0 0 1rem",fontSize:"0.85rem",color:"#6b7280",lineHeight:1.6 }}>
+                  Paste these into your provider's dashboard so customer replies are routed to your inbox.
+                  In development, expose your server via <strong>ngrok</strong> first.
+                </p>
+                {commsStatus?.webhooks ? (
+                  <div style={{ display:"flex",flexDirection:"column",gap:"0.625rem" }}>
+                    {Object.entries(commsStatus.webhooks).map(([name, url]) => (
+                      <div key={name} style={{ display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.625rem 0.875rem",background:"#f9fafb",borderRadius:8,border:"1px solid #e5e7eb" }}>
+                        <span style={{ fontSize:"0.75rem",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.06em",color:"#6b7280",width:72,flexShrink:0 }}>{name}</span>
+                        <code style={{ flex:1,fontSize:"0.78rem",color:"#374151",wordBreak:"break-all" }}>{url}</code>
+                        <button type="button"
+                          onClick={() => navigator.clipboard?.writeText(url)}
+                          style={{ border:"none",background:"none",cursor:"pointer",padding:"2px 6px",color:"#9ca3af",flexShrink:0 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize:16 }}>content_copy</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : <p style={{ color:"#9ca3af",fontSize:"0.85rem" }}>Loading…</p>}
+              </div>
+
+              {/* Email IMAP status */}
+              <div style={{ ...sectionCard,background:commsStatus?.imap?.enabled?"#f0fdf4":"#fffbeb",borderColor:commsStatus?.imap?.enabled?"#86efac":"#fde68a" }}>
+                <div style={{ display:"flex",gap:"0.75rem",alignItems:"flex-start" }}>
+                  <span className="material-symbols-outlined" style={{ color:commsStatus?.imap?.enabled?"#16a34a":"#b45309",marginTop:2,fontVariationSettings:"'FILL' 1" }}>
+                    {commsStatus?.imap?.enabled ? "inbox" : "warning"}
+                  </span>
+                  <div>
+                    <p style={{ margin:"0 0 4px",fontWeight:700,fontSize:"0.875rem",color:commsStatus?.imap?.enabled?"#166534":"#92400e" }}>
+                      Email Inbound (IMAP polling) — {commsStatus?.imap?.enabled ? "Active" : "Disabled"}
+                    </p>
+                    {commsStatus?.imap?.enabled ? (
+                      <p style={{ margin:0,fontSize:"0.82rem",color:"#166534",lineHeight:1.6 }}>
+                        Polling <strong>{commsStatus.imap.host}</strong> as <strong>{commsStatus.imap.user}</strong> every 30 seconds.
+                        Customer replies land in your Comms inbox automatically.
+                      </p>
+                    ) : (
+                      <p style={{ margin:0,fontSize:"0.82rem",color:"#78350f",lineHeight:1.6 }}>
+                        Set <code>SMTP_USER</code> and <code>SMTP_PASS</code> (Gmail App Password) in your .env to enable email receive.
+                        Configure email send in the <button type="button" onClick={() => setActiveTab("whatsapp")} style={{ background:"none",border:"none",color:"#b45309",fontWeight:600,cursor:"pointer",textDecoration:"underline",padding:0 }}>WhatsApp API tab</button>.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
